@@ -54,32 +54,32 @@ subprojects {
 	}
 }
 
-project(":member-module") {
+project(":member") {
 	dependencies {
-		implementation(project(":common-module"))
+		implementation(project(":common"))
 	}
 }
 
-project(":payment-module") {
+project(":payment") {
 	dependencies {
-		implementation(project(":common-module"))
+		implementation(project(":common"))
 	}
 }
 
-project(":product-module") {
+project(":product") {
 	dependencies {
-		implementation(project(":common-module"))
+		implementation(project(":common"))
 	}
 }
 
-project(":stock-module") {
+project(":stock") {
 	dependencies {
-		implementation(project(":common-module"))
+		implementation(project(":common"))
 	}
 }
 
-project(":member-module") {
+project(":member") {
 	dependencies {
-		implementation(project(":common-module"))
+		implementation(project(":common"))
 	}
 }
