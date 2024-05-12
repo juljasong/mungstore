@@ -1,4 +1,4 @@
-package com.mung.common;
+package com.mung.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,10 +6,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 //@EnableCaching
 //@EnableJpaAuditing
-public class CommonApplication {
+public class ApiApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(CommonApplication.class, args);
+        SpringApplication.run(ApiApplication.class, args);
     }
 
 //    @Bean

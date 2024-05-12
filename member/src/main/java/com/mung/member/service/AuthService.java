@@ -1,8 +1,8 @@
 package com.mung.member.service;
 
-import com.mung.common.domain.Role;
-import com.mung.common.domain.Address;
-import com.mung.common.domain.Member;
+import com.mung.member.domain.Role;
+import com.mung.member.domain.Address;
+import com.mung.member.domain.Member;
 import com.mung.member.exception.AlreadyExistsEmailException;
 import com.mung.member.repository.MemberRepository;
 import com.mung.member.request.Signup;

@@ -1,7 +1,12 @@
 dependencies {
     implementation project(':common')
+
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     testImplementation 'org.springframework.security:spring-security-test'
+}
+
+bootJar {
+    enabled = false
 }

@@ -1,6 +1,6 @@
 package com.mung.member.repository;
 
-import com.mung.common.domain.Member;
+import com.mung.member.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

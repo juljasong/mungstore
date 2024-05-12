@@ -1,7 +1,9 @@
 rootProject.name = 'mungstore'
 
+include 'api'
 include 'common'
-include 'payment'
-include 'product'
 include 'member'
+include 'payment'
+include 'order'
+include 'product'
 include 'stock'
