@@ -2,8 +2,8 @@ package com.mung.api.config.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mung.api.config.auth.PrincipalDetails;
+import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.Member;
-import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,15 +17,15 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
-import java.util.Date;
 
 @Slf4j
 @RequiredArgsConstructor
+@Deprecated
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
 
-    private final JwtConfig jwtConfig;
+    private final JwtUtil jwtUtil;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -45,15 +45,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         PrincipalDetails principalDetails = (PrincipalDetails) authResult.getPrincipal();
-        
-        String jws = Jwts.builder()
-                .subject("jwt")
-                .claim("id", principalDetails.getMemberId())
-                .expiration(new Date(System.currentTimeMillis() + (1000 * 60 * 10))) // 10분
-                .signWith(jwtConfig.getKeyFromBase64EncodedKey(jwtConfig.key))
-                .compact();
-
-        response.addHeader("Authorization", "Bearer " + jws);
+        response.addHeader("Authorization", "Bearer " + jwtUtil.createAccessToken(principalDetails.getMemberId()));
     }
 
 }

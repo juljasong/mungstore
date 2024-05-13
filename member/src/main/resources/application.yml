@@ -3,3 +3,9 @@
 #    host: localhost
 #    port: 6379
 
+#jwt:
+#  token:
+#    key: "/VLfdrwEn0MZScSqq6En7NMOW9rF7SQHN7LiWGCG21g="
+#    access-expiration-time: 600000
+#    refresh-expiration-time: 86400000
+

@@ -1,14 +1,14 @@
 package com.mung.api.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mung.api.config.jwt.JwtAuthenticationFilter;
 import com.mung.api.config.jwt.JwtAuthorizationFilter;
-import com.mung.api.config.jwt.JwtConfig;
+import com.mung.member.config.JwtUtil;
 import com.mung.api.config.auth.PrincipalDetailsService;
 import com.mung.api.config.handler.Http401Handler;
 import com.mung.api.config.handler.Http403Handler;
 import com.mung.member.domain.Role;
 import com.mung.member.repository.MemberRepository;
+import com.mung.member.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +30,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SpringSecurityConfig {
 
     private final CorsConfig corsConfig;
-    private final JwtConfig jwtConfig;
+    private final JwtUtil jwtUtil;
     private final PrincipalDetailsService principalDetailsService;
     private final ObjectMapper objectMapper;
     private final MemberRepository memberRepository;
@@ -46,11 +46,11 @@ public class SpringSecurityConfig {
                 )
 
                 .addFilter(corsConfig.corsFilter())
-                .addFilter(new JwtAuthenticationFilter(authenticationManager(), jwtConfig))
-                .addFilter(new JwtAuthorizationFilter(authenticationManager(), memberRepository, jwtConfig))
+                //.addFilter(new JwtAuthenticationFilter(authenticationManager(), jwtConfig))
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), memberRepository, jwtUtil))
 
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/main","/auth/signup/**").permitAll()
+                        .requestMatchers("/main","/auth/login","/auth/signup/**").permitAll()
                         //.requestMatchers("/user").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') AND hasAuthority('WRITE')"))
                         .requestMatchers("/user/**").hasAnyRole(Role.USER.name(), Role.ADMIN.name())
                         .requestMatchers("/comp/**").hasAnyRole(Role.COMP.name(), Role.ADMIN.name())
