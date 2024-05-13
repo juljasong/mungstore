@@ -53,33 +53,3 @@ subprojects {
 		useJUnitPlatform()
 	}
 }
-
-project(":member") {
-	dependencies {
-		implementation(project(":common"))
-	}
-}
-
-project(":payment") {
-	dependencies {
-		implementation(project(":common"))
-	}
-}
-
-project(":product") {
-	dependencies {
-		implementation(project(":common"))
-	}
-}
-
-project(":stock") {
-	dependencies {
-		implementation(project(":common"))
-	}
-}
-
-project(":member") {
-	dependencies {
-		implementation(project(":common"))
-	}
-}

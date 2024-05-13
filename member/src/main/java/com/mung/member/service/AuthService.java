@@ -1,10 +1,13 @@
 package com.mung.member.service;
 
-import com.mung.common.domain.Role;
-import com.mung.common.domain.Address;
-import com.mung.common.domain.Member;
+import com.mung.member.config.JwtUtil;
+import com.mung.member.domain.Role;
+import com.mung.member.domain.Address;
+import com.mung.member.domain.Member;
 import com.mung.member.exception.AlreadyExistsEmailException;
+import com.mung.member.exception.MemberNotFoundException;
 import com.mung.member.repository.MemberRepository;
+import com.mung.member.request.Login;
 import com.mung.member.request.Signup;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +22,9 @@ import java.util.Optional;
 public class AuthService {
 
     private final MemberRepository memberRepository;
+
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final JwtUtil jwtUtil;
 
     public String signup(Signup signup, String role) {
 
@@ -40,4 +45,17 @@ public class AuthService {
 
         return "ok";
     }
+
+    public String login(Login login) {
+        Member member = memberRepository.findByEmail(login.getEmail())
+                .orElseThrow(MemberNotFoundException::new);
+
+        if(!bCryptPasswordEncoder.matches(login.getPassword(), member.getPassword())) {
+            throw new MemberNotFoundException();
+        }
+
+        jwtUtil.createRefreshToken(member.getId());
+        return jwtUtil.createAccessToken(member.getId());
+    }
+
 }
