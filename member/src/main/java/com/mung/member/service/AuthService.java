@@ -1,10 +1,12 @@
 package com.mung.member.service;
 
 import com.mung.member.config.JwtUtil;
+import com.mung.member.domain.LoginLog;
 import com.mung.member.domain.Role;
 import com.mung.member.domain.Address;
 import com.mung.member.domain.Member;
 import com.mung.member.exception.*;
+import com.mung.member.repository.LoginLogRepository;
 import com.mung.member.repository.MemberRepository;
 import com.mung.member.request.Login;
 import com.mung.member.request.Signup;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final MemberRepository memberRepository;
+    private final LoginLogRepository loginLogRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtUtil jwtUtil;
 
@@ -41,28 +44,47 @@ public class AuthService {
     }
 
     public String login(Login login) {
-        Member member = memberRepository.findByEmail(login.getEmail())
-                .orElseThrow(MemberNotFoundException::new);
+        boolean isSuccess = false;
+        try {
+            Member member = memberRepository.findByEmail(login.getEmail())
+                    .orElseThrow(MemberNotFoundException::new);
+            if (member.isLocked()) {
+                throw new LockedAccount();
+            }
 
-        if(member.isLocked()) {
-            throw new LockedAccount();
+            if (!bCryptPasswordEncoder.matches(login.getPassword(), member.getPassword())) {
+                member = loginFail(member);
+                throw new MemberNotFoundException();
+            }
+
+            isSuccess = true;
+            return loginSuccess(member);
+        } finally {
+            logLogin(login.getEmail(), isSuccess);
         }
+    }
 
-        if(!bCryptPasswordEncoder.matches(login.getPassword(), member.getPassword())) {
-            loginFail(member);
-            throw new MemberNotFoundException();
-        }
-
+    private String loginSuccess(Member member) {
         member.resetLoginFailCount();
+        memberRepository.save(member);
+
         jwtUtil.createRefreshToken(member.getId());
         return jwtUtil.createAccessToken(member.getId());
     }
 
-    private void loginFail(Member member) {
+    private void logLogin(String email, boolean isSuccess) {
+        loginLogRepository.save(LoginLog.builder()
+                .email(email)
+                .isSuccess(isSuccess)
+                .build());
+    }
+
+    private Member loginFail(Member member) {
         if (member.addLoginFailCount() > 5) {
             member.lockAccount();
         }
         memberRepository.save(member);
+        return member;
     }
 
     private void validatePassword(String password) {

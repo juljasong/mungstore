@@ -32,5 +32,4 @@ public class AuthController {
                 .message("ok")
                 .build();
     }
-
 }

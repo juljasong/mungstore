@@ -1,7 +1,6 @@
 package com.mung.member.config;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwe;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -16,7 +15,6 @@ import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -27,7 +25,7 @@ public class JwtUtil {
     private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${jwt.token.key}")
-    private String key = "/VLfdrwEn0MZScSqq6En7NMOW9rF7SQHN7LiWGCG21g=";
+    private String key;
 
     @Value("${jwt.token.access-expiration-time}")
     private Long accessExpirationTime;
@@ -79,7 +77,6 @@ public class JwtUtil {
     }
 
     public boolean hasRefreshToken(Long memberId) {
-        System.out.println("-=====memberId = " + memberId);
         ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
         String refreshToken = valueOperations.get("rt-" + memberId);
         return StringUtils.hasText(refreshToken);
