@@ -5,6 +5,7 @@ import com.mung.member.domain.Role;
 import com.mung.member.domain.Address;
 import com.mung.member.domain.Member;
 import com.mung.member.exception.AlreadyExistsEmailException;
+import com.mung.member.exception.AlreadyExistsTelException;
 import com.mung.member.exception.InvalidPasswordException;
 import com.mung.member.exception.MemberNotFoundException;
 import com.mung.member.repository.MemberRepository;
@@ -14,10 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 @Slf4j
@@ -31,11 +28,7 @@ public class AuthService {
     public String signup(Signup signup, String role) {
 
         validatePassword(signup.getPassword());
-
-        Optional<Member> memberOptional = memberRepository.findByEmail(signup.getEmail());
-        if (memberOptional.isPresent()) {
-            throw new AlreadyExistsEmailException();
-        }
+        checkDuplicateEmailAndTel(signup);
 
         Member member = Member.builder()
                 .email(signup.getEmail())
@@ -68,6 +61,16 @@ public class AuthService {
 
         if (!password.matches(regExp)) {
             throw new InvalidPasswordException();
+        }
+    }
+
+    private void checkDuplicateEmailAndTel(Signup signup) {
+        if (memberRepository.findByEmail(signup.getEmail()).isPresent()) {
+            throw new AlreadyExistsEmailException();
+        }
+
+        if (memberRepository.findByTel(signup.getTel()).isPresent()) {
+            throw new AlreadyExistsTelException();
         }
     }
 
