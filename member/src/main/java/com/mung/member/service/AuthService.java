@@ -4,10 +4,7 @@ import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.Role;
 import com.mung.member.domain.Address;
 import com.mung.member.domain.Member;
-import com.mung.member.exception.AlreadyExistsEmailException;
-import com.mung.member.exception.AlreadyExistsTelException;
-import com.mung.member.exception.InvalidPasswordException;
-import com.mung.member.exception.MemberNotFoundException;
+import com.mung.member.exception.*;
 import com.mung.member.repository.MemberRepository;
 import com.mung.member.request.Login;
 import com.mung.member.request.Signup;
@@ -47,12 +44,25 @@ public class AuthService {
         Member member = memberRepository.findByEmail(login.getEmail())
                 .orElseThrow(MemberNotFoundException::new);
 
+        if(member.isLocked()) {
+            throw new LockedAccount();
+        }
+
         if(!bCryptPasswordEncoder.matches(login.getPassword(), member.getPassword())) {
+            loginFail(member);
             throw new MemberNotFoundException();
         }
 
+        member.resetLoginFailCount();
         jwtUtil.createRefreshToken(member.getId());
         return jwtUtil.createAccessToken(member.getId());
+    }
+
+    private void loginFail(Member member) {
+        if (member.addLoginFailCount() > 5) {
+            member.lockAccount();
+        }
+        memberRepository.save(member);
     }
 
     private void validatePassword(String password) {
