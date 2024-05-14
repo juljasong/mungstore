@@ -64,6 +64,11 @@ public class AuthService {
         }
     }
 
+    public void logout(String authorization) {
+        String jwt = authorization.replace("Bearer ", "");
+        jwtUtil.removeRefreshToken(jwt);
+    }
+
     private String loginSuccess(Member member) {
         member.resetLoginFailCount();
         memberRepository.save(member);
@@ -72,19 +77,19 @@ public class AuthService {
         return jwtUtil.createAccessToken(member.getId());
     }
 
-    private void logLogin(String email, boolean isSuccess) {
-        loginLogRepository.save(LoginLog.builder()
-                .email(email)
-                .isSuccess(isSuccess)
-                .build());
-    }
-
     private Member loginFail(Member member) {
         if (member.addLoginFailCount() > 5) {
             member.lockAccount();
         }
         memberRepository.save(member);
         return member;
+    }
+
+    private void logLogin(String email, boolean isSuccess) {
+        loginLogRepository.save(LoginLog.builder()
+                .email(email)
+                .isSuccess(isSuccess)
+                .build());
     }
 
     private void validatePassword(String password) {

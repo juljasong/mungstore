@@ -50,6 +50,15 @@ public class JwtUtil {
                 .parseSignedClaims(jwtToken);
     }
 
+    public Long getMemberId(String jwtToken) {
+        return Long.valueOf(Jwts.parser()
+                .verifyWith(getKeyFromBase64EncodedKey(key))
+                .build()
+                .parseSignedClaims(jwtToken)
+                .getPayload()
+                    .get("id").toString());
+    }
+
     public String createAccessToken(Long memberId) {
         return Jwts.builder()
                 .subject("access-token")
@@ -80,5 +89,9 @@ public class JwtUtil {
         ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
         String refreshToken = valueOperations.get("rt-" + memberId);
         return StringUtils.hasText(refreshToken);
+    }
+
+    public void removeRefreshToken(String jwtToken) {
+        redisTemplate.delete("rt-" + getMemberId(jwtToken));
     }
 }
