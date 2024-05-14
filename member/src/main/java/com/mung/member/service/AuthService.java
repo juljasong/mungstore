@@ -5,6 +5,7 @@ import com.mung.member.domain.Role;
 import com.mung.member.domain.Address;
 import com.mung.member.domain.Member;
 import com.mung.member.exception.AlreadyExistsEmailException;
+import com.mung.member.exception.InvalidPasswordException;
 import com.mung.member.exception.MemberNotFoundException;
 import com.mung.member.repository.MemberRepository;
 import com.mung.member.request.Login;
@@ -15,6 +16,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @Slf4j
@@ -22,11 +25,12 @@ import java.util.Optional;
 public class AuthService {
 
     private final MemberRepository memberRepository;
-
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtUtil jwtUtil;
 
     public String signup(Signup signup, String role) {
+
+        validatePassword(signup.getPassword());
 
         Optional<Member> memberOptional = memberRepository.findByEmail(signup.getEmail());
         if (memberOptional.isPresent()) {
@@ -56,6 +60,15 @@ public class AuthService {
 
         jwtUtil.createRefreshToken(member.getId());
         return jwtUtil.createAccessToken(member.getId());
+    }
+
+    private void validatePassword(String password) {
+        // 영문자(대,소문자), 숫자, 특수문자를 포함하여 8-15자 이내
+        String regExp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,15}$";
+
+        if (!password.matches(regExp)) {
+            throw new InvalidPasswordException();
+        }
     }
 
 }
