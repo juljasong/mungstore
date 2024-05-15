@@ -51,9 +51,10 @@ public class SpringSecurityConfig {
                 .addFilter(new JwtAuthorizationFilter(authenticationManager(), memberRepository, jwtUtil))
 
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/main","/auth/login","/auth/signup/**").permitAll()
+                        .requestMatchers("/main","/auth/login","/auth/signup/**", "/password", "/password/**").permitAll()
+                        .requestMatchers( "/","/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         //.requestMatchers("/user").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') AND hasAuthority('WRITE')"))
-                        .requestMatchers("/user/**").hasAnyRole(Role.USER.name(), Role.ADMIN.name())
+                        .requestMatchers("/member/**").hasAnyRole(Role.USER.name(), Role.ADMIN.name())
                         .requestMatchers("/comp/**").hasAnyRole(Role.COMP.name(), Role.ADMIN.name())
                         .requestMatchers("/admin/**").hasAnyRole(Role.ADMIN.name())
                         .anyRequest().authenticated()

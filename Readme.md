@@ -11,12 +11,12 @@
 ### 메인 기술
 ![Static Badge](https://img.shields.io/badge/java%2017-007396?style=for-the-badge&logo=Java&logoColor=white)
 ![Static Badge](https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=Spring&logoColor=white)
-![Static Badge](https://img.shields.io/badge/springboot%203.2.5-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
-![Static Badge](https://img.shields.io/badge/springsecurity-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white)
+![Static Badge](https://img.shields.io/badge/spring%20boot%203.2.5-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![Static Badge](https://img.shields.io/badge/spring%20security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white)
 
 ### 데이터베이스
 ![Static Badge](https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
-![Static Badge](https://img.shields.io/badge/jpa-6DB33F?style=for-the-badge&logo=jpa&logoColor=white)
+![Static Badge](https://img.shields.io/badge/spring%20data%20jpa-6DB33F?style=for-the-badge&logo=jpa&logoColor=white)
 ![Static Badge](https://img.shields.io/badge/qeurydsl-007396?style=for-the-badge&logo=qeurydsl&logoColor=white)
 ![Static Badge](https://img.shields.io/badge/redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
 
@@ -24,6 +24,9 @@
 ![Static Badge](https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![Static Badge](https://img.shields.io/badge/gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white)
 ![Static Badge](https://img.shields.io/badge/swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=white)
+
+![Static Badge](https://img.shields.io/badge/mailgun-F06B66?style=for-the-badge&logo=mailgun&logoColor=white)
+![Static Badge](https://img.shields.io/badge/open%20feign-6DB33F?style=for-the-badge&logo=openfeign&logoColor=white)
 
 ---
 
@@ -36,9 +39,9 @@
   - [x] 로그인 이력 저장
   - [x] 로그인 이후 인증 필요한 요청 토큰 체크
 - [x] 로그아웃
-- [ ] 비밀번호 재설정
-  - [ ] 비밀번호 재설정 url 생성 후 이메일 송신
-  - [ ] 비밀번호 재설정
+- [x] 비밀번호 재설정
+  - [x] 비밀번호 재설정 url 생성 후 이메일 송신
+  - [x] 비밀번호 재설정
 - [ ] 회원 조회
   - [ ] 상세
   - [ ] 리스트(검색)

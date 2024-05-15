@@ -24,5 +24,9 @@ logging.level:
 jwt:
   token:
     key: "/VLfdrwEn0MZScSqq6En7NMOW9rF7SQHN7LiWGCG21g="
-    access-expiration-time: 300000
+    access-expiration-time: 1800000
     refresh-expiration-time: 21600000
+
+feign:
+  okhttp:
+    enable: true

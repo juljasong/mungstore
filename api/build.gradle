@@ -8,6 +8,7 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.1.0'
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 

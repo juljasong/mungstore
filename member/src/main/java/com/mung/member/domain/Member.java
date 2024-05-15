@@ -54,6 +54,12 @@ public class Member extends BaseEntity {
         this.isLocked = false;
     }
 
+    public void resetPassword(String password) {
+        this.password = password;
+        unlockAccount();
+        resetLoginFailCount();
+    }
+
     @Builder
     public Member(String email, String password, String name, String tel, Role role, Address address) {
         this.email = email;
