@@ -4,6 +4,7 @@ import com.mung.common.response.MessageResponse;
 import com.mung.member.request.Login;
 import com.mung.member.request.Signup;
 import com.mung.member.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,4 +34,13 @@ public class AuthController {
                 .build();
     }
 
+    @GetMapping("/auth/logout")
+    public MessageResponse logout(HttpServletRequest request, HttpServletResponse response) {
+        authService.logout(request.getHeader("Authorization"));
+        response.setHeader("Authorization", null);
+
+        return MessageResponse.builder()
+                .message("ok")
+                .build();
+    }
 }

@@ -8,7 +8,6 @@ import com.mung.api.config.handler.Http401Handler;
 import com.mung.api.config.handler.Http403Handler;
 import com.mung.member.domain.Role;
 import com.mung.member.repository.MemberRepository;
-import com.mung.member.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +16,9 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -61,11 +62,6 @@ public class SpringSecurityConfig {
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .accessDeniedHandler(new Http403Handler(objectMapper))
                         .authenticationEntryPoint(new Http401Handler(objectMapper))
-                )
-
-                .logout(logout -> logout
-                        .logoutSuccessUrl("/")
-                        .invalidateHttpSession(true)
                 );
 
         return http.build();
@@ -83,15 +79,15 @@ public class SpringSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-//    @Bean
-//    public WebSecurityCustomizer webSecurityCustomizer() {
-//        return new WebSecurityCustomizer() {
-//            @Override
-//            public void customize(WebSecurity web) {
-//                web.ignoring().requestMatchers("/favicon.ico", "/error")
-//                        .requestMatchers(new AntPathRequestMatcher("/h2-console/**"));
-//            }
-//        };
-//    }
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return new WebSecurityCustomizer() {
+            @Override
+            public void customize(WebSecurity web) {
+                web.ignoring().requestMatchers("/favicon.ico", "/error");
+                        //.requestMatchers(new AntPathRequestMatcher("/h2-console/**"));
+            }
+        };
+    }
 
 }

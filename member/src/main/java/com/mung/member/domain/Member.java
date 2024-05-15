@@ -1,12 +1,14 @@
 package com.mung.member.domain;
 
+import com.mung.common.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member {
+public class Member extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
@@ -27,6 +29,30 @@ public class Member {
 
     @Embedded
     private Address address;
+
+    @ColumnDefault("0")
+    private int loginFailCount;
+
+    @ColumnDefault("false")
+    private boolean isLocked;
+
+    public int addLoginFailCount() {
+        this.loginFailCount += 1;
+        return this.loginFailCount;
+    }
+
+    public void resetLoginFailCount() {
+        this.loginFailCount = 0;
+    }
+
+    public void lockAccount() {
+        this.isLocked = true;
+        this.password = "";
+    }
+
+    public void unlockAccount() {
+        this.isLocked = false;
+    }
 
     @Builder
     public Member(String email, String password, String name, String tel, Role role, Address address) {
