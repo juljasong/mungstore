@@ -19,7 +19,6 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.util.Date;
 
 @Slf4j
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
@@ -44,13 +43,12 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
         String jwtToken = request.getHeader("Authorization").replace("Bearer ", "");
         try {
-            Jws<Claims> claims = jwtUtil.parseJwtToken(jwtToken);
-            Long id = Long.parseLong(claims.getPayload().get("id").toString());
+            Long id = jwtUtil.getMemberId(jwtToken);
 
             authentication(request, response, chain, id);
 
         } catch (ExpiredJwtException e) {
-            Long id = Long.parseLong(e.getClaims().get("id").toString());
+            Long id = Long.parseLong(e.getClaims().getId());
 
             if (jwtUtil.hasRefreshToken(id)) {
                 refreshJwt(response, id);
@@ -58,7 +56,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                 try {
                     authentication(request, response, chain, id);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    log.error(":: JwtAuthorizationFilter.doFilterInternal.authentication :: ", ex);
                 }
 
             } else {
@@ -68,7 +66,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         } catch (JwtException e) {
             throw new Unauthorized();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(":: JwtAuthorizationFilter.doFilterInternal :: ", e);
         }
     }
 
