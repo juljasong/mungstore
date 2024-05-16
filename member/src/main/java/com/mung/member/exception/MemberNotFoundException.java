@@ -14,6 +14,6 @@ public class MemberNotFoundException extends CommonException {
 
     @Override
     public int getStatusCode() {
-        return 200;
+        return 400;
     }
 }
