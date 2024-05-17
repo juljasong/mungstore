@@ -8,6 +8,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -24,9 +25,14 @@ public class JwtUtil {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    private final static String KEY = "/VLfdrwEn0MZScSqq6En7NMOW9rF7SQHN7LiWGCG21g=";
+    private static String jwtKey;
     private final static Long ACCESS_EXPIRATION_TIME = 1800000L; // 30분
     private final static Long REFRESH_EXPIRATION_TIME = 21600000L; // 6시간
+
+    @Value("${jwt.key}")
+    public void setSecretKey(String jwtKey) {
+        JwtUtil.jwtKey = jwtKey;
+    }
 
     public String encodeBase64SecretKey(String secretKey) {
         return Encoders.BASE64.encode(secretKey.getBytes(StandardCharsets.UTF_8));
@@ -40,7 +46,7 @@ public class JwtUtil {
 
     public Jws<Claims> parseJwtToken(String jwtToken) {
         return Jwts.parser()
-                .verifyWith(getKeyFromBase64EncodedKey(KEY))
+                .verifyWith(getKeyFromBase64EncodedKey(jwtKey))
                 .build()
                 .parseSignedClaims(jwtToken);
     }
@@ -48,7 +54,7 @@ public class JwtUtil {
     public Long getMemberId(String jwtToken) {
         System.out.println("jwtToken = " + jwtToken);
         return Long.valueOf(Jwts.parser()
-                .verifyWith(getKeyFromBase64EncodedKey(KEY))
+                .verifyWith(getKeyFromBase64EncodedKey(jwtKey))
                 .build()
                 .parseSignedClaims(jwtToken)
                         .getPayload()
@@ -61,7 +67,7 @@ public class JwtUtil {
                 .id(String.valueOf(memberId))
                 .expiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRATION_TIME))
                 .issuedAt(new Date())
-                .signWith(getKeyFromBase64EncodedKey(KEY))
+                .signWith(getKeyFromBase64EncodedKey(jwtKey))
                 .compact();
     }
 
@@ -71,7 +77,7 @@ public class JwtUtil {
                 .id(String.valueOf(memberId))
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME))
-                .signWith(getKeyFromBase64EncodedKey(KEY))
+                .signWith(getKeyFromBase64EncodedKey(jwtKey))
                 .compact();
 
         ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();

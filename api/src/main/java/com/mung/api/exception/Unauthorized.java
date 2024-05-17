@@ -1,6 +1,7 @@
 package com.mung.api.exception;
 
 import com.mung.common.exception.CommonException;
+import org.springframework.http.HttpStatus;
 
 public class Unauthorized extends CommonException {
 
@@ -16,7 +17,7 @@ public class Unauthorized extends CommonException {
 
     @Override
     public int getStatusCode() {
-        return 401;
+        return HttpStatus.UNAUTHORIZED.value();
     }
 
 }

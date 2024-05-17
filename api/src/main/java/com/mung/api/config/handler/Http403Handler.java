@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
@@ -21,9 +22,9 @@ public class Http403Handler implements AccessDeniedHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
-        log.info("[인증오류] 403");
+        log.error("[인증오류] 접근할 수 없습니다.");
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .code("403")
+                .code(HttpStatus.FORBIDDEN.value())
                 .message("접근할 수 없습니다.")
                 .build();
         response.setCharacterEncoding(StandardCharsets.UTF_8.displayName());

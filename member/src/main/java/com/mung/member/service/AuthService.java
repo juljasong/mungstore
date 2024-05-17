@@ -12,8 +12,9 @@ import com.mung.member.request.Login;
 import com.mung.member.request.Signup;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -22,37 +23,36 @@ public class AuthService {
 
     private final MemberRepository memberRepository;
     private final LoginLogRepository loginLogRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public String signup(Signup signup, String role) {
-
-        validatePassword(signup.getPassword());
+    @Transactional
+    public void signup(Signup signup, String role) {
         checkDuplicateEmailAndTel(signup);
 
         Member member = Member.builder()
                 .email(signup.getEmail())
-                .password(bCryptPasswordEncoder.encode(signup.getPassword()))
+                .password(passwordEncoder.encode(signup.getPassword()))
                 .name(signup.getName())
                 .tel(signup.getTel())
                 .role(role.equals("comp") ? Role.COMP : role.equals("admin") ? Role.ADMIN : Role.USER)
                 .address(new Address(signup.getZipcode(), signup.getCity(), signup.getStreet()))
                 .build();
-            memberRepository.save(member);
 
-        return "ok";
+        memberRepository.save(member);
     }
 
+    @Transactional(noRollbackFor = MemberNotFoundException.class)
     public String login(Login login) {
         boolean isSuccess = false;
         try {
             Member member = memberRepository.findByEmail(login.getEmail())
                     .orElseThrow(MemberNotFoundException::new);
             if (member.isLocked()) {
-                throw new LockedAccount();
+                throw new LockedAccountException();
             }
 
-            if (!bCryptPasswordEncoder.matches(login.getPassword(), member.getPassword())) {
+            if (!passwordEncoder.matches(login.getPassword(), member.getPassword())) {
                 member = loginFail(member);
                 throw new MemberNotFoundException();
             }
@@ -71,7 +71,6 @@ public class AuthService {
 
     private String loginSuccess(Member member) {
         member.resetLoginFailCount();
-        memberRepository.save(member);
 
         jwtUtil.createRefreshToken(member.getId());
         return jwtUtil.createAccessToken(member.getId());
@@ -81,7 +80,7 @@ public class AuthService {
         if (member.addLoginFailCount() > 5) {
             member.lockAccount();
         }
-        memberRepository.save(member);
+
         return member;
     }
 
@@ -90,15 +89,6 @@ public class AuthService {
                 .email(email)
                 .isSuccess(isSuccess)
                 .build());
-    }
-
-    private void validatePassword(String password) {
-        // 영문자(대,소문자), 숫자, 특수문자를 포함하여 8-15자 이내
-        String regExp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,15}$";
-
-        if (!password.matches(regExp)) {
-            throw new InvalidPasswordException();
-        }
     }
 
     private void checkDuplicateEmailAndTel(Signup signup) {

@@ -7,18 +7,25 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 @RequiredArgsConstructor
 public class RedisConfig {
 
+
+    private static String redisHost;
+    private static int redisPort;
+
     @Value("${spring.redis.host}")
-    private String redisHost;
+    private void setRedisHost(String redisHost) {
+        RedisConfig.redisHost = redisHost;
+    }
 
     @Value("${spring.redis.port}")
-    private int redisPort;
+    private void setRedisPort(int redisPort) {
+        RedisConfig.redisPort = redisPort;
+    }
 
     @Bean
     public RedisTemplate<String, String> redisTemplate() {

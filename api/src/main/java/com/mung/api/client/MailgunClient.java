@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Qualifier("mailgun")
 public interface MailgunClient {
 
-    @PostMapping(value = "sandboxa3ec2ce12dc54bae9e7d97432aa76418.mailgun.org/messages", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @PostMapping(value = "sandbox0b61f138c9f94a7fa278f1c33b248389.mailgun.org/messages", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     ResponseEntity<String> sendEmail(@RequestBody SendMailForm form);
 
 }

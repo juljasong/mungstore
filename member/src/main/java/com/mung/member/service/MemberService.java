@@ -28,7 +28,7 @@ public class MemberService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RedisTemplate<String, String> redisTemplate;
 
-    private static final Long uuidExpirationTime = 3600000L;
+    private static final Long UUID_EXPIRATION_TIME = 1000 * 60 * 60L;
 
     public SendMailForm createPasswordResetMail(ResetPasswordEmail resetPasswordEmail) throws Exception {
 
@@ -41,7 +41,7 @@ public class MemberService {
 
         StringBuffer sb = new StringBuffer();
         String text = sb.append("아래 링크를 클릭하여 비밀번호 재설정을 진행해 주십시오.\n\n")
-                .append("http://localhost:8080/member/password/").append(uuid)
+                .append("http://localhost:8080/password/").append(uuid)
                 .toString();
 
         return SendMailForm.builder()
@@ -54,10 +54,10 @@ public class MemberService {
 
     private void setRedisUuid(String uuid, Member member) {
         ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
-        valueOperations.set(RedisPrefix.RESET_PASSWORD_ + uuid, String.valueOf(member.getId()), uuidExpirationTime, TimeUnit.MILLISECONDS);
+        valueOperations.set(RedisPrefix.RESET_PASSWORD_ + uuid, String.valueOf(member.getId()), UUID_EXPIRATION_TIME, TimeUnit.MILLISECONDS);
     }
 
-    public String resetPassword(String uuid, ResetPassword resetPassword) throws Exception {
+    public void resetPassword(String uuid, ResetPassword resetPassword) throws Exception {
         ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
         String memberId = valueOperations.get(RedisPrefix.RESET_PASSWORD_ + uuid);
 
@@ -72,7 +72,6 @@ public class MemberService {
         memberRepository.save(member);
 
         redisTemplate.delete(RedisPrefix.RESET_PASSWORD_ + uuid);
-
-        return "ok";
     }
+
 }

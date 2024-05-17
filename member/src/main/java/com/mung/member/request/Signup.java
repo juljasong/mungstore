@@ -1,23 +1,44 @@
 package com.mung.member.request;
 
+import com.mung.common.domain.ValidateMessage;
+import com.mung.common.domain.ValidateRegex;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Signup {
 
-    @NotBlank(message = "이메일을 입력해 주세요.")
+    @NotBlank(message = ValidateMessage.MESSAGE.EMPTY_EMAIL)
+    @Pattern(regexp = ValidateRegex.REGEX.VALID_EMAIL
+            , message = ValidateMessage.MESSAGE.VALID_EMAIL)
     private String email;
-    @NotBlank(message = "비밀번호를 입력해 주세요.")
+
+    @NotBlank(message = ValidateMessage.MESSAGE.EMPTY_PASSWORD)
+    @Pattern(regexp = ValidateRegex.REGEX.VALID_PASSWORD
+            , message = ValidateMessage.MESSAGE.VALID_PASSWORD)
     private String password;
-    @NotBlank(message = "성함을 입력해 주세요.")
+
+    @NotBlank(message = ValidateMessage.MESSAGE.EMPTY_NAME)
     private String name;
 
+    @Size(min = 11, max = 11, message = ValidateMessage.MESSAGE.VALID_TEL)
     private String tel;
+
     private String zipcode;
     private String city;
     private String street;
 
+    @Builder
+    public Signup(String email, String password, String name, String tel, String zipcode, String city, String street) {
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.tel = tel;
+        this.zipcode = zipcode;
+        this.city = city;
+        this.street = street;
+    }
 }

@@ -1,17 +1,22 @@
 package com.mung.member.request;
 
+import com.mung.common.domain.ValidateMessage;
+import com.mung.common.domain.ValidateRegex;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.Pattern;
+import lombok.*;
 
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ResetPassword {
 
-    @NotBlank(message = "비밀번호를 입력해 주세요.")
+    @NotBlank(message = ValidateMessage.MESSAGE.EMPTY_PASSWORD)
+    @Pattern(regexp = ValidateRegex.REGEX.VALID_PASSWORD
+            , message = ValidateMessage.MESSAGE.VALID_PASSWORD)
     private String password;
 
+    @Builder
+    public ResetPassword(String password) {
+        this.password = password;
+    }
 }

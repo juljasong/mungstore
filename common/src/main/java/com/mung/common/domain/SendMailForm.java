@@ -2,7 +2,7 @@ package com.mung.common.domain;
 
 import lombok.*;
 
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
 @Builder
@@ -12,3 +12,5 @@ public class SendMailForm {
     private String subject;
     private String text;
 }
+
+

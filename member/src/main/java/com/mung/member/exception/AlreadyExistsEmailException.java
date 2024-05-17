@@ -2,6 +2,7 @@ package com.mung.member.exception;
 
 import com.mung.common.exception.CommonException;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 public class AlreadyExistsEmailException extends CommonException {
@@ -14,6 +15,6 @@ public class AlreadyExistsEmailException extends CommonException {
 
     @Override
     public int getStatusCode() {
-        return 400;
+        return HttpStatus.BAD_REQUEST.value();
     }
 }

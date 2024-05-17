@@ -19,22 +19,18 @@ public class MemberController {
     private final MemberService memberService;
     private final EmailSendService emailSendService;
 
-    @GetMapping("/password")
+    @PostMapping("/password")
     public MessageResponse sendResetPasswordEmail(@RequestBody @Valid ResetPasswordEmail resetPasswordEmail) throws Exception {
-
         SendMailForm sendMailForm = memberService.createPasswordResetMail(resetPasswordEmail);
-        String response = emailSendService.sendEmail(sendMailForm);
+        emailSendService.sendEmail(sendMailForm);
 
-        return MessageResponse.builder()
-                .message(response)
-                .build();
+        return MessageResponse.ofSuccess();
     }
 
     @PostMapping("/password/{uuid}")
-    public MessageResponse sendResetPasswordEmail(@PathVariable String uuid, @RequestBody ResetPassword resetPassword) throws Exception {
-        String result = memberService.resetPassword(uuid, resetPassword);
-        return MessageResponse.builder()
-                .message(result)
-                .build();
+    public MessageResponse resetPassword(@PathVariable String uuid, @RequestBody @Valid ResetPassword resetPassword) throws Exception {
+        memberService.resetPassword(uuid, resetPassword);
+
+        return MessageResponse.ofSuccess();
     }
 }

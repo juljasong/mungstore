@@ -20,9 +20,8 @@ public class AuthController {
 
     @PostMapping("/auth/signup/{role}")
     public MessageResponse signup(@RequestBody @Valid Signup signup, @PathVariable("role") String role) {
-        return MessageResponse.builder()
-                .message(authService.signup(signup, role))
-                .build();
+        authService.signup(signup, role);
+        return MessageResponse.ofSuccess();
     }
 
     @PostMapping("/auth/login")
@@ -39,8 +38,6 @@ public class AuthController {
         authService.logout(request.getHeader("Authorization"));
         response.setHeader("Authorization", null);
 
-        return MessageResponse.builder()
-                .message("ok")
-                .build();
+        return MessageResponse.ofSuccess();
     }
 }

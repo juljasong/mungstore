@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
@@ -23,7 +24,7 @@ public class Http401Handler implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         log.error("[인증오류] 로그인이 필요합니다.");
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .code("401")
+                .code(HttpStatus.UNAUTHORIZED.value())
                 .message("로그인이 필요합니다.")
                 .build();
         response.setCharacterEncoding(StandardCharsets.UTF_8.displayName());

@@ -22,6 +22,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -47,7 +48,6 @@ public class SpringSecurityConfig {
                 )
 
                 .addFilter(corsConfig.corsFilter())
-                //.addFilter(new JwtAuthenticationFilter(authenticationManager(), jwtConfig))
                 .addFilter(new JwtAuthorizationFilter(authenticationManager(), memberRepository, jwtUtil))
 
                 .authorizeHttpRequests(authorize -> authorize
@@ -76,7 +76,7 @@ public class SpringSecurityConfig {
     }
 
     @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -86,7 +86,6 @@ public class SpringSecurityConfig {
             @Override
             public void customize(WebSecurity web) {
                 web.ignoring().requestMatchers("/favicon.ico", "/error");
-                        //.requestMatchers(new AntPathRequestMatcher("/h2-console/**"));
             }
         };
     }

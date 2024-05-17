@@ -18,7 +18,7 @@ import java.util.Map;
 @Getter
 public class ErrorResponse {
 
-    private final String code;
+    private final int code;
     private final String message;
 
     private final Map<String, String> validation;
@@ -28,7 +28,7 @@ public class ErrorResponse {
     }
 
     @Builder
-    public ErrorResponse(String code, String message, Map<String, String> validation) {
+    public ErrorResponse(int code, String message, Map<String, String> validation) {
         this.code = code;
         this.message = message;
         this.validation = validation != null ? validation : new HashMap<>();
