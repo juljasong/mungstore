@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Optional;
 
 @Configuration
 @RequiredArgsConstructor
@@ -57,8 +58,8 @@ public class JwtUtil {
                 .verifyWith(getKeyFromBase64EncodedKey(jwtKey))
                 .build()
                 .parseSignedClaims(jwtToken)
-                        .getPayload()
-                        .getId());
+                .getPayload()
+                .getId());
     }
 
     public String createToken(Long memberId, Long expiration) {
@@ -85,9 +86,14 @@ public class JwtUtil {
         return jwt;
     }
 
-    public boolean hasRefreshToken(Long id) throws BadRequestException {
-        RefreshToken token = refreshTokenRedisRepository.findById(id).orElseGet(() -> null);
-        return token != null;
+    public Optional<AccessToken> checkAccessToken(String jwtToken) {
+        return accessTokenRedisRepository.findById(getMemberId(jwtToken))
+                .filter(t -> t.getAccessToken().equals(jwtToken));
+    }
+
+    public Optional<RefreshToken> checkRefreshToken(String jwtToken) {
+        return refreshTokenRedisRepository.findById(getMemberId(jwtToken))
+                .filter(t -> t.getRefreshToken().equals(jwtToken));
     }
 
     public void removeRefreshToken(String accessToken) throws BadRequestException {

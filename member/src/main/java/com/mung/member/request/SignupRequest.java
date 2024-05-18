@@ -9,7 +9,7 @@ import lombok.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Signup {
+public class SignupRequest {
 
     @NotBlank(message = ValidateMessage.MESSAGE.EMPTY_EMAIL)
     @Pattern(regexp = ValidateRegex.REGEX.VALID_EMAIL
@@ -34,7 +34,7 @@ public class Signup {
     private String role;
 
     @Builder
-    public Signup(String email, String password, String name, String tel, String zipcode, String city, String street, String role) {
+    public SignupRequest(String email, String password, String name, String tel, String zipcode, String city, String street, String role) {
         this.email = email;
         this.password = password;
         this.name = name;

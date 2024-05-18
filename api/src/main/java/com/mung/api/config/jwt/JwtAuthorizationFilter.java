@@ -2,10 +2,10 @@ package com.mung.api.config.jwt;
 
 import com.mung.api.config.auth.PrincipalDetails;
 import com.mung.member.config.JwtUtil;
+import com.mung.member.domain.AccessToken;
 import com.mung.member.domain.Member;
-import com.mung.api.exception.Unauthorized;
+import com.mung.member.exception.Unauthorized;
 import com.mung.member.repository.MemberRepository;
-import io.jsonwebtoken.*;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,49 +43,25 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
         String jwtToken = request.getHeader("Authorization").replace("Bearer ", "");
         try {
-            Long id = jwtUtil.getMemberId(jwtToken);
+            AccessToken accessToken = jwtUtil.checkAccessToken(jwtToken)
+                    .orElseThrow(Unauthorized::new);
 
-            authentication(request, response, chain, id);
+            Member member = memberRepository.findById(accessToken.getMemberId())
+                    .orElseThrow(Unauthorized::new);
 
-        } catch (ExpiredJwtException e) {
-            Long id = Long.parseLong(e.getClaims().getId());
+            authorization(member);
 
-            if (jwtUtil.hasRefreshToken(id)) {
-                refreshJwt(response, id);
-
-                try {
-                    authentication(request, response, chain, id);
-                } catch (Exception ex) {
-                    log.error(":: JwtAuthorizationFilter.doFilterInternal.authentication :: ", ex);
-                }
-
-            } else {
-                log.error(":: JwtAuthorizationFilter.doFilterInternal :: ", e);
-                throw new Unauthorized();
-            }
-
-        } catch (JwtException e) {
-            log.error(":: JwtAuthorizationFilter.doFilterInternal :: ", e);
-            throw new Unauthorized();
         } catch (Exception e) {
             log.error(":: JwtAuthorizationFilter.doFilterInternal :: ", e);
+        } finally {
+            chain.doFilter(request, response);
         }
     }
 
-    private void authentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Long id) throws Exception {
-        Member member = memberRepository.findById(id)
-                .orElseThrow(() -> new Exception("존재하지 않는 회원입니다."));
-
+    private static void authorization(Member member) {
         PrincipalDetails principalDetails = new PrincipalDetails(member);
         Authentication authentication = new UsernamePasswordAuthenticationToken(principalDetails, null, principalDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        chain.doFilter(request, response);
-    }
-
-    private void refreshJwt(HttpServletResponse response, Long id) {
-        String accessToken = jwtUtil.createToken(id, JwtUtil.ACCESS_EXPIRATION_TIME);
-        response.addHeader("Authorization", "Bearer " + accessToken);
     }
 
 }

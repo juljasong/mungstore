@@ -8,7 +8,7 @@ import lombok.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Login {
+public class LoginRequest {
 
     @NotBlank(message = ValidateMessage.MESSAGE.EMPTY_EMAIL)
     @Pattern(regexp = ValidateRegex.REGEX.VALID_EMAIL
@@ -19,7 +19,7 @@ public class Login {
     private String password;
 
     @Builder
-    public Login(String email, String password) {
+    public LoginRequest(String email, String password) {
         this.email = email;
         this.password = password;
     }

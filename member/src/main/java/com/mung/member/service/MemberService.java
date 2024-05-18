@@ -6,8 +6,8 @@ import com.mung.member.domain.ResetPasswordUuid;
 import com.mung.member.exception.IncorrectEmailAndTelException;
 import com.mung.member.repository.MemberRepository;
 import com.mung.member.repository.ResetPasswordUuidRedisRepository;
-import com.mung.member.request.ResetPassword;
-import com.mung.member.request.ResetPasswordEmail;
+import com.mung.member.request.ResetPasswordRequest;
+import com.mung.member.request.ResetPasswordEmailRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
@@ -26,9 +26,9 @@ public class MemberService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final ResetPasswordUuidRedisRepository resetPasswordUuidRedisRepository;
 
-    public SendMailForm createPasswordResetMail(ResetPasswordEmail resetPasswordEmail) throws Exception {
+    public SendMailForm createPasswordResetMail(ResetPasswordEmailRequest resetPasswordEmailRequest) throws Exception {
 
-        Member member = memberRepository.findByEmailAndTel(resetPasswordEmail.getEmail(), resetPasswordEmail.getTel())
+        Member member = memberRepository.findByEmailAndTel(resetPasswordEmailRequest.getEmail(), resetPasswordEmailRequest.getTel())
                 .orElseThrow(IncorrectEmailAndTelException::new);
 
         String uuid = UUID.randomUUID().toString();
@@ -56,14 +56,14 @@ public class MemberService {
     }
 
     @Transactional
-    public void resetPassword(String uuid, ResetPassword resetPassword) throws Exception {
+    public void resetPassword(String uuid, ResetPasswordRequest resetPasswordRequest) throws Exception {
         ResetPasswordUuid resetPasswordUuid = resetPasswordUuidRedisRepository.findById(uuid)
                 .orElseThrow(BadRequestException::new);
 
         Member member = memberRepository.findById(resetPasswordUuid.getMemberId())
                 .orElseThrow(() -> new Exception("존재하지 않는 회원입니다."));
 
-        member.resetPassword(bCryptPasswordEncoder.encode(resetPassword.getPassword()));
+        member.resetPassword(bCryptPasswordEncoder.encode(resetPasswordRequest.getPassword()));
         resetPasswordUuidRedisRepository.delete(resetPasswordUuid);
     }
 

@@ -8,7 +8,7 @@ import lombok.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ResetPassword {
+public class ResetPasswordRequest {
 
     @NotBlank(message = ValidateMessage.MESSAGE.EMPTY_PASSWORD)
     @Pattern(regexp = ValidateRegex.REGEX.VALID_PASSWORD
@@ -16,7 +16,7 @@ public class ResetPassword {
     private String password;
 
     @Builder
-    public ResetPassword(String password) {
+    public ResetPasswordRequest(String password) {
         this.password = password;
     }
 }

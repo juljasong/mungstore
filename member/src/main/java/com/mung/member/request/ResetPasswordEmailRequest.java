@@ -9,7 +9,7 @@ import lombok.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ResetPasswordEmail {
+public class ResetPasswordEmailRequest {
 
     @NotBlank(message = ValidateMessage.MESSAGE.EMPTY_EMAIL)
     @Pattern(regexp = ValidateRegex.REGEX.VALID_EMAIL
@@ -21,7 +21,7 @@ public class ResetPasswordEmail {
     private String tel;
 
     @Builder
-    public ResetPasswordEmail(String email, String tel) {
+    public ResetPasswordEmailRequest(String email, String tel) {
         this.email = email;
         this.tel = tel;
     }
