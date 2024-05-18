@@ -12,6 +12,7 @@ import com.mung.member.request.Login;
 import com.mung.member.request.Signup;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +28,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public void signup(Signup signup, String role) {
+    public void signup(Signup signup) {
         checkDuplicateEmailAndTel(signup);
 
         Member member = Member.builder()
@@ -35,7 +36,7 @@ public class AuthService {
                 .password(passwordEncoder.encode(signup.getPassword()))
                 .name(signup.getName())
                 .tel(signup.getTel())
-                .role(role.equals("comp") ? Role.COMP : role.equals("admin") ? Role.ADMIN : Role.USER)
+                .role(signup.getRole().equals("comp") ? Role.COMP : signup.getRole().equals("admin") ? Role.ADMIN : Role.USER)
                 .address(new Address(signup.getZipcode(), signup.getCity(), signup.getStreet()))
                 .build();
 
@@ -53,7 +54,7 @@ public class AuthService {
             }
 
             if (!passwordEncoder.matches(login.getPassword(), member.getPassword())) {
-                member = loginFail(member);
+                loginFail(member);
                 throw new MemberNotFoundException();
             }
 
@@ -64,7 +65,7 @@ public class AuthService {
         }
     }
 
-    public void logout(String authorization) {
+    public void logout(String authorization) throws BadRequestException {
         String jwt = authorization.replace("Bearer ", "");
         jwtUtil.removeRefreshToken(jwt);
     }
@@ -72,8 +73,8 @@ public class AuthService {
     private String loginSuccess(Member member) {
         member.resetLoginFailCount();
 
-        jwtUtil.createRefreshToken(member.getId());
-        return jwtUtil.createAccessToken(member.getId());
+        jwtUtil.createToken(member.getId(), JwtUtil.ACCESS_EXPIRATION_TIME);
+        return jwtUtil.createToken(member.getId(), JwtUtil.REFRESH_EXPIRATION_TIME);
     }
 
     private Member loginFail(Member member) {

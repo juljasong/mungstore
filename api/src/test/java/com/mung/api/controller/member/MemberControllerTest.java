@@ -79,11 +79,11 @@ class MemberControllerTest {
                 .andDo(print());
     }
 
-    //@Test
+    @Test
     @DisplayName("[P] 비밀번호를 재설정한다.")
     public void resetPassword() throws Exception {
         // given
-        String uuid = "75b628a0-3340-4782-bdf7-70785d13074f";
+        String uuid = "4f8eb20b-f930-46ae-a911-fd6d9f47c497";
         ResetPassword request = new ResetPassword("Mung!mung1");
         String json = objectMapper.writeValueAsString(request);
 

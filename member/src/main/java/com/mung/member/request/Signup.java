@@ -31,8 +31,10 @@ public class Signup {
     private String city;
     private String street;
 
+    private String role;
+
     @Builder
-    public Signup(String email, String password, String name, String tel, String zipcode, String city, String street) {
+    public Signup(String email, String password, String name, String tel, String zipcode, String city, String street, String role) {
         this.email = email;
         this.password = password;
         this.name = name;
@@ -40,5 +42,6 @@ public class Signup {
         this.zipcode = zipcode;
         this.city = city;
         this.street = street;
+        this.role = role;
     }
 }

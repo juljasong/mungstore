@@ -52,7 +52,7 @@ public class ExceptionController {
     @ResponseBody
     public ResponseEntity<ErrorResponse> badRequestExceptionHandler(Exception e) {
 
-        log.error(e.getMessage());
+        log.error("badRequestExceptionHandler :: ", e);
 
         ErrorResponse body = ErrorResponse.builder()
                 .code(HttpStatus.BAD_REQUEST.value())
@@ -64,11 +64,11 @@ public class ExceptionController {
                 .body(body);
     }
 
-    //@ExceptionHandler(Exception.class)
+    @ExceptionHandler(Exception.class)
     @ResponseBody
     public ResponseEntity<ErrorResponse> ExceptionHandler(Exception e) {
 
-        log.error(e.getMessage());
+        log.error("ExceptionHandler :: ", e);
 
         ErrorResponse body = ErrorResponse.builder()
                 .code(HttpStatus.INTERNAL_SERVER_ERROR.value())

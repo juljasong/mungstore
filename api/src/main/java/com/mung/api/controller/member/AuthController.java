@@ -9,7 +9,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @Slf4j
@@ -18,9 +20,9 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/auth/signup/{role}")
-    public MessageResponse signup(@RequestBody @Valid Signup signup, @PathVariable("role") String role) {
-        authService.signup(signup, role);
+    @PostMapping("/auth/signup")
+    public MessageResponse signup(@RequestBody @Valid Signup signup) {
+        authService.signup(signup);
         return MessageResponse.ofSuccess();
     }
 
@@ -34,7 +36,7 @@ public class AuthController {
     }
 
     @GetMapping("/auth/logout")
-    public MessageResponse logout(HttpServletRequest request, HttpServletResponse response) {
+    public MessageResponse logout(HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
         authService.logout(request.getHeader("Authorization"));
         response.setHeader("Authorization", null);
 

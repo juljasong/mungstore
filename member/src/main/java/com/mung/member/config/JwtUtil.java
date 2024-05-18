@@ -1,6 +1,9 @@
 package com.mung.member.config;
 
-import com.mung.common.domain.RedisPrefix;
+import com.mung.member.domain.AccessToken;
+import com.mung.member.domain.RefreshToken;
+import com.mung.member.repository.AccessTokenRedisRepository;
+import com.mung.member.repository.RefreshTokenRedisRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -8,26 +11,24 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 @Configuration
 @RequiredArgsConstructor
 public class JwtUtil {
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private final AccessTokenRedisRepository accessTokenRedisRepository;
+    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
 
     private static String jwtKey;
-    private final static Long ACCESS_EXPIRATION_TIME = 1800000L; // 30분
-    private final static Long REFRESH_EXPIRATION_TIME = 21600000L; // 6시간
+    public final static Long ACCESS_EXPIRATION_TIME = 1000 * 60 * 30L;
+    public final static Long REFRESH_EXPIRATION_TIME = 1000 * 60 * 60 * 6L;
 
     @Value("${jwt.key}")
     public void setSecretKey(String jwtKey) {
@@ -52,7 +53,6 @@ public class JwtUtil {
     }
 
     public Long getMemberId(String jwtToken) {
-        System.out.println("jwtToken = " + jwtToken);
         return Long.valueOf(Jwts.parser()
                 .verifyWith(getKeyFromBase64EncodedKey(jwtKey))
                 .build()
@@ -61,43 +61,39 @@ public class JwtUtil {
                         .getId());
     }
 
-    public String createAccessToken(Long memberId) {
-        return Jwts.builder()
-                .subject("access-token")
+    public String createToken(Long memberId, Long expiration) {
+        String jwt = Jwts.builder()
+                .subject("token")
                 .id(String.valueOf(memberId))
-                .expiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRATION_TIME))
+                .expiration(new Date(System.currentTimeMillis() + expiration))
                 .issuedAt(new Date())
                 .signWith(getKeyFromBase64EncodedKey(jwtKey))
                 .compact();
+
+        if (expiration == ACCESS_EXPIRATION_TIME) {
+            accessTokenRedisRepository.save(AccessToken.builder()
+                    .memberId(memberId)
+                    .accessToken(jwt)
+                    .build());
+        } else if (expiration == REFRESH_EXPIRATION_TIME) {
+            refreshTokenRedisRepository.save(RefreshToken.builder()
+                    .memberId(memberId)
+                    .refreshToken(jwt)
+                    .build());
+        }
+
+        return jwt;
     }
 
-    public String createRefreshToken(Long memberId) {
-        String refreshToken = Jwts.builder()
-                .subject("refresh-token")
-                .id(String.valueOf(memberId))
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME))
-                .signWith(getKeyFromBase64EncodedKey(jwtKey))
-                .compact();
-
-        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
-        valueOperations.set(getRedisRefreshKey(memberId), refreshToken, REFRESH_EXPIRATION_TIME, TimeUnit.MILLISECONDS);
-
-        return refreshToken;
+    public boolean hasRefreshToken(Long id) throws BadRequestException {
+        RefreshToken token = refreshTokenRedisRepository.findById(id).orElseGet(() -> null);
+        return token != null;
     }
 
-    public boolean hasRefreshToken(Long memberId) {
-        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
-        String refreshToken = valueOperations.get(getRedisRefreshKey(memberId));
-        return StringUtils.hasText(refreshToken);
-    }
-
-    public void removeRefreshToken(String jwtToken) {
-        redisTemplate.delete(getRedisRefreshKey(getMemberId(jwtToken)));
-    }
-
-    private String getRedisRefreshKey(Long memberId) {
-        return RedisPrefix.REFRESH_TOKEN_ + String.valueOf(memberId);
+    public void removeRefreshToken(String accessToken) throws BadRequestException {
+        RefreshToken refreshToken = refreshTokenRedisRepository.findById(getMemberId(accessToken))
+                .orElseThrow(BadRequestException::new);
+        refreshTokenRedisRepository.delete(refreshToken);
     }
 
 }

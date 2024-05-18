@@ -39,17 +39,17 @@ class AuthControllerTest {
     //@Rollback(value = false)
     public void signup_user() throws Exception {
         // given
-        String role = "user";
         Signup request = Signup.builder()
                 .email("user100@gmail.com")
                 .password("Mung!mung1")
                 .name("user100")
                 .tel("01011111100")
+                .role("user")
                 .build();
         String json = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(post("/auth/signup/" + role)
+        mockMvc.perform(post("/auth/signup" )
                         .contentType(APPLICATION_JSON)
                         .content(json)
                 )
@@ -68,17 +68,17 @@ class AuthControllerTest {
     @DisplayName("[P] 회원가입 - comp")
     public void signup_comp() throws Exception {
         // given
-        String role = "comp";
         Signup request = Signup.builder()
                 .email("comp100@gmail.com")
                 .password("Mung!mung1")
                 .name("comp100")
                 .tel("01011111100")
+                .role("comp")
                 .build();
         String json = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(post("/auth/signup/" + role)
+        mockMvc.perform(post("/auth/signup")
                         .contentType(APPLICATION_JSON)
                         .content(json)
                 )
@@ -97,17 +97,17 @@ class AuthControllerTest {
     @DisplayName("[P] 회원가입 - admin")
     public void signup_admin() throws Exception {
         // given
-        String role = "admin";
         Signup request = Signup.builder()
                 .email("admin100@gmail.com")
                 .password("Mung!mung1")
                 .name("admin100")
                 .tel("01011111100")
+                .role("admin")
                 .build();
         String json = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(post("/auth/signup/" + role)
+        mockMvc.perform(post("/auth/signup")
                         .contentType(APPLICATION_JSON)
                         .content(json)
                 )
@@ -126,17 +126,17 @@ class AuthControllerTest {
     @DisplayName("[F] 회원가입 - 비밀번호 유효성")
     public void signup_validate_password() throws Exception {
         // given
-        String role = "user";
         Signup request = Signup.builder()
                 .email("user100@gmail.com")
                 .password("mung!mung1")
                 .name("user100")
                 .tel("01011111100")
+                .role("user")
                 .build();
         String json = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(post("/auth/signup/" + role)
+        mockMvc.perform(post("/auth/signup")
                         .contentType(APPLICATION_JSON)
                         .content(json)
                 )
@@ -161,17 +161,17 @@ class AuthControllerTest {
                         .role(Role.USER)
                 .build());
 
-        String role = "user";
         Signup request = Signup.builder()
                 .email("user100@gmail.com")
                 .password("Mung!mung1")
                 .name("user100")
                 .tel("01011111101")
+                .role("user")
                 .build();
         String json = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(post("/auth/signup/" + role)
+        mockMvc.perform(post("/auth/signup")
                         .contentType(APPLICATION_JSON)
                         .content(json)
                 )
@@ -192,17 +192,17 @@ class AuthControllerTest {
                 .role(Role.USER)
                 .build());
 
-        String role = "user";
         Signup request = Signup.builder()
                 .email("user100@gmail.com")
                 .password("Mung!mung1")
                 .name("user100")
                 .tel("01011111100")
+                .role("user")
                 .build();
         String json = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(post("/auth/signup/" + role)
+        mockMvc.perform(post("/auth/signup")
                         .contentType(APPLICATION_JSON)
                         .content(json)
                 )

@@ -60,10 +60,12 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                 }
 
             } else {
+                log.error(":: JwtAuthorizationFilter.doFilterInternal :: ", e);
                 throw new Unauthorized();
             }
 
         } catch (JwtException e) {
+            log.error(":: JwtAuthorizationFilter.doFilterInternal :: ", e);
             throw new Unauthorized();
         } catch (Exception e) {
             log.error(":: JwtAuthorizationFilter.doFilterInternal :: ", e);
@@ -82,7 +84,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     }
 
     private void refreshJwt(HttpServletResponse response, Long id) {
-        String accessToken = jwtUtil.createAccessToken(id);
+        String accessToken = jwtUtil.createToken(id, JwtUtil.ACCESS_EXPIRATION_TIME);
         response.addHeader("Authorization", "Bearer " + accessToken);
     }
 
