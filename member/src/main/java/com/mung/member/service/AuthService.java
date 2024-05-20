@@ -26,7 +26,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public void signup(SignupRequest signupRequest) {
+    public Member signup(SignupRequest signupRequest) {
         checkDuplicateEmailAndTel(signupRequest);
 
         Member member = Member.builder()
@@ -38,7 +38,7 @@ public class AuthService {
                 .address(new Address(signupRequest.getZipcode(), signupRequest.getCity(), signupRequest.getStreet()))
                 .build();
 
-        memberRepository.save(member);
+        return memberRepository.save(member);
     }
 
     @Transactional(noRollbackFor = MemberNotFoundException.class)
@@ -65,7 +65,7 @@ public class AuthService {
 
     public void logout(String authorization) throws BadRequestException {
         String jwt = authorization.replace("Bearer ", "");
-        jwtUtil.removeRefreshToken(jwt);
+        jwtUtil.clearAccessAndRefreshToken(jwt);
     }
 
     private LoginDto loginSuccess(Member member) {
@@ -103,8 +103,8 @@ public class AuthService {
         }
     }
 
-    public LoginDto refreshAccessToken(String refreshToken) {
-        RefreshToken token = jwtUtil.checkRefreshToken(refreshToken)
+    public LoginDto refreshAccessToken(String refreshToken) throws BadRequestException {
+        RefreshToken token = jwtUtil.checkAndGetRefreshToken(refreshToken)
                 .orElseThrow(Unauthorized::new);
 
         return LoginDto.builder()

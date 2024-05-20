@@ -45,7 +45,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public MessageResponse<Object> refreshAccessToken(@RequestBody RefreshTokenRequest refreshTokenRequest, HttpServletResponse response) {
+    public MessageResponse<Object> refreshAccessToken(@RequestBody RefreshTokenRequest refreshTokenRequest, HttpServletResponse response) throws BadRequestException {
         LoginDto loginDto = authService.refreshAccessToken(refreshTokenRequest.getRefreshToken());
 
         response.addHeader("Authorization", "Bearer " + loginDto.getAccessToken());

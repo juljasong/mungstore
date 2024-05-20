@@ -43,7 +43,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
         String jwtToken = request.getHeader("Authorization").replace("Bearer ", "");
         try {
-            AccessToken accessToken = jwtUtil.checkAccessToken(jwtToken)
+            AccessToken accessToken = jwtUtil.checkAndGetAccessToken(jwtToken)
                     .orElseThrow(Unauthorized::new);
 
             Member member = memberRepository.findById(accessToken.getMemberId())

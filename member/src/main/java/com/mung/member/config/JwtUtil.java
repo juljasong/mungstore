@@ -6,11 +6,13 @@ import com.mung.member.repository.AccessTokenRedisRepository;
 import com.mung.member.repository.RefreshTokenRedisRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
 
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class JwtUtil {
@@ -36,11 +39,11 @@ public class JwtUtil {
         JwtUtil.jwtKey = jwtKey;
     }
 
-    public String encodeBase64SecretKey(String secretKey) {
+    private String encodeBase64SecretKey(String secretKey) {
         return Encoders.BASE64.encode(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public SecretKey getKeyFromBase64EncodedKey(String base64EncodedSecretKey) {
+    private SecretKey getKeyFromBase64EncodedKey(String base64EncodedSecretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(base64EncodedSecretKey);
 
         return Keys.hmacShaKeyFor(keyBytes);
@@ -53,13 +56,22 @@ public class JwtUtil {
                 .parseSignedClaims(jwtToken);
     }
 
-    public Long getMemberId(String jwtToken) {
-        return Long.valueOf(Jwts.parser()
-                .verifyWith(getKeyFromBase64EncodedKey(jwtKey))
-                .build()
-                .parseSignedClaims(jwtToken)
-                .getPayload()
-                .getId());
+    public Long getMemberId(String jwtToken) throws BadRequestException {
+        Long memberId = null;
+        try {
+            memberId = Long.valueOf(Jwts.parser()
+                    .verifyWith(getKeyFromBase64EncodedKey(jwtKey))
+                    .build()
+                    .parseSignedClaims(jwtToken)
+                    .getPayload()
+                    .getId());
+        } catch (JwtException e) {
+            log.error(":: JwtUtil.getMemberId :: ", e);
+            throw new BadRequestException();
+        } catch (Exception e) {
+            log.error(":: JwtUtil.getMemberId :: ", e);
+        }
+        return memberId;
     }
 
     public String createToken(Long memberId, Long expiration) {
@@ -86,18 +98,29 @@ public class JwtUtil {
         return jwt;
     }
 
-    public Optional<AccessToken> checkAccessToken(String jwtToken) {
+    public Optional<AccessToken> checkAndGetAccessToken(String jwtToken) throws BadRequestException {
         return accessTokenRedisRepository.findById(getMemberId(jwtToken))
                 .filter(t -> t.getAccessToken().equals(jwtToken));
     }
 
-    public Optional<RefreshToken> checkRefreshToken(String jwtToken) {
+    public Optional<RefreshToken> checkAndGetRefreshToken(String jwtToken) throws BadRequestException {
         return refreshTokenRedisRepository.findById(getMemberId(jwtToken))
                 .filter(t -> t.getRefreshToken().equals(jwtToken));
     }
 
-    public void removeRefreshToken(String accessToken) throws BadRequestException {
-        RefreshToken refreshToken = refreshTokenRedisRepository.findById(getMemberId(accessToken))
+    public void clearAccessAndRefreshToken(String jwt) throws BadRequestException {
+        removeAccessToken(jwt);
+        removeRefreshTokenByAccessToken(jwt);
+    }
+
+    private void removeAccessToken(String jwt) throws BadRequestException {
+        AccessToken accessToken = checkAndGetAccessToken(jwt)
+                .orElseThrow(BadRequestException::new);
+        accessTokenRedisRepository.delete(accessToken);
+    }
+
+    private void removeRefreshTokenByAccessToken(String jwt) throws BadRequestException {
+        RefreshToken refreshToken = refreshTokenRedisRepository.findById(getMemberId(jwt))
                 .orElseThrow(BadRequestException::new);
         refreshTokenRedisRepository.delete(refreshToken);
     }
