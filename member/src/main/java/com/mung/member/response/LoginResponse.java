@@ -7,12 +7,12 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Login {
+public class LoginResponse {
 
     private Long memberId;
 
     @Builder
-    public Login(Long memberId) {
+    public LoginResponse(Long memberId) {
         this.memberId = memberId;
     }
 }

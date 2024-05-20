@@ -5,7 +5,7 @@ import com.mung.member.dto.LoginDto;
 import com.mung.member.request.LoginRequest;
 import com.mung.member.request.RefreshTokenRequest;
 import com.mung.member.request.SignupRequest;
-import com.mung.member.response.Login;
+import com.mung.member.response.LoginResponse;
 import com.mung.member.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,7 +38,7 @@ public class AuthController {
         response.addCookie(new Cookie("refresh-token", loginDto.getRefreshToken()));
 
         return MessageResponse.builder()
-                .data(Login.builder()
+                .data(LoginResponse.builder()
                         .memberId(loginDto.getMemberId())
                         .build())
                 .build();
@@ -51,7 +51,7 @@ public class AuthController {
         response.addHeader("Authorization", "Bearer " + loginDto.getAccessToken());
 
         return MessageResponse.builder()
-                .data(Login.builder()
+                .data(LoginResponse.builder()
                         .memberId(loginDto.getMemberId())
                         .build())
                 .build();

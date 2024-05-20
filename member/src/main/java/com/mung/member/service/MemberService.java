@@ -1,16 +1,24 @@
 package com.mung.member.service;
 
 import com.mung.common.domain.SendMailForm;
+import com.mung.member.config.JwtUtil;
+import com.mung.member.domain.Address;
 import com.mung.member.domain.Member;
 import com.mung.member.domain.ResetPasswordUuid;
 import com.mung.member.exception.IncorrectEmailAndTelException;
+import com.mung.member.exception.Unauthorized;
 import com.mung.member.repository.MemberRepository;
 import com.mung.member.repository.ResetPasswordUuidRedisRepository;
+import com.mung.member.request.MemberSearchCondition;
 import com.mung.member.request.ResetPasswordRequest;
 import com.mung.member.request.ResetPasswordEmailRequest;
+import com.mung.member.response.MemberSearch;
+import com.mung.member.response.MyPageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +33,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final ResetPasswordUuidRedisRepository resetPasswordUuidRedisRepository;
+    private final JwtUtil jwtUtil;
 
     public SendMailForm createPasswordResetMail(ResetPasswordEmailRequest resetPasswordEmailRequest) throws Exception {
 
@@ -67,4 +76,33 @@ public class MemberService {
         resetPasswordUuidRedisRepository.delete(resetPasswordUuid);
     }
 
+    public MyPageResponse getMember(Long memberId, String jwt) throws Exception {
+        identify(memberId, jwt);
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new Exception(":: Member Not found :: " + memberId));
+        Address address = member.getAddress();
+
+        return MyPageResponse.builder()
+                .memberId(member.getId())
+                .email(member.getEmail())
+                .tel(member.getTel())
+                .address(new Address(
+                        address.getZipcode(),
+                        address.getCity(),
+                        address.getStreet()))
+                .build();
+    }
+
+    private void identify(Long memberId, String jwt) throws BadRequestException {
+        if (memberId != jwtUtil.getMemberId(jwt)) {
+            throw new Unauthorized();
+        }
+    }
+
+    public Page<MemberSearch> searchMembers(MemberSearchCondition condition) {
+        PageRequest pageRequest = PageRequest.of(condition.getPageNumber(), condition.getPageSize());
+
+        return memberRepository.search(condition, pageRequest);
+    }
 }

@@ -7,16 +7,22 @@ import com.mung.member.request.ResetPasswordEmailRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(MemberController.class)
+@AutoConfigureMockMvc
+@SpringBootTest
 class MemberControllerTest {
 
     @Autowired
@@ -129,5 +135,25 @@ class MemberControllerTest {
                 .andExpect(jsonPath("$.validation.password").value(ValidateMessage.MESSAGE.VALID_PASSWORD))
                 .andDo(print());
     }
+
+    @Test
+    @WithMockUser(username = "z.kotzen@gmail.com", roles = {"USER"})
+    public void 마이페이지_성공() throws Exception {
+        // given
+        String header = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0b2tlbiIsImp0aSI6IjE1IiwiZXhwIjoxNzE2MjMxODExLCJpYXQiOjE3MTYyMTAyMTF9.69VAQjK-pL0qUgmtznhjK7PW8eTkXTnimbX7fDs5Dls";
+        long memberId = 15L;
+
+        // expected
+        mockMvc.perform(get("/member/" + memberId)
+                        .contentType(APPLICATION_JSON)
+                        .header("Authorization", header)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
+                .andExpect(jsonPath("$.data.memberId").value(memberId))
+                .andDo(print());
+    }
+
+
 
 }
