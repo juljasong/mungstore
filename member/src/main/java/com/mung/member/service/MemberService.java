@@ -12,6 +12,7 @@ import com.mung.member.repository.ResetPasswordUuidRedisRepository;
 import com.mung.member.request.MemberSearchCondition;
 import com.mung.member.request.ResetPasswordRequest;
 import com.mung.member.request.ResetPasswordEmailRequest;
+import com.mung.member.request.UpdateMemberRequest;
 import com.mung.member.response.MemberSearch;
 import com.mung.member.response.MyPageResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.UUID;
+
+import static org.springframework.util.StringUtils.*;
 
 @Slf4j
 @Service
@@ -80,7 +84,7 @@ public class MemberService {
         identify(memberId, jwt);
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new Exception(":: Member Not found :: " + memberId));
+                .orElseThrow(() -> new Exception(":: getMember.Member Not found :: " + memberId));
         Address address = member.getAddress();
 
         return MyPageResponse.builder()
@@ -94,10 +98,25 @@ public class MemberService {
                 .build();
     }
 
-    private void identify(Long memberId, String jwt) throws BadRequestException {
-        if (memberId != jwtUtil.getMemberId(jwt)) {
-            throw new Unauthorized();
+    @Transactional
+    public Member updateMemberInfo(UpdateMemberRequest request, Long memberId, String jwt) throws Exception {
+        identify(memberId, jwt);
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new Exception(":: modifyMember.Member Not found :: " + memberId));
+
+        if (hasText(request.getPassword())) {
+            member.validatePassword(request.getPassword());
+            member.updatePassword(bCryptPasswordEncoder.encode(request.getPassword()));
         }
+        if (hasText(request.getTel())) {
+            member.updateTel(request.getTel());
+        }
+        if (hasText(request.getZipcode())) {
+            member.updateAddress(new Address(request.getZipcode(), request.getCity(), request.getStreet()));
+        }
+
+        return member;
     }
 
     public Page<MemberSearch> searchMembers(MemberSearchCondition condition) {
@@ -105,4 +124,11 @@ public class MemberService {
 
         return memberRepository.search(condition, pageRequest);
     }
+
+    private void identify(Long memberId, String jwt) throws BadRequestException {
+        if (!Objects.equals(memberId, jwtUtil.getMemberId(jwt))) {
+            throw new Unauthorized();
+        }
+    }
+
 }

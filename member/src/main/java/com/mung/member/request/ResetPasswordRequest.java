@@ -1,7 +1,6 @@
 package com.mung.member.request;
 
-import com.mung.common.domain.ValidateMessage;
-import com.mung.common.domain.ValidateRegex;
+import com.mung.common.domain.Validate;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
@@ -10,9 +9,9 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ResetPasswordRequest {
 
-    @NotBlank(message = ValidateMessage.MESSAGE.EMPTY_PASSWORD)
-    @Pattern(regexp = ValidateRegex.REGEX.VALID_PASSWORD
-            , message = ValidateMessage.MESSAGE.VALID_PASSWORD)
+    @NotBlank(message = Validate.MESSAGE.EMPTY_PASSWORD)
+    @Pattern(regexp = Validate.REGEX.VALID_PASSWORD
+            , message = Validate.MESSAGE.VALID_PASSWORD)
     private String password;
 
     @Builder

@@ -1,22 +1,24 @@
 package com.mung.api.controller.member;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mung.common.domain.ValidateMessage;
+import com.mung.common.domain.Validate;
+import com.mung.member.config.JwtUtil;
 import com.mung.member.request.ResetPasswordRequest;
 import com.mung.member.request.ResetPasswordEmailRequest;
+import com.mung.member.request.UpdateMemberRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.BDDMockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,6 +31,8 @@ class MemberControllerTest {
     private ObjectMapper objectMapper;
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean private JwtUtil jwtUtil;
 
     //@Test
     @DisplayName("[P] 비밀번호 재설정 이메일을 보낸다.")
@@ -132,7 +136,7 @@ class MemberControllerTest {
                         .content(json)
                 )
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.validation.password").value(ValidateMessage.MESSAGE.VALID_PASSWORD))
+                .andExpect(jsonPath("$.validation.password").value(Validate.MESSAGE.VALID_PASSWORD))
                 .andDo(print());
     }
 
@@ -140,8 +144,11 @@ class MemberControllerTest {
     @WithMockUser(username = "z.kotzen@gmail.com", roles = {"USER"})
     public void 마이페이지_성공() throws Exception {
         // given
-        String header = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0b2tlbiIsImp0aSI6IjE1IiwiZXhwIjoxNzE2MjMxODExLCJpYXQiOjE3MTYyMTAyMTF9.69VAQjK-pL0qUgmtznhjK7PW8eTkXTnimbX7fDs5Dls";
+        String header = "jwt";
         long memberId = 15L;
+
+        given(jwtUtil.getMemberId(anyString()))
+                .willReturn(memberId);
 
         // expected
         mockMvc.perform(get("/member/" + memberId)
@@ -151,6 +158,85 @@ class MemberControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
                 .andExpect(jsonPath("$.data.memberId").value(memberId))
+                .andDo(print());
+    }
+
+    @Test
+    @WithMockUser(username = "z.kotzen@gmail.com", roles = {"USER"})
+    public void 회원정보수정_성공() throws Exception {
+        // given
+        String header = "jwt";
+        long memberId = 15L;
+
+        given(jwtUtil.getMemberId(anyString()))
+                .willReturn(memberId);
+
+        UpdateMemberRequest request = UpdateMemberRequest.builder()
+                .tel("01023239494")
+                .zipcode("11111")
+                .build();
+        String json = objectMapper.writeValueAsString(request);
+
+        // expected
+        mockMvc.perform(patch("/member/" + memberId)
+                        .contentType(APPLICATION_JSON)
+                        .content(json)
+                        .header("Authorization", header)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
+                .andDo(print());
+    }
+
+    @Test
+    @WithMockUser(username = "z.kotzen@gmail.com", roles = {"USER"})
+    public void 회원정보수정_실패_비밀번호유효성() throws Exception {
+        // given
+        String header = "jwt";
+        long memberId = 15L;
+
+        given(jwtUtil.getMemberId(anyString()))
+                .willReturn(memberId);
+
+        UpdateMemberRequest request = UpdateMemberRequest.builder()
+                .password("rrr")
+                .build();
+        String json = objectMapper.writeValueAsString(request);
+
+        // expected
+        mockMvc.perform(patch("/member/" + memberId)
+                        .contentType(APPLICATION_JSON)
+                        .content(json)
+                        .header("Authorization", header)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(Validate.MESSAGE.VALID_PASSWORD))
+                .andDo(print());
+    }
+
+    @Test
+    @WithMockUser(username = "z.kotzen@gmail.com", roles = {"USER"})
+    public void 회원정보수정_실패_jwt인증실패() throws Exception {
+        // given
+        String header = "jwt";
+        long memberId = 15L;
+
+        given(jwtUtil.getMemberId(anyString()))
+                .willReturn(14L);
+
+        UpdateMemberRequest request = UpdateMemberRequest.builder()
+                .tel("01024949922")
+                .build();
+        String json = objectMapper.writeValueAsString(request);
+
+        // expected
+        mockMvc.perform(patch("/member/" + memberId)
+                        .contentType(APPLICATION_JSON)
+                        .content(json)
+                        .header("Authorization", header)
+                )
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("인증이 필요 합니다."))
                 .andDo(print());
     }
 

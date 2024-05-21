@@ -6,6 +6,7 @@ import com.mung.common.response.MessageResponse;
 import com.mung.member.request.MemberSearchCondition;
 import com.mung.member.request.ResetPasswordRequest;
 import com.mung.member.request.ResetPasswordEmailRequest;
+import com.mung.member.request.UpdateMemberRequest;
 import com.mung.member.response.MemberSearch;
 import com.mung.member.response.MyPageResponse;
 import com.mung.member.service.MemberService;
@@ -50,9 +51,18 @@ public class MemberController {
                 .build();
     }
 
+    @PatchMapping("/member/{memberId}")
+    public MessageResponse<?> updateMemberInfo(@RequestBody @Valid UpdateMemberRequest updateMemberRequest, @PathVariable Long memberId, HttpServletRequest request) throws Exception {
+        String jwt = request.getHeader("Authorization").replace("Bearer ", "");
+        memberService.updateMemberInfo(updateMemberRequest, memberId, jwt);
+
+        return MessageResponse.ofSuccess();
+    }
+
     @PostMapping("/members")
     @Secured(value = "ROLE_ADMIN")
-    public Page<MemberSearch> searchMembers(@RequestBody MemberSearchCondition condition) throws Exception {
+    public Page<MemberSearch> searchMembers(@RequestBody MemberSearchCondition condition) {
         return memberService.searchMembers(condition);
     }
+
 }
