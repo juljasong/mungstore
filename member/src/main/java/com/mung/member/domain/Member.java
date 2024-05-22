@@ -1,6 +1,8 @@
 package com.mung.member.domain;
 
 import com.mung.common.domain.BaseEntity;
+import com.mung.common.domain.Validate;
+import com.mung.member.exception.InvalidPasswordException;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -58,6 +60,23 @@ public class Member extends BaseEntity {
         this.password = password;
         unlockAccount();
         resetLoginFailCount();
+    }
+
+    public void updateTel(String tel) {
+        this.tel = tel;
+    }
+
+    public void updateAddress(Address address) {
+        this.address = address;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
+    public void validatePassword(String password) {
+        if (!password.matches(Validate.REGEX.VALID_PASSWORD))
+            throw new InvalidPasswordException();
     }
 
     @Builder

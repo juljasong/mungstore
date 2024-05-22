@@ -51,7 +51,7 @@ public class SpringSecurityConfig {
                 .addFilter(new JwtAuthorizationFilter(authenticationManager(), memberRepository, jwtUtil))
 
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/main","/auth/login","/auth/signup/**", "/password", "/password/**").permitAll()
+                        .requestMatchers("/main","/auth/login","/auth/signup", "/auth/refresh", "/password", "/password/**").permitAll()
                         .requestMatchers( "/","/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         //.requestMatchers("/user").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') AND hasAuthority('WRITE')"))
                         .requestMatchers("/member/**").hasAnyRole(Role.USER.name(), Role.ADMIN.name())
@@ -82,12 +82,7 @@ public class SpringSecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return new WebSecurityCustomizer() {
-            @Override
-            public void customize(WebSecurity web) {
-                web.ignoring().requestMatchers("/favicon.ico", "/error");
-            }
-        };
+        return web -> web.ignoring().requestMatchers("/favicon.ico", "/error");
     }
 
 }

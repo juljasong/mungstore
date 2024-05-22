@@ -1,17 +1,16 @@
 package com.mung.member.service;
 
 import com.mung.member.config.JwtUtil;
-import com.mung.member.domain.LoginLog;
-import com.mung.member.domain.Role;
-import com.mung.member.domain.Address;
-import com.mung.member.domain.Member;
+import com.mung.member.domain.*;
+import com.mung.member.dto.LoginDto;
 import com.mung.member.exception.*;
 import com.mung.member.repository.LoginLogRepository;
 import com.mung.member.repository.MemberRepository;
-import com.mung.member.request.Login;
-import com.mung.member.request.Signup;
+import com.mung.member.request.LoginRequest;
+import com.mung.member.request.SignupRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,23 +26,23 @@ public class AuthService {
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public void signup(Signup signup, String role) {
-        checkDuplicateEmailAndTel(signup);
+    public Member signup(SignupRequest signupRequest) {
+        checkDuplicateEmailAndTel(signupRequest);
 
         Member member = Member.builder()
-                .email(signup.getEmail())
-                .password(passwordEncoder.encode(signup.getPassword()))
-                .name(signup.getName())
-                .tel(signup.getTel())
-                .role(role.equals("comp") ? Role.COMP : role.equals("admin") ? Role.ADMIN : Role.USER)
-                .address(new Address(signup.getZipcode(), signup.getCity(), signup.getStreet()))
+                .email(signupRequest.getEmail())
+                .password(passwordEncoder.encode(signupRequest.getPassword()))
+                .name(signupRequest.getName())
+                .tel(signupRequest.getTel())
+                .role(signupRequest.getRole().equals("comp") ? Role.COMP : signupRequest.getRole().equals("admin") ? Role.ADMIN : Role.USER)
+                .address(new Address(signupRequest.getZipcode(), signupRequest.getCity(), signupRequest.getStreet()))
                 .build();
 
-        memberRepository.save(member);
+        return memberRepository.save(member);
     }
 
     @Transactional(noRollbackFor = MemberNotFoundException.class)
-    public String login(Login login) {
+    public LoginDto login(LoginRequest login) {
         boolean isSuccess = false;
         try {
             Member member = memberRepository.findByEmail(login.getEmail())
@@ -53,7 +52,7 @@ public class AuthService {
             }
 
             if (!passwordEncoder.matches(login.getPassword(), member.getPassword())) {
-                member = loginFail(member);
+                loginFail(member);
                 throw new MemberNotFoundException();
             }
 
@@ -64,16 +63,19 @@ public class AuthService {
         }
     }
 
-    public void logout(String authorization) {
+    public void logout(String authorization) throws BadRequestException {
         String jwt = authorization.replace("Bearer ", "");
-        jwtUtil.removeRefreshToken(jwt);
+        jwtUtil.clearAccessAndRefreshToken(jwt);
     }
 
-    private String loginSuccess(Member member) {
+    private LoginDto loginSuccess(Member member) {
         member.resetLoginFailCount();
 
-        jwtUtil.createRefreshToken(member.getId());
-        return jwtUtil.createAccessToken(member.getId());
+        return LoginDto.builder()
+                .accessToken(jwtUtil.createToken(member.getId(), JwtUtil.ACCESS_EXPIRATION_TIME))
+                .refreshToken(jwtUtil.createToken(member.getId(), JwtUtil.REFRESH_EXPIRATION_TIME))
+                .memberId(member.getId())
+                .build();
     }
 
     private Member loginFail(Member member) {
@@ -91,14 +93,23 @@ public class AuthService {
                 .build());
     }
 
-    private void checkDuplicateEmailAndTel(Signup signup) {
-        if (memberRepository.findByEmail(signup.getEmail()).isPresent()) {
+    private void checkDuplicateEmailAndTel(SignupRequest signupRequest) {
+        if (memberRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
             throw new AlreadyExistsEmailException();
         }
 
-        if (memberRepository.findByTel(signup.getTel()).isPresent()) {
+        if (memberRepository.findByTel(signupRequest.getTel()).isPresent()) {
             throw new AlreadyExistsTelException();
         }
     }
 
+    public LoginDto refreshAccessToken(String refreshToken) throws BadRequestException {
+        RefreshToken token = jwtUtil.checkAndGetRefreshToken(refreshToken)
+                .orElseThrow(Unauthorized::new);
+
+        return LoginDto.builder()
+                .accessToken(jwtUtil.createToken(token.getMemberId(), JwtUtil.ACCESS_EXPIRATION_TIME))
+                .memberId(token.getMemberId())
+                .build();
+    }
 }

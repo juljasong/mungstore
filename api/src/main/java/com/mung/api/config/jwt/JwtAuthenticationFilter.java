@@ -37,7 +37,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
             return authenticationManager.authenticate(authenticationToken);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(":: JwtAuthenticationFilter.attemptAuthentication :: ", e);
         }
         return null;
     }
@@ -45,7 +45,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         PrincipalDetails principalDetails = (PrincipalDetails) authResult.getPrincipal();
-        response.addHeader("Authorization", "Bearer " + jwtUtil.createAccessToken(principalDetails.getMemberId()));
+        response.addHeader("Authorization", "Bearer " + jwtUtil.createToken(principalDetails.getMemberId(), JwtUtil.ACCESS_EXPIRATION_TIME));
     }
 
 }

@@ -1,23 +1,33 @@
 package com.mung.member.service;
 
-import com.mung.common.domain.RedisPrefix;
 import com.mung.common.domain.SendMailForm;
+import com.mung.member.config.JwtUtil;
+import com.mung.member.domain.Address;
 import com.mung.member.domain.Member;
+import com.mung.member.domain.ResetPasswordUuid;
 import com.mung.member.exception.IncorrectEmailAndTelException;
+import com.mung.member.exception.Unauthorized;
 import com.mung.member.repository.MemberRepository;
-import com.mung.member.request.ResetPassword;
-import com.mung.member.request.ResetPasswordEmail;
+import com.mung.member.repository.ResetPasswordUuidRedisRepository;
+import com.mung.member.request.MemberSearchCondition;
+import com.mung.member.request.ResetPasswordRequest;
+import com.mung.member.request.ResetPasswordEmailRequest;
+import com.mung.member.request.UpdateMemberRequest;
+import com.mung.member.response.MemberSearch;
+import com.mung.member.response.MyPageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+
+import static org.springframework.util.StringUtils.*;
 
 @Slf4j
 @Service
@@ -26,13 +36,12 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final ResetPasswordUuidRedisRepository resetPasswordUuidRedisRepository;
+    private final JwtUtil jwtUtil;
 
-    private static final Long UUID_EXPIRATION_TIME = 1000 * 60 * 60L;
+    public SendMailForm createPasswordResetMail(ResetPasswordEmailRequest resetPasswordEmailRequest) throws Exception {
 
-    public SendMailForm createPasswordResetMail(ResetPasswordEmail resetPasswordEmail) throws Exception {
-
-        Member member = memberRepository.findByEmailAndTel(resetPasswordEmail.getEmail(), resetPasswordEmail.getTel())
+        Member member = memberRepository.findByEmailAndTel(resetPasswordEmailRequest.getEmail(), resetPasswordEmailRequest.getTel())
                 .orElseThrow(IncorrectEmailAndTelException::new);
 
         String uuid = UUID.randomUUID().toString();
@@ -53,25 +62,73 @@ public class MemberService {
     }
 
     private void setRedisUuid(String uuid, Member member) {
-        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
-        valueOperations.set(RedisPrefix.RESET_PASSWORD_ + uuid, String.valueOf(member.getId()), UUID_EXPIRATION_TIME, TimeUnit.MILLISECONDS);
+        resetPasswordUuidRedisRepository.save(ResetPasswordUuid.builder()
+                        .uuid(uuid)
+                        .memberId(member.getId())
+                .build());
     }
 
-    public void resetPassword(String uuid, ResetPassword resetPassword) throws Exception {
-        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
-        String memberId = valueOperations.get(RedisPrefix.RESET_PASSWORD_ + uuid);
+    @Transactional
+    public void resetPassword(String uuid, ResetPasswordRequest resetPasswordRequest) throws Exception {
+        ResetPasswordUuid resetPasswordUuid = resetPasswordUuidRedisRepository.findById(uuid)
+                .orElseThrow(BadRequestException::new);
 
-        if(!StringUtils.hasText(memberId)) {
-            throw new BadRequestException();
-        }
-
-        Member member = memberRepository.findById(Long.valueOf(memberId))
+        Member member = memberRepository.findById(resetPasswordUuid.getMemberId())
                 .orElseThrow(() -> new Exception("존재하지 않는 회원입니다."));
 
-        member.resetPassword(bCryptPasswordEncoder.encode(resetPassword.getPassword()));
-        memberRepository.save(member);
+        member.resetPassword(bCryptPasswordEncoder.encode(resetPasswordRequest.getPassword()));
+        resetPasswordUuidRedisRepository.delete(resetPasswordUuid);
+    }
 
-        redisTemplate.delete(RedisPrefix.RESET_PASSWORD_ + uuid);
+    public MyPageResponse getMember(Long memberId, String jwt) throws Exception {
+        identify(memberId, jwt);
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new Exception(":: getMember.Member Not found :: " + memberId));
+        Address address = member.getAddress();
+
+        return MyPageResponse.builder()
+                .memberId(member.getId())
+                .email(member.getEmail())
+                .tel(member.getTel())
+                .address(new Address(
+                        address.getZipcode(),
+                        address.getCity(),
+                        address.getStreet()))
+                .build();
+    }
+
+    @Transactional
+    public Member updateMemberInfo(UpdateMemberRequest request, Long memberId, String jwt) throws Exception {
+        identify(memberId, jwt);
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new Exception(":: modifyMember.Member Not found :: " + memberId));
+
+        if (hasText(request.getPassword())) {
+            member.validatePassword(request.getPassword());
+            member.updatePassword(bCryptPasswordEncoder.encode(request.getPassword()));
+        }
+        if (hasText(request.getTel())) {
+            member.updateTel(request.getTel());
+        }
+        if (hasText(request.getZipcode())) {
+            member.updateAddress(new Address(request.getZipcode(), request.getCity(), request.getStreet()));
+        }
+
+        return member;
+    }
+
+    public Page<MemberSearch> searchMembers(MemberSearchCondition condition) {
+        PageRequest pageRequest = PageRequest.of(condition.getPageNumber(), condition.getPageSize());
+
+        return memberRepository.search(condition, pageRequest);
+    }
+
+    private void identify(Long memberId, String jwt) throws BadRequestException {
+        if (!Objects.equals(memberId, jwtUtil.getMemberId(jwt))) {
+            throw new Unauthorized();
+        }
     }
 
 }

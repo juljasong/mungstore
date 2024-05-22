@@ -1,4 +1,4 @@
-package com.mung.api.exception;
+package com.mung.member.exception;
 
 import com.mung.common.exception.CommonException;
 import org.springframework.http.HttpStatus;

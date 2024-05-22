@@ -3,6 +3,7 @@ package com.mung.common.response;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.StringUtils;
 
 /**
  * {
@@ -20,8 +21,8 @@ public class MessageResponse<T> {
 
     @Builder
     public MessageResponse(int code, String message, T data) {
-        this.code = code;
-        this.message = message;
+        this.code = (code == 0 ? HttpStatus.OK.value() : code);
+        this.message = (!StringUtils.hasText(message) ? HttpStatus.OK.getReasonPhrase() : message);
         this.data = data;
     }
 
@@ -33,4 +34,5 @@ public class MessageResponse<T> {
                 .data(null)
                 .build();
     }
+
 }
