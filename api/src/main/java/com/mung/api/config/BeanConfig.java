@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan(basePackages = {"com.mung.member"})
+@ComponentScan(basePackages = {"com.mung.member", "com.mung.product"})
 public class BeanConfig {
 
 }

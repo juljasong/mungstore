@@ -43,7 +43,6 @@ subprojects {
 		annotationProcessor 'org.projectlombok:lombok'
 
 		testImplementation 'org.springframework.boot:spring-boot-starter-test'
-		testImplementation 'com.h2database:h2'
 
 		// dev
 		implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'

@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
-@EntityScan(basePackages = {"com.mung.member"})
-@EnableJpaRepositories(basePackages = {"com.mung.member"})
+@EntityScan(basePackages = {"com.mung.member", "com.mung.product"})
+@EnableJpaRepositories(basePackages = {"com.mung.member", "com.mung.product"})
 public class JpaConfig {
 }

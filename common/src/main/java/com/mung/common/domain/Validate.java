@@ -3,6 +3,7 @@ package com.mung.common.domain;
 public enum Validate {
 
     NOT_EMPTY(MESSAGE.NOT_EMPTY),
+    DUPLICATE_DATA(MESSAGE.DUPLICATE_DATA),
     EMPTY_EMAIL(MESSAGE.EMPTY_EMAIL),
     VALID_EMAIL(MESSAGE.VALID_EMAIL, REGEX.VALID_EMAIL),
     EMPTY_PASSWORD(MESSAGE.EMPTY_PASSWORD),
@@ -15,6 +16,7 @@ public enum Validate {
 
     public static class MESSAGE {
         public static final String NOT_EMPTY = "필수 입력 항목을 확인해 주십시오.";
+        public static final String DUPLICATE_DATA = "중복 데이터 입니다.";
         public static final String EMPTY_EMAIL = "이메일을 입력해 주십시오";
         public static final String VALID_EMAIL = "이메일 주소 양식을 확인해 주십시오.";
         public static final String EMPTY_PASSWORD = "비밀번호를 입력해 주십시오.";
