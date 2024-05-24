@@ -55,7 +55,7 @@ class MemberControllerTest {
     @DisplayName("[F] 메일건 에러")
     public void 메일건_에러() throws Exception {
         // given
-        ResetPasswordEmailRequest request = new ResetPasswordEmailRequest("julja.song@gmail.com", "01047286836");
+        ResetPasswordEmailRequest request = new ResetPasswordEmailRequest("user002@gmail.com", "01011111002");
         String json = objectMapper.writeValueAsString(request);
 
         // expected
@@ -145,7 +145,7 @@ class MemberControllerTest {
     public void 마이페이지_성공() throws Exception {
         // given
         String header = "jwt";
-        long memberId = 15L;
+        long memberId = 1L;
 
         given(jwtUtil.getMemberId(anyString()))
                 .willReturn(memberId);
@@ -166,14 +166,14 @@ class MemberControllerTest {
     public void 회원정보수정_성공() throws Exception {
         // given
         String header = "jwt";
-        long memberId = 15L;
+        long memberId = 1L;
 
         given(jwtUtil.getMemberId(anyString()))
                 .willReturn(memberId);
 
         UpdateMemberRequest request = UpdateMemberRequest.builder()
-                .tel("01023239494")
-                .zipcode("11111")
+                .tel("01010101010")
+                .zipcode("10101")
                 .build();
         String json = objectMapper.writeValueAsString(request);
 
@@ -193,7 +193,7 @@ class MemberControllerTest {
     public void 회원정보수정_실패_비밀번호유효성() throws Exception {
         // given
         String header = "jwt";
-        long memberId = 15L;
+        long memberId = 1L;
 
         given(jwtUtil.getMemberId(anyString()))
                 .willReturn(memberId);

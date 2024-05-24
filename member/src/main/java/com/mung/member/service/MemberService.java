@@ -13,7 +13,7 @@ import com.mung.member.request.MemberSearchCondition;
 import com.mung.member.request.ResetPasswordRequest;
 import com.mung.member.request.ResetPasswordEmailRequest;
 import com.mung.member.request.UpdateMemberRequest;
-import com.mung.member.response.MemberSearch;
+import com.mung.member.response.MemberSearchResponse;
 import com.mung.member.response.MyPageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -119,7 +119,7 @@ public class MemberService {
         return member;
     }
 
-    public Page<MemberSearch> searchMembers(MemberSearchCondition condition) {
+    public Page<MemberSearchResponse> searchMembers(MemberSearchCondition condition) {
         PageRequest pageRequest = PageRequest.of(condition.getPageNumber(), condition.getPageSize());
 
         return memberRepository.search(condition, pageRequest);

@@ -222,8 +222,8 @@ class AuthControllerTest {
     public void 로그인_성공() throws Exception {
         // given
         LoginRequest request = LoginRequest.builder()
-                .email("z.kotzen@gmail.com")
-                .password("Mung!mung1")
+                .email("user001@gmail.com")
+                .password("Test!test1")
                 .build();
 
         String json = objectMapper.writeValueAsString(request);
