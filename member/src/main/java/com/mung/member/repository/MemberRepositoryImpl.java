@@ -2,8 +2,8 @@ package com.mung.member.repository;
 
 import com.mung.member.domain.Role;
 import com.mung.member.request.MemberSearchCondition;
-import com.mung.member.response.MemberSearch;
-import com.mung.member.response.QMemberSearch;
+import com.mung.member.response.MemberSearchResponse;
+import com.mung.member.response.QMemberSearchResponse;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -26,9 +26,9 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     }
 
     @Override
-    public Page<MemberSearch> search(MemberSearchCondition condition, Pageable pageable) {
-        List<MemberSearch> members =  queryFactory.select(
-                new QMemberSearch(
+    public Page<MemberSearchResponse> search(MemberSearchCondition condition, Pageable pageable) {
+        List<MemberSearchResponse> members =  queryFactory.select(
+                new QMemberSearchResponse(
                         member.id,
                         member.name,
                         member.email,

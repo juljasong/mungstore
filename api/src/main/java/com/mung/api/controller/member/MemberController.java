@@ -7,7 +7,7 @@ import com.mung.member.request.MemberSearchCondition;
 import com.mung.member.request.ResetPasswordRequest;
 import com.mung.member.request.ResetPasswordEmailRequest;
 import com.mung.member.request.UpdateMemberRequest;
-import com.mung.member.response.MemberSearch;
+import com.mung.member.response.MemberSearchResponse;
 import com.mung.member.response.MyPageResponse;
 import com.mung.member.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -61,7 +61,7 @@ public class MemberController {
 
     @PostMapping("/members")
     @Secured(value = "ROLE_ADMIN")
-    public Page<MemberSearch> searchMembers(@RequestBody MemberSearchCondition condition) {
+    public Page<MemberSearchResponse> searchMembers(@RequestBody MemberSearchCondition condition) {
         return memberService.searchMembers(condition);
     }
 

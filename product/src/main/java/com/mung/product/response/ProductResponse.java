@@ -1,5 +1,6 @@
 package com.mung.product.response;
 
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,6 +26,7 @@ public class ProductResponse {
     private List<OptionsResponse> options = new ArrayList<>();
 
     @Builder
+    @QueryProjection
     public ProductResponse(Long id, String name, String details, Long compId, List<CategoryResponse> categories, List<OptionsResponse> options) {
         this.id = id;
         this.name = name;

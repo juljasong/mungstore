@@ -8,12 +8,16 @@ import com.mung.product.repository.ProductCategoryRepository;
 import com.mung.product.repository.ProductLogRepository;
 import com.mung.product.repository.ProductRepository;
 import com.mung.product.request.AddProductRequest;
+import com.mung.product.request.SearchProductCondition;
 import com.mung.product.response.CategoryResponse;
 import com.mung.product.response.OptionsResponse;
 import com.mung.product.response.ProductResponse;
+import com.mung.product.response.ProductSearchResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -110,5 +114,9 @@ public class ProductService {
         productCategoryRepository.saveAll(productCategories);
     }
 
+    public Page<ProductSearchResponse> searchProduct(SearchProductCondition condition) {
+        PageRequest pageRequest = PageRequest.of(condition.getPageNumber(), condition.getPageSize());
 
+        return productRepository.search(condition, pageRequest);
+    }
 }

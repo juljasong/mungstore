@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class MemberSearch {
+public class MemberSearchResponse {
 
     private Long memberId;
     private String name;
@@ -21,7 +21,7 @@ public class MemberSearch {
     private boolean isLocked;
 
     @QueryProjection
-    public MemberSearch(Long memberId, String name, String email, String tel, Role role, Address address, int loginFailCount, boolean isLocked) {
+    public MemberSearchResponse(Long memberId, String name, String email, String tel, Role role, Address address, int loginFailCount, boolean isLocked) {
         this.memberId = memberId;
         this.name = name;
         this.email = email;

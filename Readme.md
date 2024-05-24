@@ -5,6 +5,8 @@
 - **깃허브 링크** : https://github.com/juljasong/mungstore
 - **목표** : 반려동물 커머스 서버를 구축한다.
 
+### ERD
+- https://drive.google.com/file/d/1Dfvb0-fhXgXYNWcyS46xf1XYDItISyF8/view?usp=sharing
 ---
 
 ## 기술 스택
@@ -74,11 +76,11 @@
 - [ ] ~~옵션 수정~~
 - [ ] ~~옵션 삭제~~
 - [ ] ~~옵션 조회~~
-- [x 상품 등록
+- [x] 상품 등록
 - [ ] 상품 수정
 - [ ] 상품 삭제
 - [ ] 상품 조회
-  - [ ] 상세
+  - [x] 상세
   - [ ] 리스트(검색)
 - [ ] 상품 이력 관리
   - [ ] 상세
