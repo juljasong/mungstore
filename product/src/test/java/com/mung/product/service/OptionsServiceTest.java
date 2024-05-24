@@ -20,7 +20,7 @@ class OptionsServiceTest {
     public void 옵션추가_성공() throws Exception {
         // given
         AddOptionsRequest option = AddOptionsRequest.builder()
-                .productId(4L)
+                .productId(1L)
                 .name("testsetset")
                 .price(100)
                 .build();
@@ -29,7 +29,7 @@ class OptionsServiceTest {
         Options options = optionsService.addOptions(option);
 
         // then
-        assertEquals(4L, options.getProduct().getId());
+        assertEquals(1L, options.getProduct().getId());
         assertEquals("testsetset", options.getName());
     }
 
@@ -37,7 +37,7 @@ class OptionsServiceTest {
     public void 옵션추가_실패_중복() throws Exception {
         // given
         AddOptionsRequest option = AddOptionsRequest.builder()
-                .productId(4L)
+                .productId(1L)
                 .name("dddd")
                 .price(100)
                 .build();

@@ -22,7 +22,6 @@ class ProductServiceTest {
     @Autowired CategoryRepository categoryRepository;
 
     @Test
-    @Rollback(value = false)
     public void 상품등록_성공() throws Exception {
 
         // given

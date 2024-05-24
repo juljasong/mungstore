@@ -37,7 +37,7 @@ class CategoryServiceTest {
     public void 카테고리_등록_서브() throws Exception {
         // given
         AddCategoryRequest addCategoryRequest = AddCategoryRequest.builder()
-                .parentId(6L)
+                .parentId(1L)
                 .name("sub2")
                 .build();
 
