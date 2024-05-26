@@ -13,8 +13,8 @@ INSERT INTO category (category_id, name, parent_id, created_date_time, last_modi
 INSERT INTO category (category_id, name, parent_id, created_date_time, last_modified_date_time) VALUES (6, 'sub2-2', 2, NOW(), NOW());
 
 -- product
-INSERT INTO product (product_id, name, details, comp_id, active_for_sale, created_date_time, last_modified_date_time) VALUES (1, 'product1', 'details1', 5, b'0', NOW(), NOW());
-INSERT INTO product (product_id, name, details, comp_id, active_for_sale, created_date_time, last_modified_date_time) VALUES (2, 'product2', 'details2', 5, b'0', NOW(), NOW());
+INSERT INTO product (product_id, name, details, price, comp_id, active_for_sale, created_date_time, last_modified_date_time) VALUES (1, 'product1', 'details1', 30000, 5, b'0', NOW(), NOW());
+INSERT INTO product (product_id, name, details, price, comp_id, active_for_sale, created_date_time, last_modified_date_time) VALUES (2, 'product2', 'details2', 50000, 5, b'0', NOW(), NOW());
 
 -- product_category
 INSERT INTO product_category (product_id, category_id) VALUES (1, 3);
