@@ -2,7 +2,6 @@ package com.mung.product.service;
 
 import com.mung.product.domain.Product;
 import com.mung.product.domain.ProductCategory;
-import com.mung.product.domain.ProductCategoryPK;
 import com.mung.product.domain.ProductLog;
 import com.mung.product.repository.ProductCategoryRepository;
 import com.mung.product.repository.ProductLogRepository;
@@ -73,10 +72,10 @@ public class ProductService {
     private List<CategoryResponse> getCategoryResponseList(Product product) {
         return product.getCategories().stream()
                 .map(o -> CategoryResponse.builder()
-                        .id(o.getId().getCategory().getId())
-                        .name(o.getId().getCategory().getName())
-                        .parentId(o.getId().getCategory().getParent().getId())
-                        .parentName(o.getId().getCategory().getParent().getName())
+                        .id(o.getCategory().getId())
+                        .name(o.getCategory().getName())
+                        .parentId(o.getCategory().getParent().getId())
+                        .parentName(o.getCategory().getParent().getName())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -95,9 +94,14 @@ public class ProductService {
         productLogRepository.save(ProductLog.builder()
                 .product_id(product.getId())
                 .name(product.getName())
+                .price(product.getPrice())
                 .details(product.getDetails())
                 .compId(product.getCompId())
                 .activeForSale(product.getActiveForSale())
+                .createdAt(product.getCreatedAt())
+                .createdBy(product.getCreatedBy())
+                .lastModifiedAt(product.getLastModifiedAt())
+                .lastModifiedBy(product.getLastModifiedBy())
                 .build());
     }
 
@@ -105,9 +109,10 @@ public class ProductService {
         List<ProductCategory> productCategories = new ArrayList<>();
         for (Long categoryId : request.getCategoryId()) {
             productCategories.add(
-                    new ProductCategory(
-                        new ProductCategoryPK(product, categoryService.getCategory(categoryId))
-                    )
+                    ProductCategory.builder()
+                            .product(product)
+                            .category(categoryService.getCategory(categoryId))
+                            .build()
             );
         }
 

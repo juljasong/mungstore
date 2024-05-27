@@ -35,7 +35,7 @@ public class Product extends BaseEntity {
     private Boolean activeForSale;
 
     @Column(nullable = false)
-    @OneToMany(mappedBy = "id.product")
+    @OneToMany(mappedBy = "product")
     private List<ProductCategory> categories = new ArrayList<>();
 
     @Column(nullable = false)

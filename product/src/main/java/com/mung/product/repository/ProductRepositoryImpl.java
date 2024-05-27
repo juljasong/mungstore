@@ -35,7 +35,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         List<ProductSearchResponse> response = queryFactory
                 .selectFrom(product)
                 .leftJoin(product.categories, productCategory)
-                .leftJoin(productCategory.id.category, category)
+                .leftJoin(productCategory.category, category)
                 .where(productIdEq(condition.getId()),
                         nameContains(condition.getName()),
                         compIdEq(condition.getCompId()),
@@ -77,7 +77,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     private BooleanExpression categoryEq(List<Long> ids) {
-        return (ids != null && !ids.isEmpty()) ? productCategory.id.category.id.in(ids) : null;
+        return (ids != null && !ids.isEmpty()) ? productCategory.category.id.in(ids) : null;
     }
 
     private BooleanExpression productIdEq(Long productId) {

@@ -18,7 +18,6 @@ class CategoryServiceTest {
     @Autowired CategoryService categoryService;
 
     @Test
-    @Rollback(value = false)
     public void 카테고리_등록_메인() throws Exception {
         // given
         AddCategoryRequest addCategoryRequest = AddCategoryRequest.builder()
@@ -33,7 +32,6 @@ class CategoryServiceTest {
     }
 
     @Test
-    @Rollback(value = false)
     public void 카테고리_등록_서브() throws Exception {
         // given
         AddCategoryRequest addCategoryRequest = AddCategoryRequest.builder()
@@ -49,7 +47,6 @@ class CategoryServiceTest {
     }
 
     @Test
-    @Rollback(value = false)
     public void 카테고리_등록_서브_실패_부모존재X() throws Exception {
         // given
         AddCategoryRequest addCategoryRequest = AddCategoryRequest.builder()
