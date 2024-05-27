@@ -58,6 +58,7 @@ class MemberServiceTest {
         SendMailForm sendMailForm = memberService.createPasswordResetMail(resetPasswordEmailRequest);
 
         // then
+        verify(resetPasswordUuidRedisRepository).save(any());
         assertEquals(email, sendMailForm.getTo());
         assertEquals("[멍스토어] 비밀번호 재설정 안내드립니다.", sendMailForm.getSubject());
     }

@@ -13,21 +13,21 @@ public class BaseTimeEntity {
 
     @CreatedDate
     @Column(updatable = false)
-    private LocalDateTime createdDateTime;
+    private LocalDateTime createdAt;
 
     @LastModifiedDate
-    private LocalDateTime lastModifiedDateTime;
+    private LocalDateTime lastModifiedAt;
 
     @PrePersist
     public void prePersist() {
         LocalDateTime now = LocalDateTime.now();
-        createdDateTime = now;
-        lastModifiedDateTime = now;
+        createdAt = now;
+        lastModifiedAt = now;
     }
 
     @PreUpdate
     public void preUpdate() {
-        lastModifiedDateTime = LocalDateTime.now();
+        lastModifiedAt = LocalDateTime.now();
     }
 
 }
