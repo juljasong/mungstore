@@ -12,27 +12,32 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AddProductRequest {
+public class UpdateProductRequest {
+
+    @NotNull(message = Validate.MESSAGE.NOT_EMPTY)
+    private Long id;
 
     @NotBlank(message = Validate.MESSAGE.NOT_EMPTY)
     private String name;
 
-    @NotBlank(message = Validate.MESSAGE.NOT_EMPTY)
-    private String details;
-
     private int price;
 
-    private Long compId;
+    @NotBlank(message = Validate.MESSAGE.NOT_EMPTY)
+    private String details;
 
     @NotNull(message = Validate.MESSAGE.NOT_EMPTY)
     private List<Long> categoryId;
 
+    @NotNull(message = Validate.MESSAGE.NOT_EMPTY)
+    private Boolean activeForSale;
+
     @Builder
-    public AddProductRequest(String name, String details, int price, Long compId, List<Long> categoryId) {
+    public UpdateProductRequest(Long id, String name, int price, String details, List<Long> categoryId, Boolean activeForSale) {
+        this.id = id;
         this.name = name;
-        this.details = details;
         this.price = price;
-        this.compId = compId;
+        this.details = details;
         this.categoryId = categoryId;
+        this.activeForSale = activeForSale;
     }
 }

@@ -14,7 +14,6 @@ public class AddCategoryRequest {
 
     private Long parentId;
 
-    @Column(nullable = false)
     @NotBlank(message = Validate.MESSAGE.NOT_EMPTY)
     private String name;
 
