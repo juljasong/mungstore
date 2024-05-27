@@ -1,5 +1,6 @@
 package com.mung.product.domain;
 
+import com.mung.common.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
