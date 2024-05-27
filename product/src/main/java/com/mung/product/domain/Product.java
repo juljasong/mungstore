@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@DynamicInsert
 public class Product extends BaseEntity {
 
     @Id
@@ -35,6 +37,9 @@ public class Product extends BaseEntity {
     private Boolean activeForSale;
 
     @Column(nullable = false)
+    private Boolean useYn;
+
+    @Column(nullable = false)
     @OneToMany(mappedBy = "product")
     private List<ProductCategory> categories = new ArrayList<>();
 
@@ -52,9 +57,21 @@ public class Product extends BaseEntity {
         }
     }
 
-    @Builder
-    public Product(String name, String details, Long compId, boolean activeForSale) {
+    public void updateProduct(String name, int price, String details, Boolean activeForSale) {
         this.name = name;
+        this.price = price;
+        this.details = details;
+        this.activeForSale = activeForSale;
+    }
+
+    public void deleteProduct(Long id) {
+        this.useYn = false;
+    }
+
+    @Builder
+    public Product(String name, int price, String details, Long compId, Boolean activeForSale) {
+        this.name = name;
+        this.price = price;
         this.details = details;
         this.compId = compId;
         this.activeForSale = activeForSale;

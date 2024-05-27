@@ -3,7 +3,9 @@ package com.mung.api.controller.product;
 import com.mung.common.response.MessageResponse;
 import com.mung.product.domain.Product;
 import com.mung.product.request.AddProductRequest;
+import com.mung.product.request.DeleteProductRequest;
 import com.mung.product.request.SearchProductCondition;
+import com.mung.product.request.UpdateProductRequest;
 import com.mung.product.response.ProductResponse;
 import com.mung.product.response.ProductSearchResponse;
 import com.mung.product.service.ProductService;
@@ -42,4 +44,20 @@ public class ProductController {
                 .data(product)
                 .build();
     }
+
+    @PatchMapping("/admin/product")
+    public MessageResponse<?> updateProduct(@RequestBody @Valid UpdateProductRequest updateProductRequest) throws BadRequestException {
+        productService.updateProduct(updateProductRequest);
+
+        return MessageResponse.ofSuccess();
+    }
+
+    @DeleteMapping("/admin/product")
+    public MessageResponse<?> deleteProduct(@RequestBody @Valid DeleteProductRequest request) throws BadRequestException {
+        productService.deleteProduct(request);
+
+        return MessageResponse.ofSuccess();
+    }
+
+
 }
