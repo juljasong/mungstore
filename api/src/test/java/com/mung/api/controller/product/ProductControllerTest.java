@@ -1,6 +1,8 @@
 package com.mung.api.controller.product;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mung.api.controller.MockMember;
+import com.mung.member.domain.Role;
 import com.mung.product.domain.Product;
 import com.mung.product.repository.ProductLogRepository;
 import com.mung.product.repository.ProductRepository;
@@ -12,7 +14,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +44,7 @@ class ProductControllerTest {
     ProductLogRepository productLogRepository;
     
     @Test
-    @WithMockUser(username = "admin@gmail.com", roles = {"ADMIN"})
+    @MockMember(id = 4L, name = "ADMIN", role = Role.ADMIN)
     public void 상품등록_성공() throws Exception {
         // given
         AddProductRequest request = AddProductRequest.builder()
@@ -67,7 +68,7 @@ class ProductControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "admin@gmail.com", roles = {"ADMIN"})
+    @MockMember(id = 1L, name = "ADMIN", role = Role.ADMIN)
     public void 상품등록_실패_존재하지않는카테고리() throws Exception {
         // given
         AddProductRequest request = AddProductRequest.builder()
@@ -89,7 +90,7 @@ class ProductControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "admin@gmail.com", roles = {"ADMIN"})
+    @MockMember(id = 1L, name = "ADMIN", role = Role.ADMIN)
     public void 상품등록_실패() throws Exception {
         // given
         AddProductRequest request = AddProductRequest.builder()
@@ -140,7 +141,7 @@ class ProductControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "admin@gmail.com", roles = {"ADMIN"})
+    @MockMember(id = 1L, name = "ADMIN", role = Role.ADMIN)
     public void 상품수정_성공() throws Exception {
         // given
         UpdateProductRequest request = UpdateProductRequest.builder()
@@ -166,7 +167,7 @@ class ProductControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "admin@gmail.com", roles = {"ADMIN"})
+    @MockMember(id = 1L, name = "ADMIN", role = Role.ADMIN)
     public void 상품삭제_성공() throws Exception {
         // given
         UpdateProductRequest request = UpdateProductRequest.builder()

@@ -61,8 +61,10 @@ public class MemberController {
 
     @PostMapping("/members")
     @Secured(value = "ROLE_ADMIN")
-    public Page<MemberSearchResponse> searchMembers(@RequestBody MemberSearchCondition condition) {
-        return memberService.searchMembers(condition);
+    public MessageResponse<?> searchMembers(@RequestBody MemberSearchCondition condition) {
+        return MessageResponse.builder()
+                .data(memberService.searchMembers(condition))
+                .build();
     }
 
 }

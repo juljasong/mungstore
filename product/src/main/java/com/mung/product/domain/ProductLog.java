@@ -39,9 +39,9 @@ public class ProductLog {
     private Boolean activeForSale;
 
     @Column(updatable = false)
-    private String createdBy;
+    private Long createdBy;
 
-    private String lastModifiedBy;
+    private Long lastModifiedBy;
 
     @CreatedDate
     @Column(updatable = false)
@@ -51,7 +51,7 @@ public class ProductLog {
     private LocalDateTime lastModifiedAt;
 
     @Builder
-    public ProductLog(Long product_id, String name, int price, String details, Long compId, Boolean useYn, Boolean activeForSale, String createdBy, String lastModifiedBy, LocalDateTime createdAt, LocalDateTime lastModifiedAt) {
+    public ProductLog(Long product_id, String name, int price, String details, Long compId, Boolean useYn, Boolean activeForSale, Long createdBy, Long lastModifiedBy, LocalDateTime createdAt, LocalDateTime lastModifiedAt) {
         this.product_id = product_id;
         this.name = name;
         this.price = price;

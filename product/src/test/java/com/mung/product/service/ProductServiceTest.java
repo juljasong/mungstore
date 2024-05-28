@@ -41,11 +41,10 @@ class ProductServiceTest {
                 .build();
 
         // when
-        Product product = productService.addProduct(request);
+        productService.addProduct(request);
 
         // then
-        assertEquals("product1", product.getName());
-        assertEquals("상세1", product.getDetails());
+        verify(productLogRepository).save(any());
     }
 
     @Test

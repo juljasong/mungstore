@@ -38,20 +38,18 @@ public class ProductService {
     private final EntityManager em;
 
     @Transactional
-    public Product addProduct(AddProductRequest request) throws BadRequestException {
+    public void addProduct(AddProductRequest request) throws BadRequestException {
         Product product = Product.builder()
                 .name(request.getName())
                 .details(request.getDetails())
                 .price(request.getPrice())
                 .compId(request.getCompId())
-                //.activeForSale(true)
+                .activeForSale(true)
                 .build();
         productRepository.save(product);
 
         createCategoryAssociation(request.getCategoryId(), product);
         logProduct(product);
-
-        return product;
     }
 
     public Product getProduct(Long productId) throws BadRequestException {
@@ -166,8 +164,8 @@ public class ProductService {
                             .build()
             );
         }
-
         productCategoryRepository.saveAll(productCategories);
+        product.setCategory(productCategories);
     }
 
     public Page<ProductSearchResponse> searchProduct(SearchProductCondition condition) {

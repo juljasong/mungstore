@@ -1,10 +1,7 @@
 package com.mung.product.response;
 
 import com.querydsl.core.annotations.QueryProjection;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
