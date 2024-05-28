@@ -1,20 +1,16 @@
 package com.mung.member.service;
 
 import com.mung.member.config.JwtUtil;
-import com.mung.member.domain.Member;
-import com.mung.member.domain.RefreshToken;
-import com.mung.member.domain.Role;
+import com.mung.member.domain.*;
 import com.mung.member.dto.LoginDto;
 import com.mung.member.exception.AlreadyExistsEmailException;
 import com.mung.member.exception.AlreadyExistsTelException;
 import com.mung.member.exception.MemberNotFoundException;
 import com.mung.member.exception.Unauthorized;
-import com.mung.member.repository.AccessTokenRedisRepository;
-import com.mung.member.repository.LoginLogRepository;
-import com.mung.member.repository.MemberRepository;
-import com.mung.member.repository.RefreshTokenRedisRepository;
+import com.mung.member.repository.*;
 import com.mung.member.request.LoginRequest;
 import com.mung.member.request.SignupRequest;
+import jakarta.persistence.EntityManager;
 import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,10 +31,12 @@ class AuthServiceTest {
 
     @Mock private MemberRepository memberRepository;
     @Mock private LoginLogRepository loginLogRepository;
+    @Mock private MemberLogRepository memberLogRepository;
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private JwtUtil jwtUtil;
     @Mock private AccessTokenRedisRepository accessTokenRedisRepository;
     @Mock private RefreshTokenRedisRepository refreshTokenRedisRepository;
+    @Mock private EntityManager em;
 
     @InjectMocks private AuthService authService;
 
@@ -51,15 +49,21 @@ class AuthServiceTest {
                 .name("테스트")
                 .role("user")
                 .build();
+
+        Member member = Member.builder().address(new Address("", "", "")).build();
+        ReflectionTestUtils.setField(member, "id", 0L);
+
         when(memberRepository.save(any(Member.class)))
                 .then(AdditionalAnswers.returnsFirstArg());
+        when(memberRepository.findById(any()))
+                .thenReturn(Optional.of(member));
 
         // when
-        Member member = authService.signup(signupRequest);
+        authService.signup(signupRequest);
 
         // then
         verify(memberRepository).save(any());
-        assertEquals("test@gmail.com", member.getEmail());
+        verify(memberLogRepository).save(any());
     }
 
     @Test

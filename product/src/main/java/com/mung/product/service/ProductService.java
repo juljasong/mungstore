@@ -38,7 +38,7 @@ public class ProductService {
     private final EntityManager em;
 
     @Transactional
-    public void addProduct(AddProductRequest request) throws BadRequestException {
+    public void addProduct(AddProductRequest request) throws Exception {
         Product product = Product.builder()
                 .name(request.getName())
                 .details(request.getDetails())
@@ -47,9 +47,9 @@ public class ProductService {
                 .activeForSale(true)
                 .build();
         productRepository.save(product);
-
         createCategoryAssociation(request.getCategoryId(), product);
-        logProduct(product);
+
+        logProduct(product.getId());
     }
 
     public Product getProduct(Long productId) throws BadRequestException {
@@ -72,7 +72,7 @@ public class ProductService {
     }
 
     @Transactional
-    public void updateProduct(UpdateProductRequest request) throws BadRequestException {
+    public void updateProduct(UpdateProductRequest request) throws Exception {
         Product product = productRepository.findByIdAndUseYn(request.getId(), true)
                 .orElseThrow(BadRequestException::new);
         List<Long> productCategories = new ArrayList<>();
@@ -106,15 +106,15 @@ public class ProductService {
                 request.getActiveForSale()
         );
 
-        logProduct(product);
+        logProduct(product.getId());
     }
 
     @Transactional
-    public void deleteProduct(DeleteProductRequest request) throws BadRequestException {
+    public void deleteProduct(DeleteProductRequest request) throws Exception {
         Product product = productRepository.findByIdAndUseYn(request.getId(), true)
                 .orElseThrow(BadRequestException::new);
         product.deleteProduct(request.getId());
-        logProduct(product);
+        logProduct(product.getId());
     }
 
     private List<CategoryResponse> getCategoryResponseList(Product product) {
@@ -138,7 +138,11 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    private void logProduct(Product product) {
+    private void logProduct(Long productId) throws Exception {
+        em.flush();
+        em.clear();
+        Product product = productRepository.findById(productId)
+                .orElseThrow(Exception::new);
         productLogRepository.save(ProductLog.builder()
                 .product_id(product.getId())
                 .name(product.getName())

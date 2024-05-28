@@ -25,13 +25,13 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signup")
-    public MessageResponse signup(@RequestBody @Valid SignupRequest signupRequest) {
+    public MessageResponse<?> signup(@RequestBody @Valid SignupRequest signupRequest) throws Exception {
         authService.signup(signupRequest);
         return MessageResponse.ofSuccess();
     }
 
     @PostMapping("/login")
-    public MessageResponse<Object> login(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse response) {
+    public MessageResponse<?> login(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse response) {
         LoginDto loginDto = authService.login(loginRequest);
 
         response.addHeader("Authorization", "Bearer " + loginDto.getAccessToken());
@@ -45,7 +45,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public MessageResponse<Object> refreshAccessToken(@RequestBody RefreshTokenRequest refreshTokenRequest, HttpServletResponse response) throws BadRequestException {
+    public MessageResponse<?> refreshAccessToken(@RequestBody RefreshTokenRequest refreshTokenRequest, HttpServletResponse response) throws BadRequestException {
         LoginDto loginDto = authService.refreshAccessToken(refreshTokenRequest.getRefreshToken());
 
         response.addHeader("Authorization", "Bearer " + loginDto.getAccessToken());
@@ -58,7 +58,7 @@ public class AuthController {
     }
 
     @GetMapping("/logout")
-    public MessageResponse logout(HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
+    public MessageResponse<?> logout(HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
         authService.logout(request.getHeader("Authorization"));
         response.setHeader("Authorization", null);
 

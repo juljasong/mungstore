@@ -2,19 +2,18 @@ package com.mung.member.service;
 
 import com.mung.common.domain.SendMailForm;
 import com.mung.member.config.JwtUtil;
-import com.mung.member.domain.Address;
-import com.mung.member.domain.Member;
-import com.mung.member.domain.ResetPasswordUuid;
-import com.mung.member.domain.Role;
+import com.mung.member.domain.*;
 import com.mung.member.exception.IncorrectEmailAndTelException;
 import com.mung.member.exception.InvalidPasswordException;
 import com.mung.member.exception.Unauthorized;
+import com.mung.member.repository.MemberLogRepository;
 import com.mung.member.repository.MemberRepository;
 import com.mung.member.repository.ResetPasswordUuidRedisRepository;
 import com.mung.member.request.ResetPasswordEmailRequest;
 import com.mung.member.request.ResetPasswordRequest;
 import com.mung.member.request.UpdateMemberRequest;
 import com.mung.member.response.MyPageResponse;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,9 +31,11 @@ import static org.mockito.BDDMockito.*;
 class MemberServiceTest {
 
     @Mock private MemberRepository memberRepository;
+    @Mock private MemberLogRepository memberLogRepository;
     @Mock private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Mock private ResetPasswordUuidRedisRepository resetPasswordUuidRedisRepository;
     @Mock private JwtUtil jwtUtil;
+    @Mock private EntityManager em;
 
     @InjectMocks private MemberService memberService;
 
@@ -95,7 +96,7 @@ class MemberServiceTest {
                         .uuid(uuid)
                         .build()));
 
-        Member member = new Member("", "", "", null, Role.USER, null);
+        Member member = new Member("", "", "", null, Role.USER, new Address("", "", ""));
         ReflectionTestUtils.setField(member, "id", 15L);
         given(memberRepository.findById(15L))
                 .willReturn(Optional.of(member));
@@ -108,6 +109,7 @@ class MemberServiceTest {
 
         // then
         verify(resetPasswordUuidRedisRepository).delete(any());
+        verify(memberLogRepository).save(any());
     }
 
     @Test
@@ -168,6 +170,7 @@ class MemberServiceTest {
         assertEquals(15L, result.getId());
         assertEquals("test@gmail.com", result.getEmail());
         assertEquals("11111", result.getAddress().getZipcode());
+        verify(memberLogRepository).save(any());
     }
 
     @Test

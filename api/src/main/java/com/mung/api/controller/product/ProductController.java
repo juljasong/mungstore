@@ -36,21 +36,21 @@ public class ProductController {
     }
 
     @PostMapping("/admin/product")
-    public MessageResponse<?> addProduct(@RequestBody @Valid AddProductRequest addProductRequest) throws BadRequestException {
+    public MessageResponse<?> addProduct(@RequestBody @Valid AddProductRequest addProductRequest) throws Exception {
         productService.addProduct(addProductRequest);
 
         return MessageResponse.ofSuccess();
     }
 
     @PatchMapping("/admin/product")
-    public MessageResponse<?> updateProduct(@RequestBody @Valid UpdateProductRequest updateProductRequest) throws BadRequestException {
+    public MessageResponse<?> updateProduct(@RequestBody @Valid UpdateProductRequest updateProductRequest) throws Exception {
         productService.updateProduct(updateProductRequest);
 
         return MessageResponse.ofSuccess();
     }
 
     @DeleteMapping("/admin/product")
-    public MessageResponse<?> deleteProduct(@RequestBody @Valid DeleteProductRequest request) throws BadRequestException {
+    public MessageResponse<?> deleteProduct(@RequestBody @Valid DeleteProductRequest request) throws Exception {
         productService.deleteProduct(request);
 
         return MessageResponse.ofSuccess();

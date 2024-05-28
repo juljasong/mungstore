@@ -67,6 +67,7 @@ class ProductServiceTest {
         assertEquals("test", product.getName());
         assertEquals(3, product.getCategories().size());
         assertEquals(false, product.getActiveForSale());
+        verify(productLogRepository).save(any());
     }
 
     @Test
