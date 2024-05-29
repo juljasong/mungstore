@@ -2,9 +2,7 @@ package com.mung.product.service;
 
 import com.mung.product.domain.Product;
 import com.mung.product.domain.ProductCategory;
-import com.mung.product.domain.ProductLog;
 import com.mung.product.repository.ProductCategoryRepository;
-import com.mung.product.repository.ProductLogRepository;
 import com.mung.product.repository.ProductRepository;
 import com.mung.product.request.AddProductRequest;
 import com.mung.product.request.DeleteProductRequest;
@@ -32,26 +30,23 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final ProductLogRepository productLogRepository;
     private final ProductCategoryRepository productCategoryRepository;
     private final CategoryService categoryService;
     private final EntityManager em;
 
     @Transactional
-    public Product addProduct(AddProductRequest request) throws BadRequestException {
+    public void addProduct(AddProductRequest request) throws Exception {
         Product product = Product.builder()
                 .name(request.getName())
                 .details(request.getDetails())
                 .price(request.getPrice())
                 .compId(request.getCompId())
-                //.activeForSale(true)
+                .activeForSale(true)
+                .useYn(true)
                 .build();
         productRepository.save(product);
-
         createCategoryAssociation(request.getCategoryId(), product);
-        logProduct(product);
 
-        return product;
     }
 
     public Product getProduct(Long productId) throws BadRequestException {
@@ -74,7 +69,7 @@ public class ProductService {
     }
 
     @Transactional
-    public void updateProduct(UpdateProductRequest request) throws BadRequestException {
+    public void updateProduct(UpdateProductRequest request) throws Exception {
         Product product = productRepository.findByIdAndUseYn(request.getId(), true)
                 .orElseThrow(BadRequestException::new);
         List<Long> productCategories = new ArrayList<>();
@@ -108,15 +103,13 @@ public class ProductService {
                 request.getActiveForSale()
         );
 
-        logProduct(product);
     }
 
     @Transactional
-    public void deleteProduct(DeleteProductRequest request) throws BadRequestException {
+    public void deleteProduct(DeleteProductRequest request) throws Exception {
         Product product = productRepository.findByIdAndUseYn(request.getId(), true)
                 .orElseThrow(BadRequestException::new);
         product.deleteProduct(request.getId());
-        logProduct(product);
     }
 
     private List<CategoryResponse> getCategoryResponseList(Product product) {
@@ -140,22 +133,6 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    private void logProduct(Product product) {
-        productLogRepository.save(ProductLog.builder()
-                .product_id(product.getId())
-                .name(product.getName())
-                .price(product.getPrice())
-                .details(product.getDetails())
-                .compId(product.getCompId())
-                .useYn(product.getUseYn())
-                .activeForSale(product.getActiveForSale())
-                .createdAt(product.getCreatedAt())
-                .createdBy(product.getCreatedBy())
-                .lastModifiedAt(product.getLastModifiedAt())
-                .lastModifiedBy(product.getLastModifiedBy())
-                .build());
-    }
-
     private void createCategoryAssociation(List<Long> categoryId, Product product) throws BadRequestException {
         List<ProductCategory> productCategories = new ArrayList<>();
         for (Long id : categoryId) {
@@ -166,8 +143,8 @@ public class ProductService {
                             .build()
             );
         }
-
         productCategoryRepository.saveAll(productCategories);
+        product.setCategory(productCategories);
     }
 
     public Page<ProductSearchResponse> searchProduct(SearchProductCondition condition) {

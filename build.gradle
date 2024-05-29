@@ -33,6 +33,8 @@ subprojects {
 		runtimeOnly 'com.mysql:mysql-connector-j'
 		implementation 'org.flywaydb:flyway-core'
 		implementation 'org.flywaydb:flyway-mysql'
+		implementation 'org.springframework.data:spring-data-envers'
+
 
 		implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
 		annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"

@@ -2,7 +2,6 @@ package com.mung.product.service;
 
 import com.mung.product.domain.Product;
 import com.mung.product.repository.CategoryRepository;
-import com.mung.product.repository.ProductLogRepository;
 import com.mung.product.repository.ProductRepository;
 import com.mung.product.request.AddProductRequest;
 import com.mung.product.request.DeleteProductRequest;
@@ -11,13 +10,11 @@ import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
 
 @Transactional
 @SpringBootTest
@@ -26,8 +23,6 @@ class ProductServiceTest {
     @Autowired ProductService productService;
     @Autowired ProductRepository productRepository;
     @Autowired CategoryRepository categoryRepository;
-
-    @MockBean ProductLogRepository productLogRepository;
 
     @Test
     public void 상품등록_성공() throws Exception {
@@ -41,11 +36,10 @@ class ProductServiceTest {
                 .build();
 
         // when
-        Product product = productService.addProduct(request);
+        productService.addProduct(request);
 
         // then
-        assertEquals("product1", product.getName());
-        assertEquals("상세1", product.getDetails());
+
     }
 
     @Test
@@ -118,7 +112,6 @@ class ProductServiceTest {
         // then
         Product product = productRepository.findById(request.getId()).get();
         assertEquals(false, product.getUseYn());
-        verify(productLogRepository).save(any());
     }
 
     @Test

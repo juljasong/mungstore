@@ -8,12 +8,15 @@ import com.mung.member.repository.LoginLogRepository;
 import com.mung.member.repository.MemberRepository;
 import com.mung.member.request.LoginRequest;
 import com.mung.member.request.SignupRequest;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static org.springframework.util.StringUtils.*;
 
 @Service
 @Slf4j
@@ -24,9 +27,10 @@ public class AuthService {
     private final LoginLogRepository loginLogRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final EntityManager em;
 
     @Transactional
-    public Member signup(SignupRequest signupRequest) {
+    public void signup(SignupRequest signupRequest) throws Exception {
         checkDuplicateEmailAndTel(signupRequest);
 
         Member member = Member.builder()
@@ -35,10 +39,17 @@ public class AuthService {
                 .name(signupRequest.getName())
                 .tel(signupRequest.getTel())
                 .role(signupRequest.getRole().equals("comp") ? Role.COMP : signupRequest.getRole().equals("admin") ? Role.ADMIN : Role.USER)
-                .address(new Address(signupRequest.getZipcode(), signupRequest.getCity(), signupRequest.getStreet()))
+                .address(createAddress(signupRequest))
                 .build();
+        Member saved = memberRepository.save(member);
 
-        return memberRepository.save(member);
+    }
+
+    private Address createAddress(SignupRequest signupRequest) {
+        String zipcode = hasText(signupRequest.getZipcode()) ? signupRequest.getZipcode() : "";
+        String city = hasText(signupRequest.getCity()) ? signupRequest.getCity() : "";
+        String street = hasText(signupRequest.getStreet()) ? signupRequest.getStreet() : "";
+        return new Address(zipcode, city, street);
     }
 
     @Transactional(noRollbackFor = MemberNotFoundException.class)

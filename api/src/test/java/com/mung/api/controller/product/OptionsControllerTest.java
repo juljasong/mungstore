@@ -1,6 +1,8 @@
 package com.mung.api.controller.product;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mung.api.controller.MockMember;
+import com.mung.member.domain.Role;
 import com.mung.product.repository.OptionsRepository;
 import com.mung.product.request.AddOptionsRequest;
 import org.junit.jupiter.api.Test;
@@ -8,11 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -32,7 +32,7 @@ class OptionsControllerTest {
     OptionsRepository optionsRepository;
 
     @Test
-    @WithMockUser(username = "admin@gmail.com", roles = {"ADMIN"})
+    @MockMember(id = 1L, name = "ADMIN", role = Role.ADMIN)
     public void 옵션등록_성공() throws Exception {
         // given
         AddOptionsRequest request = AddOptionsRequest.builder()
@@ -52,7 +52,7 @@ class OptionsControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "admin@gmail.com", roles = {"ADMIN"})
+    @MockMember(id = 1L, name = "ADMIN", role = Role.ADMIN)
     public void 옵션등록_실패_중복옵션() throws Exception {
         // given
         AddOptionsRequest request = AddOptionsRequest.builder()
@@ -76,7 +76,7 @@ class OptionsControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "admin@gmail.com", roles = {"ADMIN"})
+    @MockMember(id = 1L, name = "ADMIN", role = Role.ADMIN)
     public void 옵션등록_실패_상품id에상품존재X() throws Exception {
         // given
         AddOptionsRequest request = AddOptionsRequest.builder()

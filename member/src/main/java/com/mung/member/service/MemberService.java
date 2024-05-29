@@ -15,6 +15,7 @@ import com.mung.member.request.ResetPasswordEmailRequest;
 import com.mung.member.request.UpdateMemberRequest;
 import com.mung.member.response.MemberSearchResponse;
 import com.mung.member.response.MyPageResponse;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
@@ -38,6 +39,7 @@ public class MemberService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final ResetPasswordUuidRedisRepository resetPasswordUuidRedisRepository;
     private final JwtUtil jwtUtil;
+    private final EntityManager em;
 
     public SendMailForm createPasswordResetMail(ResetPasswordEmailRequest resetPasswordEmailRequest) throws Exception {
 
@@ -78,6 +80,7 @@ public class MemberService {
 
         member.resetPassword(bCryptPasswordEncoder.encode(resetPasswordRequest.getPassword()));
         resetPasswordUuidRedisRepository.delete(resetPasswordUuid);
+
     }
 
     public MyPageResponse getMember(Long memberId, String jwt) throws Exception {

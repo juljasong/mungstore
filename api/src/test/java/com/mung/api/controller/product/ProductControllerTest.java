@@ -1,8 +1,9 @@
 package com.mung.api.controller.product;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mung.api.controller.MockMember;
+import com.mung.member.domain.Role;
 import com.mung.product.domain.Product;
-import com.mung.product.repository.ProductLogRepository;
 import com.mung.product.repository.ProductRepository;
 import com.mung.product.request.AddProductRequest;
 import com.mung.product.request.UpdateProductRequest;
@@ -10,9 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +19,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -39,11 +37,8 @@ class ProductControllerTest {
     @Autowired
     ProductRepository productRepository;
 
-    @MockBean
-    ProductLogRepository productLogRepository;
-    
     @Test
-    @WithMockUser(username = "admin@gmail.com", roles = {"ADMIN"})
+    @MockMember(id = 4L, name = "ADMIN", role = Role.ADMIN)
     public void 상품등록_성공() throws Exception {
         // given
         AddProductRequest request = AddProductRequest.builder()
@@ -63,11 +58,10 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
                 .andDo(print());
 
-        verify(productLogRepository).save(any());
     }
 
     @Test
-    @WithMockUser(username = "admin@gmail.com", roles = {"ADMIN"})
+    @MockMember(id = 1L, name = "ADMIN", role = Role.ADMIN)
     public void 상품등록_실패_존재하지않는카테고리() throws Exception {
         // given
         AddProductRequest request = AddProductRequest.builder()
@@ -89,7 +83,7 @@ class ProductControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "admin@gmail.com", roles = {"ADMIN"})
+    @MockMember(id = 1L, name = "ADMIN", role = Role.ADMIN)
     public void 상품등록_실패() throws Exception {
         // given
         AddProductRequest request = AddProductRequest.builder()
@@ -140,7 +134,7 @@ class ProductControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "admin@gmail.com", roles = {"ADMIN"})
+    @MockMember(id = 1L, name = "ADMIN", role = Role.ADMIN)
     public void 상품수정_성공() throws Exception {
         // given
         UpdateProductRequest request = UpdateProductRequest.builder()
@@ -162,11 +156,10 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
                 .andDo(print());
 
-        verify(productLogRepository).save(any());
     }
 
     @Test
-    @WithMockUser(username = "admin@gmail.com", roles = {"ADMIN"})
+    @MockMember(id = 1L, name = "ADMIN", role = Role.ADMIN)
     public void 상품삭제_성공() throws Exception {
         // given
         UpdateProductRequest request = UpdateProductRequest.builder()
@@ -185,7 +178,6 @@ class ProductControllerTest {
 
         Optional<Product> product = productRepository.findById(request.getId());
         assertEquals(false, product.get().getUseYn());
-        verify(productLogRepository).save(any());
     }
 
 }

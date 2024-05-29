@@ -1,8 +1,10 @@
 package com.mung.api.controller.member;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mung.api.controller.MockMember;
 import com.mung.common.domain.Validate;
 import com.mung.member.config.JwtUtil;
+import com.mung.member.domain.Role;
 import com.mung.member.request.ResetPasswordRequest;
 import com.mung.member.request.ResetPasswordEmailRequest;
 import com.mung.member.request.UpdateMemberRequest;
@@ -13,7 +15,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.BDDMockito.*;
@@ -141,7 +142,7 @@ class MemberControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "z.kotzen@gmail.com", roles = {"USER"})
+    @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 마이페이지_성공() throws Exception {
         // given
         String header = "jwt";
@@ -162,7 +163,7 @@ class MemberControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "z.kotzen@gmail.com", roles = {"USER"})
+    @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 회원정보수정_성공() throws Exception {
         // given
         String header = "jwt";
@@ -189,7 +190,7 @@ class MemberControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "z.kotzen@gmail.com", roles = {"USER"})
+    @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 회원정보수정_실패_비밀번호유효성() throws Exception {
         // given
         String header = "jwt";
@@ -215,7 +216,7 @@ class MemberControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "z.kotzen@gmail.com", roles = {"USER"})
+    @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 회원정보수정_실패_jwt인증실패() throws Exception {
         // given
         String header = "jwt";

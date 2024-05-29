@@ -57,7 +57,7 @@ class AuthControllerTest {
                         .content(json)
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("OK"))
+                .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
                 .andDo(print());
 
         // then
@@ -86,7 +86,7 @@ class AuthControllerTest {
                         .content(json)
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("OK"))
+                .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
                 .andDo(print());
 
         // then
@@ -115,7 +115,7 @@ class AuthControllerTest {
                         .content(json)
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("OK"))
+                .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
                 .andDo(print());
 
         // then
