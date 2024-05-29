@@ -4,11 +4,9 @@ import com.mung.common.domain.SendMailForm;
 import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.Address;
 import com.mung.member.domain.Member;
-import com.mung.member.domain.MemberLog;
 import com.mung.member.domain.ResetPasswordUuid;
 import com.mung.member.exception.IncorrectEmailAndTelException;
 import com.mung.member.exception.Unauthorized;
-import com.mung.member.repository.MemberLogRepository;
 import com.mung.member.repository.MemberRepository;
 import com.mung.member.repository.ResetPasswordUuidRedisRepository;
 import com.mung.member.request.MemberSearchCondition;
@@ -38,7 +36,6 @@ import static org.springframework.util.StringUtils.*;
 public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final MemberLogRepository memberLogRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final ResetPasswordUuidRedisRepository resetPasswordUuidRedisRepository;
     private final JwtUtil jwtUtil;
@@ -84,7 +81,6 @@ public class MemberService {
         member.resetPassword(bCryptPasswordEncoder.encode(resetPasswordRequest.getPassword()));
         resetPasswordUuidRedisRepository.delete(resetPasswordUuid);
 
-        logMember(member.getId());
     }
 
     public MyPageResponse getMember(Long memberId, String jwt) throws Exception {
@@ -123,7 +119,6 @@ public class MemberService {
             member.updateAddress(new Address(request.getZipcode(), request.getCity(), request.getStreet()));
         }
 
-        logMember(memberId);
         return member;
     }
 
@@ -137,29 +132,6 @@ public class MemberService {
         if (!Objects.equals(memberId, jwtUtil.getMemberId(jwt))) {
             throw new Unauthorized();
         }
-    }
-
-    private void logMember(Long memberId) throws Exception {
-        em.flush();
-        em.clear();
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(Exception::new);
-        Address address = member.getAddress();
-        memberLogRepository.save(MemberLog.builder()
-                .memberId(member.getId())
-                .email(member.getEmail())
-                .password(member.getPassword())
-                .name(member.getName())
-                .tel(member.getTel())
-                .role(member.getRole())
-                .address(new Address(address.getZipcode(), address.getCity(), address.getStreet()))
-                .loginFailCount(member.getLoginFailCount())
-                .isLocked(member.isLocked())
-                .createdAt(member.getCreatedAt())
-                .createdBy(member.getCreatedBy())
-                .lastModifiedAt(member.getLastModifiedAt())
-                .lastModifiedBy(member.getLastModifiedBy())
-                .build());
     }
 
 }

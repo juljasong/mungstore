@@ -1,15 +1,24 @@
 package com.mung.member.domain;
 
 import com.mung.common.domain.BaseEntity;
+import com.mung.common.domain.BaseTimeEntity;
 import com.mung.common.domain.Validate;
 import com.mung.member.exception.InvalidPasswordException;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.envers.AuditOverride;
+import org.hibernate.envers.AuditOverrides;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Audited
+@AuditOverrides(value = {
+        @AuditOverride(forClass = BaseEntity.class),
+        @AuditOverride(forClass = BaseTimeEntity.class)
+})
 public class Member extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

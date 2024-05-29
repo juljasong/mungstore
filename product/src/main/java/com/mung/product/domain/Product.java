@@ -1,9 +1,14 @@
 package com.mung.product.domain;
 
 import com.mung.common.domain.BaseEntity;
+import com.mung.common.domain.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.envers.AuditOverride;
+import org.hibernate.envers.AuditOverrides;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +17,11 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicInsert
+@Audited
+@AuditOverrides(value = {
+        @AuditOverride(forClass = BaseEntity.class),
+        @AuditOverride(forClass = BaseTimeEntity.class)
+})
 public class Product extends BaseEntity {
 
     @Id
@@ -38,10 +48,12 @@ public class Product extends BaseEntity {
 
     @Column(nullable = false)
     @OneToMany(mappedBy = "product")
+    @NotAudited
     private List<ProductCategory> categories = new ArrayList<>();
 
     @Column(nullable = false)
     @OneToMany(mappedBy = "product")
+    @NotAudited
     private List<Options> options = new ArrayList<>();
 
 //    @OneToMany(mappedBy = "product")
@@ -66,11 +78,12 @@ public class Product extends BaseEntity {
     }
 
     @Builder
-    public Product(String name, int price, String details, Long compId, Boolean activeForSale) {
+    public Product(String name, int price, String details, Long compId, Boolean activeForSale, Boolean useYn) {
         this.name = name;
         this.price = price;
         this.details = details;
         this.compId = compId;
         this.activeForSale = activeForSale;
+        this.useYn = useYn;
     }
 }

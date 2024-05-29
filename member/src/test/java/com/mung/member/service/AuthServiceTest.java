@@ -31,7 +31,6 @@ class AuthServiceTest {
 
     @Mock private MemberRepository memberRepository;
     @Mock private LoginLogRepository loginLogRepository;
-    @Mock private MemberLogRepository memberLogRepository;
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private JwtUtil jwtUtil;
     @Mock private AccessTokenRedisRepository accessTokenRedisRepository;
@@ -55,15 +54,12 @@ class AuthServiceTest {
 
         when(memberRepository.save(any(Member.class)))
                 .then(AdditionalAnswers.returnsFirstArg());
-        when(memberRepository.findById(any()))
-                .thenReturn(Optional.of(member));
 
         // when
         authService.signup(signupRequest);
 
         // then
         verify(memberRepository).save(any());
-        verify(memberLogRepository).save(any());
     }
 
     @Test

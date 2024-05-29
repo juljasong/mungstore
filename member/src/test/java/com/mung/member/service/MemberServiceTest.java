@@ -6,7 +6,6 @@ import com.mung.member.domain.*;
 import com.mung.member.exception.IncorrectEmailAndTelException;
 import com.mung.member.exception.InvalidPasswordException;
 import com.mung.member.exception.Unauthorized;
-import com.mung.member.repository.MemberLogRepository;
 import com.mung.member.repository.MemberRepository;
 import com.mung.member.repository.ResetPasswordUuidRedisRepository;
 import com.mung.member.request.ResetPasswordEmailRequest;
@@ -31,7 +30,6 @@ import static org.mockito.BDDMockito.*;
 class MemberServiceTest {
 
     @Mock private MemberRepository memberRepository;
-    @Mock private MemberLogRepository memberLogRepository;
     @Mock private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Mock private ResetPasswordUuidRedisRepository resetPasswordUuidRedisRepository;
     @Mock private JwtUtil jwtUtil;
@@ -109,7 +107,6 @@ class MemberServiceTest {
 
         // then
         verify(resetPasswordUuidRedisRepository).delete(any());
-        verify(memberLogRepository).save(any());
     }
 
     @Test
@@ -170,7 +167,6 @@ class MemberServiceTest {
         assertEquals(15L, result.getId());
         assertEquals("test@gmail.com", result.getEmail());
         assertEquals("11111", result.getAddress().getZipcode());
-        verify(memberLogRepository).save(any());
     }
 
     @Test

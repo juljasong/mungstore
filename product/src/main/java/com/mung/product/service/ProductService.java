@@ -2,9 +2,7 @@ package com.mung.product.service;
 
 import com.mung.product.domain.Product;
 import com.mung.product.domain.ProductCategory;
-import com.mung.product.domain.ProductLog;
 import com.mung.product.repository.ProductCategoryRepository;
-import com.mung.product.repository.ProductLogRepository;
 import com.mung.product.repository.ProductRepository;
 import com.mung.product.request.AddProductRequest;
 import com.mung.product.request.DeleteProductRequest;
@@ -32,7 +30,6 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final ProductLogRepository productLogRepository;
     private final ProductCategoryRepository productCategoryRepository;
     private final CategoryService categoryService;
     private final EntityManager em;
@@ -45,11 +42,11 @@ public class ProductService {
                 .price(request.getPrice())
                 .compId(request.getCompId())
                 .activeForSale(true)
+                .useYn(true)
                 .build();
         productRepository.save(product);
         createCategoryAssociation(request.getCategoryId(), product);
 
-        logProduct(product.getId());
     }
 
     public Product getProduct(Long productId) throws BadRequestException {
@@ -106,7 +103,6 @@ public class ProductService {
                 request.getActiveForSale()
         );
 
-        logProduct(product.getId());
     }
 
     @Transactional
@@ -114,7 +110,6 @@ public class ProductService {
         Product product = productRepository.findByIdAndUseYn(request.getId(), true)
                 .orElseThrow(BadRequestException::new);
         product.deleteProduct(request.getId());
-        logProduct(product.getId());
     }
 
     private List<CategoryResponse> getCategoryResponseList(Product product) {
@@ -136,26 +131,6 @@ public class ProductService {
                         .price(o.getPrice())
                         .build())
                 .collect(Collectors.toList());
-    }
-
-    private void logProduct(Long productId) throws Exception {
-        em.flush();
-        em.clear();
-        Product product = productRepository.findById(productId)
-                .orElseThrow(Exception::new);
-        productLogRepository.save(ProductLog.builder()
-                .product_id(product.getId())
-                .name(product.getName())
-                .price(product.getPrice())
-                .details(product.getDetails())
-                .compId(product.getCompId())
-                .useYn(product.getUseYn())
-                .activeForSale(product.getActiveForSale())
-                .createdAt(product.getCreatedAt())
-                .createdBy(product.getCreatedBy())
-                .lastModifiedAt(product.getLastModifiedAt())
-                .lastModifiedBy(product.getLastModifiedBy())
-                .build());
     }
 
     private void createCategoryAssociation(List<Long> categoryId, Product product) throws BadRequestException {

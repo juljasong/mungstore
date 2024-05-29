@@ -5,7 +5,6 @@ import com.mung.member.domain.*;
 import com.mung.member.dto.LoginDto;
 import com.mung.member.exception.*;
 import com.mung.member.repository.LoginLogRepository;
-import com.mung.member.repository.MemberLogRepository;
 import com.mung.member.repository.MemberRepository;
 import com.mung.member.request.LoginRequest;
 import com.mung.member.request.SignupRequest;
@@ -25,7 +24,6 @@ import static org.springframework.util.StringUtils.*;
 public class AuthService {
 
     private final MemberRepository memberRepository;
-    private final MemberLogRepository memberLogRepository;
     private final LoginLogRepository loginLogRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
@@ -45,7 +43,6 @@ public class AuthService {
                 .build();
         Member saved = memberRepository.save(member);
 
-        logMember(saved.getId());
     }
 
     private Address createAddress(SignupRequest signupRequest) {
@@ -125,28 +122,5 @@ public class AuthService {
                 .accessToken(jwtUtil.createToken(token.getMemberId(), JwtUtil.ACCESS_EXPIRATION_TIME))
                 .memberId(token.getMemberId())
                 .build();
-    }
-
-    private void logMember(Long memberId) throws Exception {
-        em.flush();
-        em.clear();
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(Exception::new);
-        Address address = member.getAddress();
-        memberLogRepository.save(MemberLog.builder()
-                .memberId(member.getId())
-                .email(member.getEmail())
-                .password(member.getPassword())
-                .name(member.getName())
-                .tel(member.getTel())
-                .role(member.getRole())
-                .address(new Address(address.getZipcode(), address.getCity(), address.getStreet()))
-                .loginFailCount(member.getLoginFailCount())
-                .isLocked(member.isLocked())
-                .createdAt(member.getCreatedAt())
-                .createdBy(member.getCreatedBy())
-                .lastModifiedAt(member.getLastModifiedAt())
-                .lastModifiedBy(member.getLastModifiedBy())
-                .build());
     }
 }
