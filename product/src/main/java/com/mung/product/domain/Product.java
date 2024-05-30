@@ -46,10 +46,10 @@ public class Product extends BaseEntity {
     @Column(nullable = false)
     private Boolean useYn;
 
-    @Column(nullable = false)
-    @OneToMany(mappedBy = "product")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
     @NotAudited
-    private List<ProductCategory> categories = new ArrayList<>();
+    private Category category;
 
     @Column(nullable = false)
     @OneToMany(mappedBy = "product")
@@ -59,18 +59,17 @@ public class Product extends BaseEntity {
 //    @OneToMany(mappedBy = "product")
 //    private List<Review> reviews = new ArrayList<>();
 
-    public void setCategory(List<ProductCategory> list) {
-        if (!list.isEmpty()) {
-            this.categories.clear();
-            this.categories.addAll(list);
-        }
+    public void setCategory(Category category) {
+        this.category = category;
+        category.getProducts().add(this);
     }
 
-    public void updateProduct(String name, int price, String details, Boolean activeForSale) {
+    public void updateProduct(String name, int price, String details, Boolean activeForSale, Category category) {
         this.name = name;
         this.price = price;
         this.details = details;
         this.activeForSale = activeForSale;
+        this.category = category;
     }
 
     public void deleteProduct(Long id) {
@@ -78,12 +77,13 @@ public class Product extends BaseEntity {
     }
 
     @Builder
-    public Product(String name, int price, String details, Long compId, Boolean activeForSale, Boolean useYn) {
+    public Product(String name, int price, String details, Long compId, Boolean activeForSale, Boolean useYn, Category category) {
         this.name = name;
         this.price = price;
         this.details = details;
         this.compId = compId;
         this.activeForSale = activeForSale;
         this.useYn = useYn;
+        this.category = category;
     }
 }

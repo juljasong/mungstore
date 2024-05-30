@@ -5,8 +5,8 @@ import com.mung.api.controller.MockMember;
 import com.mung.member.domain.Role;
 import com.mung.product.domain.Product;
 import com.mung.product.repository.ProductRepository;
-import com.mung.product.request.AddProductRequest;
-import com.mung.product.request.UpdateProductRequest;
+import com.mung.product.dto.ProductDto.AddProductRequest;
+import com.mung.product.dto.ProductDto.UpdateProductRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,7 +44,7 @@ class ProductControllerTest {
                 .name("상품")
                 .details("상세")
                 .price(3000)
-                .categoryId(List.of(3L))
+                .categoryId(3L)
                 .build();
         String json = objectMapper.writeValueAsString(request);
 
@@ -68,7 +67,7 @@ class ProductControllerTest {
                 .name("상품")
                 .details("상세")
                 .price(3000)
-                .categoryId(List.of(100L))
+                .categoryId(100L)
                 .build();
         String json = objectMapper.writeValueAsString(request);
 
@@ -90,7 +89,7 @@ class ProductControllerTest {
                 .name("상품")
                 .details("상세")
                 .price(3000)
-                .categoryId(List.of(100L))
+                .categoryId(100L)
                 .build();
         String json = objectMapper.writeValueAsString(request);
 
@@ -142,7 +141,7 @@ class ProductControllerTest {
                 .name("이름22")
                 .price(30000)
                 .details("띠테일22")
-                .categoryId(List.of(1L, 2L))
+                .categoryId(1L)
                 .activeForSale(true)
                 .build();
         String json = objectMapper.writeValueAsString(request);
