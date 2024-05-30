@@ -2,7 +2,7 @@ package com.mung.product.service;
 
 import com.mung.common.exception.DuplicateKeyException;
 import com.mung.product.domain.Options;
-import com.mung.product.request.AddOptionsRequest;
+import com.mung.product.dto.OptionsDto.AddOptionsRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

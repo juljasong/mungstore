@@ -2,8 +2,8 @@ package com.mung.product.service;
 
 import com.mung.common.exception.DuplicateKeyException;
 import com.mung.product.domain.Options;
+import com.mung.product.dto.OptionsDto.AddOptionsRequest;
 import com.mung.product.repository.OptionsRepository;
-import com.mung.product.request.AddOptionsRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
@@ -22,9 +22,9 @@ public class OptionsService {
     @Transactional
     public Options addOptions(AddOptionsRequest request) throws BadRequestException {
         Options options = Options.builder()
-                .name(request.getName())
-                .price(request.getPrice())
-                .build();
+            .name(request.getName())
+            .price(request.getPrice())
+            .build();
         options.setProduct(productService.getProduct(request.getProductId()));
         try {
             optionsRepository.save(options);

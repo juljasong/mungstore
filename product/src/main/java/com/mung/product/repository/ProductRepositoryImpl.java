@@ -1,25 +1,22 @@
 package com.mung.product.repository;
 
-import com.mung.product.request.SearchProductCondition;
-import com.mung.product.response.ProductSearchResponse;
+import static com.mung.product.domain.QCategory.category;
+import static com.mung.product.domain.QProduct.product;
+import static com.querydsl.core.group.GroupBy.groupBy;
+import static org.springframework.util.StringUtils.hasText;
+
+import com.mung.product.dto.ProductDto.ProductSearchResponse;
+import com.mung.product.dto.ProductDto.SearchProductCondition;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLTemplates;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-
-
-import java.util.List;
-
-import static com.mung.product.domain.QCategory.*;
-import static com.mung.product.domain.QProduct.*;
-import static com.mung.product.domain.QProductCategory.*;
-import static com.querydsl.core.group.GroupBy.*;
-import static org.springframework.util.StringUtils.hasText;
 
 public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
@@ -33,32 +30,29 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     public Page<ProductSearchResponse> search(SearchProductCondition condition, Pageable pageable) {
 
         List<ProductSearchResponse> response = queryFactory
-                .selectFrom(product)
-                .leftJoin(product.categories, productCategory)
-                .leftJoin(productCategory.category, category)
-                .where(productIdEq(condition.getId()),
-                        nameContains(condition.getName()),
-                        compIdEq(condition.getCompId()),
-                        categoryEq(condition.getCategoryIds())
-                        )
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .orderBy(createOrderSpecifier(
-                        condition.getSortBy(),
-                        condition.getSortDirection()
-                ))
-                .transform(
-                        groupBy(product.id).list(
-                                Projections.constructor(ProductSearchResponse.class,
-                                        product,
-                                        list(category))
-                        )
-                );
+            .selectFrom(product)
+            .join(product.category, category).fetchJoin()
+            .where(productIdEq(condition.getId()),
+                nameContains(condition.getName()),
+                compIdEq(condition.getCompId()),
+                categoryEq(condition.getCategoryIds())
+            )
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .orderBy(createOrderSpecifier(
+                condition.getSortBy(),
+                condition.getSortDirection()
+            ))
+            .transform(
+                groupBy(product.id).list(
+                    Projections.constructor(ProductSearchResponse.class, product, category)
+                )
+            );
 
         Long count = queryFactory
-                .select(product.count())
-                .from(product)
-                .fetchOne();
+            .select(product.count())
+            .from(product)
+            .fetchOne();
 
         return new PageImpl<>(response, pageable, count);
     }
@@ -69,7 +63,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
         path = switch (hasText(sortBy) ? sortBy : "id") {
             case "id" -> (sortDirection.equals("desc") ? product.id.desc() : product.id.asc());
-            case "name" -> (sortDirection.equals("desc") ? product.name.desc() : product.name.asc());
+            case "name" ->
+                (sortDirection.equals("desc") ? product.name.desc() : product.name.asc());
             default -> path;
         };
 
@@ -77,7 +72,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     private BooleanExpression categoryEq(List<Long> ids) {
-        return (ids != null && !ids.isEmpty()) ? productCategory.category.id.in(ids) : null;
+        return (ids != null && !ids.isEmpty()) ? product.category.id.in(ids) : null;
     }
 
     private BooleanExpression productIdEq(Long productId) {

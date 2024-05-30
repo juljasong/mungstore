@@ -1,11 +1,11 @@
 package com.mung.api.controller.product;
 
 import com.mung.common.response.MessageResponse;
-import com.mung.product.request.AddProductRequest;
-import com.mung.product.request.DeleteProductRequest;
-import com.mung.product.request.SearchProductCondition;
-import com.mung.product.request.UpdateProductRequest;
-import com.mung.product.response.ProductResponse;
+import com.mung.product.dto.ProductDto.AddProductRequest;
+import com.mung.product.dto.ProductDto.DeleteProductRequest;
+import com.mung.product.dto.ProductDto.SearchProductCondition;
+import com.mung.product.dto.ProductDto.UpdateProductRequest;
+import com.mung.product.dto.ProductDto.ProductResponse;
 import com.mung.product.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

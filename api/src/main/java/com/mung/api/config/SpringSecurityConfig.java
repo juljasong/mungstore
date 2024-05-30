@@ -1,11 +1,11 @@
 package com.mung.api.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mung.api.config.jwt.JwtAuthorizationFilter;
-import com.mung.member.config.JwtUtil;
 import com.mung.api.config.auth.PrincipalDetailsService;
 import com.mung.api.config.handler.Http401Handler;
 import com.mung.api.config.handler.Http403Handler;
+import com.mung.api.config.jwt.JwtAuthorizationFilter;
+import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.Role;
 import com.mung.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,31 +39,35 @@ public class SpringSecurityConfig {
     @Bean("securityFilterChain")
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http    .csrf(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .sessionManagement(sessionManagement -> sessionManagement
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+        http.csrf(AbstractHttpConfigurer::disable)
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .formLogin(AbstractHttpConfigurer::disable)
+            .sessionManagement(sessionManagement -> sessionManagement
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
 
-                .addFilter(corsConfig.corsFilter())
-                .addFilter(new JwtAuthorizationFilter(authenticationManager(), memberRepository, jwtUtil))
+            .addFilter(corsConfig.corsFilter())
+            .addFilter(
+                new JwtAuthorizationFilter(authenticationManager(), memberRepository, jwtUtil))
 
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/main","/auth/login","/auth/signup", "/auth/refresh", "/password", "/password/**", "/product", "/products").permitAll()
-                        .requestMatchers( "/","/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        //.requestMatchers("/user").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') AND hasAuthority('WRITE')"))
-                        .requestMatchers("/member/**").hasAnyRole(Role.USER.name(), Role.ADMIN.name())
-                        .requestMatchers("/comp/**").hasAnyRole(Role.COMP.name(), Role.ADMIN.name())
-                        .requestMatchers("/admin/**").hasAnyRole(Role.ADMIN.name())
-                        .requestMatchers("/test/**").permitAll()
-                        .anyRequest().authenticated()
-                )
+            .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/main", "/auth/login", "/auth/signup", "/auth/refresh",
+                    "/password", "/password/**", "/product", "/products",
+                    "/category"
+                ).permitAll()
+                .requestMatchers("/", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                //.requestMatchers("/user").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') AND hasAuthority('WRITE')"))
+                .requestMatchers("/member/**").hasAnyRole(Role.USER.name(), Role.ADMIN.name())
+                .requestMatchers("/comp/**").hasAnyRole(Role.COMP.name(), Role.ADMIN.name())
+                .requestMatchers("/admin/**").hasAnyRole(Role.ADMIN.name())
+                .requestMatchers("/test/**").permitAll()
+                .anyRequest().authenticated()
+            )
 
-                .exceptionHandling(exceptionHandling -> exceptionHandling
-                        .accessDeniedHandler(new Http403Handler(objectMapper))
-                        .authenticationEntryPoint(new Http401Handler(objectMapper))
-                );
+            .exceptionHandling(exceptionHandling -> exceptionHandling
+                .accessDeniedHandler(new Http403Handler(objectMapper))
+                .authenticationEntryPoint(new Http401Handler(objectMapper))
+            );
 
         return http.build();
     }

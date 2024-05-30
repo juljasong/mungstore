@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
-@EntityScan(basePackages = {"com.mung.api","com.mung.member", "com.mung.product"})
-@EnableJpaRepositories(basePackages = {"com.mung.member", "com.mung.product"})
+@EntityScan(basePackages = {"com.mung.api", "com.mung.member", "com.mung.product", "com.mung.stock"})
+@EnableJpaRepositories(basePackages = {"com.mung.member", "com.mung.product", "com.mung.stock"})
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 public class JpaConfig {
 

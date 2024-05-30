@@ -27,18 +27,22 @@ public class Category extends BaseEntity {
     private Category parent;
 
     @OneToMany(mappedBy = "parent")
-    private List<Category> child = new ArrayList<>();
+    private final List<Category> children = new ArrayList<>();
 
     @OneToMany(mappedBy = "category")
-    private List<ProductCategory> products = new ArrayList<>();
+    private final List<Product> products = new ArrayList<>();
 
-    public void addChildCategory(Category child) {
-        this.child.add(child);
-        child.setParent(this);
-    }
+    @Column(name = "depth")
+    private int depth;
 
     @Builder
-    public Category(String name) {
+    public Category(String name, int depth) {
         this.name = name;
+        this.depth = depth;
+    }
+
+    public void addChildCategory(Category child) {
+        this.children.add(child);
+        child.setParent(this);
     }
 }

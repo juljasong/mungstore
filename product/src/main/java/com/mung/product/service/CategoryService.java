@@ -1,8 +1,11 @@
 package com.mung.product.service;
 
 import com.mung.product.domain.Category;
+import com.mung.product.dto.CategoryDto.AddCategoryRequest;
+import com.mung.product.dto.CategoryDto.CategoriesResponse;
 import com.mung.product.repository.CategoryRepository;
-import com.mung.product.request.AddCategoryRequest;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
@@ -18,29 +21,31 @@ public class CategoryService {
 
     @Transactional
     public Category addCategory(AddCategoryRequest request) throws BadRequestException {
-        Category parent = null;
+        int depth = 0;
 
         if (request.getParentId() != null) {
-            parent = categoryRepository.findById(request.getParentId())
-                    .orElseThrow(BadRequestException::new);
+            depth = categoryRepository.findById(request.getParentId())
+                .orElseThrow(BadRequestException::new)
+                .getDepth() + 1;
         }
 
         Category category = Category.builder()
-                .name(request.getName())
-                .build();
-
-        if (request.getParentId() != null) {
-            parent.addChildCategory(category);
-        }
+            .name(request.getName())
+            .depth(depth)
+            .build();
 
         categoryRepository.save(category);
         return category;
     }
 
-    @Transactional
     public Category getCategory(Long categoryId) throws BadRequestException {
         return categoryRepository.findById(categoryId)
-                .orElseThrow(BadRequestException::new);
+            .orElseThrow(BadRequestException::new);
+    }
+
+    public List<CategoriesResponse> getAllCategoriesResponse() {
+        return categoryRepository.findAllCategories().stream().map(CategoriesResponse::of)
+            .collect(Collectors.toList());
     }
 
 }

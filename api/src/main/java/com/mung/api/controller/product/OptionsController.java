@@ -1,7 +1,7 @@
 package com.mung.api.controller.product;
 
 import com.mung.common.response.MessageResponse;
-import com.mung.product.request.AddOptionsRequest;
+import com.mung.product.dto.OptionsDto.AddOptionsRequest;
 import com.mung.product.service.OptionsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,8 @@ public class OptionsController {
     private final OptionsService optionsService;
 
     @PostMapping("/options")
-    public MessageResponse<?> addOptions(@RequestBody @Valid AddOptionsRequest addOptionsRequest) throws BadRequestException {
+    public MessageResponse<?> addOptions(@RequestBody @Valid AddOptionsRequest addOptionsRequest)
+        throws BadRequestException {
         optionsService.addOptions(addOptionsRequest);
 
         return MessageResponse.ofSuccess();

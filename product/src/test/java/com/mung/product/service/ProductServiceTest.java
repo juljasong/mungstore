@@ -1,39 +1,41 @@
 package com.mung.product.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.mung.product.domain.Product;
+import com.mung.product.dto.ProductDto.AddProductRequest;
+import com.mung.product.dto.ProductDto.DeleteProductRequest;
+import com.mung.product.dto.ProductDto.UpdateProductRequest;
 import com.mung.product.repository.CategoryRepository;
 import com.mung.product.repository.ProductRepository;
-import com.mung.product.request.AddProductRequest;
-import com.mung.product.request.DeleteProductRequest;
-import com.mung.product.request.UpdateProductRequest;
 import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 @Transactional
 @SpringBootTest
 class ProductServiceTest {
 
-    @Autowired ProductService productService;
-    @Autowired ProductRepository productRepository;
-    @Autowired CategoryRepository categoryRepository;
+    @Autowired
+    ProductService productService;
+    @Autowired
+    ProductRepository productRepository;
+    @Autowired
+    CategoryRepository categoryRepository;
 
     @Test
     public void 상품등록_성공() throws Exception {
 
         // given
         AddProductRequest request = AddProductRequest.builder()
-                .name("product1")
-                .details("상세1")
-                .compId(11L)
-                .categoryId(List.of(7L, 8L))
-                .build();
+            .name("product1")
+            .details("상세1")
+            .compId(11L)
+            .categoryId(1L)
+            .build();
 
         // when
         productService.addProduct(request);
@@ -46,13 +48,13 @@ class ProductServiceTest {
     public void 상품수정_성공() throws Exception {
         // given
         UpdateProductRequest request = UpdateProductRequest.builder()
-                .id(1L)
-                .price(300)
-                .name("test")
-                .details("details")
-                .activeForSale(false)
-                .categoryId(List.of(1L, 2L, 3L))
-                .build();
+            .id(1L)
+            .price(300)
+            .name("test")
+            .details("details")
+            .activeForSale(false)
+            .categoryId(1L)
+            .build();
 
         // when
         productService.updateProduct(request);
@@ -60,51 +62,50 @@ class ProductServiceTest {
         // then
         Product product = productRepository.findById(1L).get();
         assertEquals("test", product.getName());
-        assertEquals(3, product.getCategories().size());
         assertEquals(false, product.getActiveForSale());
+        assertEquals(1L, product.getCategory().getId());
     }
 
     @Test
     public void 상품수정_실패_존재하지않는카테고리() throws Exception {
         // given
         UpdateProductRequest request = UpdateProductRequest.builder()
-                .id(1L)
-                .price(300)
-                .name("test")
-                .details("details")
-                .activeForSale(false)
-                .categoryId(List.of(100L))
-                .build();
+            .id(1L)
+            .price(300)
+            .name("test")
+            .details("details")
+            .activeForSale(false)
+            .categoryId(10000L)
+            .build();
 
         // then
         assertThrows(BadRequestException.class,
-                () ->productService.updateProduct(request));
+            () -> productService.updateProduct(request));
     }
 
     @Test
     public void 상품수정_실패_존재하지않는상품() throws Exception {
         // given
         UpdateProductRequest request = UpdateProductRequest.builder()
-                .id(10000000L)
-                .price(300)
-                .name("test")
-                .details("details")
-                .activeForSale(false)
-                .categoryId(List.of(1L))
-                .build();
-
+            .id(10000000L)
+            .price(300)
+            .name("test")
+            .details("details")
+            .activeForSale(false)
+            .categoryId(1L)
+            .build();
 
         // then
         assertThrows(BadRequestException.class,
-                () ->productService.updateProduct(request));
+            () -> productService.updateProduct(request));
     }
 
     @Test
     public void 상품삭제_성공() throws Exception {
         // given
         DeleteProductRequest request = DeleteProductRequest.builder()
-                .id(1L)
-                .build();
+            .id(1L)
+            .build();
 
         // when
         productService.deleteProduct(request);
@@ -118,12 +119,12 @@ class ProductServiceTest {
     public void 상품삭제_실패_존재하지않는상품() throws Exception {
         // given
         DeleteProductRequest request = DeleteProductRequest.builder()
-                .id(10000L)
-                .build();
+            .id(10000L)
+            .build();
 
         // expected
         assertThrows(BadRequestException.class,
-                () -> productService.deleteProduct(request));
+            () -> productService.deleteProduct(request));
 
     }
 
