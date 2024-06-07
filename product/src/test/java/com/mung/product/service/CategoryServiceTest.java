@@ -3,9 +3,9 @@ package com.mung.product.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.mung.common.exception.BadRequestException;
 import com.mung.product.domain.Category;
 import com.mung.product.dto.CategoryDto.AddCategoryRequest;
-import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -3,13 +3,13 @@ package com.mung.product.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.mung.common.exception.BadRequestException;
 import com.mung.product.domain.Product;
 import com.mung.product.dto.ProductDto.AddProductRequest;
 import com.mung.product.dto.ProductDto.DeleteProductRequest;
 import com.mung.product.dto.ProductDto.UpdateProductRequest;
 import com.mung.product.repository.CategoryRepository;
 import com.mung.product.repository.ProductRepository;
-import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,5 +1,6 @@
 package com.mung.product.service;
 
+import com.mung.common.exception.BadRequestException;
 import com.mung.product.domain.Category;
 import com.mung.product.dto.CategoryDto.AddCategoryRequest;
 import com.mung.product.dto.CategoryDto.CategoriesResponse;
@@ -8,7 +9,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +20,7 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Transactional
-    public Category addCategory(AddCategoryRequest request) throws BadRequestException {
+    public Category addCategory(AddCategoryRequest request) {
         int depth = 0;
 
         if (request.getParentId() != null) {
@@ -38,7 +38,7 @@ public class CategoryService {
         return category;
     }
 
-    public Category getCategory(Long categoryId) throws BadRequestException {
+    public Category getCategory(Long categoryId)  {
         return categoryRepository.findById(categoryId)
             .orElseThrow(BadRequestException::new);
     }

@@ -1,5 +1,6 @@
 package com.mung.member.service;
 
+import com.mung.common.exception.BadRequestException;
 import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.*;
 import com.mung.member.dto.LoginDto;
@@ -11,7 +12,6 @@ import com.mung.member.repository.*;
 import com.mung.member.request.LoginRequest;
 import com.mung.member.request.SignupRequest;
 import jakarta.persistence.EntityManager;
-import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.AdditionalAnswers;

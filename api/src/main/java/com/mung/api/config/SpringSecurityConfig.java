@@ -52,7 +52,7 @@ public class SpringSecurityConfig {
 
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/main", "/auth/login", "/auth/signup", "/auth/refresh",
-                    "/password", "/password/**", "/product", "/products").permitAll()
+                    "/password", "/password/**", "/product", "/products", "/category").permitAll()
                 .requestMatchers("/", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 //.requestMatchers("/user").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') AND hasAuthority('WRITE')"))
                 .requestMatchers("/member/**").hasAnyRole(Role.USER.name(), Role.ADMIN.name())

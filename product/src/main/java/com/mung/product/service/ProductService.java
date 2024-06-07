@@ -1,5 +1,6 @@
 package com.mung.product.service;
 
+import com.mung.common.exception.BadRequestException;
 import com.mung.product.domain.Category;
 import com.mung.product.domain.Product;
 import com.mung.product.dto.CategoryDto.CategoryResponse;
@@ -15,7 +16,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,7 @@ public class ProductService {
     private final CategoryService categoryService;
 
     @Transactional
-    public void addProduct(AddProductRequest request) throws Exception {
+    public void addProduct(AddProductRequest request) {
         Product product = Product.builder()
             .name(request.getName())
             .details(request.getDetails())
@@ -44,12 +44,12 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    public Product getProduct(Long productId) throws BadRequestException {
+    public Product getProduct(Long productId) {
         return productRepository.findByIdAndUseYn(productId, true)
             .orElseThrow(BadRequestException::new);
     }
 
-    public ProductResponse getProductResponse(Long productId) throws BadRequestException {
+    public ProductResponse getProductResponse(Long productId) {
         Product product = productRepository.findByIdAndUseYn(productId, true)
             .orElseThrow(BadRequestException::new);
 
@@ -64,7 +64,7 @@ public class ProductService {
     }
 
     @Transactional
-    public void updateProduct(UpdateProductRequest request) throws Exception {
+    public void updateProduct(UpdateProductRequest request) {
         Category category = categoryService.getCategory(request.getCategoryId());
 
         Product product = productRepository.findByIdAndUseYn(request.getId(), true)
@@ -80,7 +80,7 @@ public class ProductService {
     }
 
     @Transactional
-    public void deleteProduct(DeleteProductRequest request) throws Exception {
+    public void deleteProduct(DeleteProductRequest request) {
         Product product = productRepository.findByIdAndUseYn(request.getId(), true)
             .orElseThrow(BadRequestException::new);
         product.deleteProduct(request.getId());

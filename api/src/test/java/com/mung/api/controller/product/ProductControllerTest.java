@@ -2,6 +2,7 @@ package com.mung.api.controller.product;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mung.api.controller.MockMember;
+import com.mung.common.domain.Validate.Message;
 import com.mung.member.domain.Role;
 import com.mung.product.domain.Product;
 import com.mung.product.repository.ProductRepository;
@@ -77,7 +78,7 @@ class ProductControllerTest {
                         .content(json)
                 )
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(HttpStatus.BAD_REQUEST.getReasonPhrase()))
+                .andExpect(jsonPath("$.message").value(Message.BAD_REQUEST))
                 .andDo(print());
     }
 
@@ -99,7 +100,7 @@ class ProductControllerTest {
                         .content(json)
                 )
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(HttpStatus.BAD_REQUEST.getReasonPhrase()))
+                .andExpect(jsonPath("$.message").value(Message.BAD_REQUEST))
                 .andDo(print());
     }
 
@@ -128,7 +129,7 @@ class ProductControllerTest {
                         .accept(APPLICATION_JSON)
                 )
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(HttpStatus.BAD_REQUEST.getReasonPhrase()))
+                .andExpect(jsonPath("$.message").value(Message.BAD_REQUEST))
                 .andDo(print());
     }
 

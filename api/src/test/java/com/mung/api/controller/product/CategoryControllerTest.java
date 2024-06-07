@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mung.api.controller.MockMember;
+import com.mung.common.domain.Validate.Message;
 import com.mung.member.domain.Role;
 import com.mung.product.dto.CategoryDto.AddCategoryRequest;
 import com.mung.product.repository.CategoryRepository;
@@ -68,7 +69,7 @@ class CategoryControllerTest {
                 .content(json)
             )
             .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value(HttpStatus.BAD_REQUEST.getReasonPhrase()))
+            .andExpect(jsonPath("$.message").value(Message.BAD_REQUEST))
             .andDo(print());
     }
 

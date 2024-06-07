@@ -8,7 +8,6 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,7 +21,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping("/category")
-    public MessageResponse<?> getCategory() throws BadRequestException {
+    public MessageResponse<?> getCategory() {
         List<CategoriesResponse> response = categoryService.getAllCategoriesResponse();
 
         return MessageResponse.builder()
@@ -31,8 +30,7 @@ public class CategoryController {
     }
 
     @PostMapping("/admin/category")
-    public MessageResponse<?> addCategory(@RequestBody @Valid AddCategoryRequest addCategoryRequest)
-        throws BadRequestException {
+    public MessageResponse<?> addCategory(@RequestBody @Valid AddCategoryRequest addCategoryRequest) {
         categoryService.addCategory(addCategoryRequest);
 
         return MessageResponse.ofSuccess();
