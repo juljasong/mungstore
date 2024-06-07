@@ -8,10 +8,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mung.api.controller.MockMember;
-import com.mung.common.domain.Validate.Message;
 import com.mung.member.domain.Role;
+import com.mung.product.dto.OptionsDto.AddOptionsRequest;
 import com.mung.product.repository.OptionsRepository;
-import com.mung.product.request.AddOptionsRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -92,7 +91,7 @@ class OptionsControllerTest {
                 .content(json)
             )
             .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value(Message.BAD_REQUEST))
+            .andExpect(jsonPath("$.message").value(HttpStatus.BAD_REQUEST.getReasonPhrase()))
             .andDo(print());
     }
 
