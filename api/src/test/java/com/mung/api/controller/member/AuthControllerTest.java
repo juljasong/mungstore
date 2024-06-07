@@ -2,6 +2,7 @@ package com.mung.api.controller.member;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mung.common.domain.Validate;
+import com.mung.common.domain.Validate.Message;
 import com.mung.member.domain.Member;
 import com.mung.member.domain.Role;
 import com.mung.member.repository.MemberRepository;
@@ -144,7 +145,7 @@ class AuthControllerTest {
                         .content(json)
                 )
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.validation.password").value(Validate.MESSAGE.VALID_PASSWORD))
+                .andExpect(jsonPath("$.validation.password").value(Validate.Message.VALID_PASSWORD))
                 .andDo(print());
 
         Member member = memberRepository.findByEmail("user100@gmail.com")
@@ -298,7 +299,7 @@ class AuthControllerTest {
                         .content(json)
                 )
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(HttpStatus.BAD_REQUEST.getReasonPhrase()))
+                .andExpect(jsonPath("$.message").value(Message.BAD_REQUEST))
                 .andDo(print());
     }
 

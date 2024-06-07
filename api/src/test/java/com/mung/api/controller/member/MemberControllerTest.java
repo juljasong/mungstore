@@ -137,7 +137,7 @@ class MemberControllerTest {
                         .content(json)
                 )
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.validation.password").value(Validate.MESSAGE.VALID_PASSWORD))
+                .andExpect(jsonPath("$.validation.password").value(Validate.Message.VALID_PASSWORD))
                 .andDo(print());
     }
 
@@ -211,7 +211,7 @@ class MemberControllerTest {
                         .header("Authorization", header)
                 )
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(Validate.MESSAGE.VALID_PASSWORD))
+                .andExpect(jsonPath("$.message").value(Validate.Message.VALID_PASSWORD))
                 .andDo(print());
     }
 

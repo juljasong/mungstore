@@ -1,20 +1,19 @@
 package com.mung.api.config.auth;
 
 import com.mung.member.domain.Member;
+import java.util.ArrayList;
+import java.util.Collection;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 public class PrincipalDetails implements UserDetails {
 
-    private Member member;
+    private final Member member;
 
     @Getter
-    private Long memberId;
+    private final Long memberId;
 
     public PrincipalDetails(Member member) {
         this.member = member;

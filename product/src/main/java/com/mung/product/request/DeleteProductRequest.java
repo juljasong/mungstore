@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class DeleteProductRequest {
 
-    @NotNull(message = Validate.MESSAGE.NOT_EMPTY)
+    @NotNull(message = Validate.Message.NOT_EMPTY)
     private Long id;
 
     @Builder

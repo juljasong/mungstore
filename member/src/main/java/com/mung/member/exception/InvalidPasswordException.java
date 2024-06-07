@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 public class InvalidPasswordException extends CommonException {
 
-    private static final String MESSAGE = Validate.MESSAGE.VALID_PASSWORD;
+    private static final String MESSAGE = Validate.Message.VALID_PASSWORD;
 
     public InvalidPasswordException() {
         super(MESSAGE);

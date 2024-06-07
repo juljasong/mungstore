@@ -14,17 +14,17 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AddProductRequest {
 
-    @NotBlank(message = Validate.MESSAGE.NOT_EMPTY)
+    @NotBlank(message = Validate.Message.NOT_EMPTY)
     private String name;
 
-    @NotBlank(message = Validate.MESSAGE.NOT_EMPTY)
+    @NotBlank(message = Validate.Message.NOT_EMPTY)
     private String details;
 
     private int price;
 
     private Long compId;
 
-    @NotNull(message = Validate.MESSAGE.NOT_EMPTY)
+    @NotNull(message = Validate.Message.NOT_EMPTY)
     private List<Long> categoryId;
 
     @Builder

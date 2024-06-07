@@ -9,9 +9,9 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ResetPasswordRequest {
 
-    @NotBlank(message = Validate.MESSAGE.EMPTY_PASSWORD)
-    @Pattern(regexp = Validate.REGEX.VALID_PASSWORD
-            , message = Validate.MESSAGE.VALID_PASSWORD)
+    @NotBlank(message = Validate.Message.EMPTY_PASSWORD)
+    @Pattern(regexp = Validate.Regex.VALID_PASSWORD
+            , message = Validate.Message.VALID_PASSWORD)
     private String password;
 
     @Builder

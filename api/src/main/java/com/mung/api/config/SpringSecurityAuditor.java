@@ -1,12 +1,10 @@
 package com.mung.api.config;
 
 import com.mung.api.config.auth.PrincipalDetails;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Optional;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.util.Optional;
 
 public class SpringSecurityAuditor implements AuditorAware<Long> {
 
@@ -15,8 +13,9 @@ public class SpringSecurityAuditor implements AuditorAware<Long> {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null
-                || !authentication.isAuthenticated()
-                || authentication.getPrincipal().equals("anonymousUser")) {
+            || !authentication.isAuthenticated()
+            || authentication.getPrincipal().equals("anonymousUser")) {
+
             return Optional.empty();
         }
 

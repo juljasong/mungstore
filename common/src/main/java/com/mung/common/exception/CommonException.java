@@ -1,9 +1,8 @@
 package com.mung.common.exception;
 
-import lombok.Getter;
-
 import java.util.HashMap;
 import java.util.Map;
+import lombok.Getter;
 
 @Getter
 public abstract class CommonException extends RuntimeException {

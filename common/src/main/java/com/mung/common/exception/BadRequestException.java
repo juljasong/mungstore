@@ -5,17 +5,17 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class DuplicateKeyException extends CommonException {
+public class BadRequestException extends CommonException {
 
-    private static final String MESSAGE = Validate.Message.DUPLICATE_DATA;
+    private static final String MESSAGE = Validate.Message.BAD_REQUEST;
 
-    public DuplicateKeyException() {
+    public BadRequestException() {
         super(MESSAGE);
     }
 
     @Override
     public int getStatusCode() {
-        return HttpStatus.INTERNAL_SERVER_ERROR.value();
+        return HttpStatus.BAD_REQUEST.value();
     }
 
 }

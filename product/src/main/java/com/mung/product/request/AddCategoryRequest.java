@@ -14,7 +14,7 @@ public class AddCategoryRequest {
 
     private Long parentId;
 
-    @NotBlank(message = Validate.MESSAGE.NOT_EMPTY)
+    @NotBlank(message = Validate.Message.NOT_EMPTY)
     private String name;
 
     @Builder

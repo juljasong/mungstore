@@ -16,7 +16,7 @@ public class EmailSendService {
 
     private final MailgunClient mailgunClient;
 
-    public void sendEmail(SendMailForm sendMailForm) throws Exception {
+    public void sendEmail(SendMailForm sendMailForm) {
         String result = null;
         try {
             result = mailgunClient.sendEmail(sendMailForm).getBody();

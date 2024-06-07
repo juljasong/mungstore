@@ -1,8 +1,8 @@
 package com.mung.member.config;
 
+import com.mung.common.exception.BadRequestException;
 import com.mung.member.repository.AccessTokenRedisRepository;
 import com.mung.member.repository.RefreshTokenRedisRepository;
-import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,18 +17,21 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-
 class JwtUtilTest {
 
-    @Mock private AccessTokenRedisRepository accessTokenRedisRepository;
-    @Mock private RefreshTokenRedisRepository refreshTokenRedisRepository;
-    @InjectMocks private JwtUtil jwtUtil;
+    @Mock
+    private AccessTokenRedisRepository accessTokenRedisRepository;
+    @Mock
+    private RefreshTokenRedisRepository refreshTokenRedisRepository;
+    @InjectMocks
+    private JwtUtil jwtUtil;
 
     private String jwtToken;
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(jwtUtil, "jwtKey", "/VLfdrwEn0MZScSqq6En7NMOW9rF7SQHN7LiWGCG21g=");
+        ReflectionTestUtils.setField(jwtUtil, "jwtKey",
+            "/VLfdrwEn0MZScSqq6En7NMOW9rF7SQHN7LiWGCG21g=");
         this.jwtToken = jwtUtil.createToken(15L, JwtUtil.ACCESS_EXPIRATION_TIME);
     }
 
@@ -42,13 +45,13 @@ class JwtUtilTest {
     }
 
     @Test
-    public void jwt로memberId추출_실패() throws Exception {
+    public void jwt로memberId추출_실패() {
         // when
         String jwt = "abc";
 
         // expected
         assertThrows(BadRequestException.class,
-                () -> jwtUtil.getMemberId(jwt));
+            () -> jwtUtil.getMemberId(jwt));
     }
 
     @Test

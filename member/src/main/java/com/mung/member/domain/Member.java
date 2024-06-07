@@ -84,7 +84,7 @@ public class Member extends BaseEntity {
     }
 
     public void validatePassword(String password) {
-        if (!password.matches(Validate.REGEX.VALID_PASSWORD))
+        if (!password.matches(Validate.Regex.VALID_PASSWORD))
             throw new InvalidPasswordException();
     }
 

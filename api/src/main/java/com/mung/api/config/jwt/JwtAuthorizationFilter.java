@@ -10,6 +10,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,22 +19,30 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
-
 @Slf4j
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private final MemberRepository memberRepository;
     private final JwtUtil jwtUtil;
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, MemberRepository memberRepository, JwtUtil jwtUtil) {
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager,
+        MemberRepository memberRepository, JwtUtil jwtUtil) {
+
         super(authenticationManager);
         this.memberRepository = memberRepository;
         this.jwtUtil = jwtUtil;
     }
 
+    private static void authorization(Member member) {
+        PrincipalDetails principalDetails = new PrincipalDetails(member);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(principalDetails,
+            null, principalDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+        FilterChain chain) throws IOException, ServletException {
 
         String jwtHeader = request.getHeader("Authorization");
         if (!StringUtils.hasText(jwtHeader) || !jwtHeader.startsWith("Bearer")) {
@@ -44,10 +53,10 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         String jwtToken = request.getHeader("Authorization").replace("Bearer ", "");
         try {
             AccessToken accessToken = jwtUtil.checkAndGetAccessToken(jwtToken)
-                    .orElseThrow(Unauthorized::new);
+                .orElseThrow(Unauthorized::new);
 
             Member member = memberRepository.findById(accessToken.getMemberId())
-                    .orElseThrow(Unauthorized::new);
+                .orElseThrow(Unauthorized::new);
 
             authorization(member);
 
@@ -56,12 +65,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         } finally {
             chain.doFilter(request, response);
         }
-    }
-
-    private static void authorization(Member member) {
-        PrincipalDetails principalDetails = new PrincipalDetails(member);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(principalDetails, null, principalDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
 }

@@ -2,11 +2,11 @@ package com.mung.product.service;
 
 import com.mung.common.exception.DuplicateKeyException;
 import com.mung.product.domain.Options;
+import com.mung.product.domain.Product;
 import com.mung.product.repository.OptionsRepository;
 import com.mung.product.request.AddOptionsRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,12 +20,13 @@ public class OptionsService {
     private final ProductService productService;
 
     @Transactional
-    public Options addOptions(AddOptionsRequest request) throws BadRequestException {
+    public Options addOptions(AddOptionsRequest request) {
+        Product product = productService.getProduct(request.getProductId());
         Options options = Options.builder()
-                .name(request.getName())
-                .price(request.getPrice())
-                .build();
-        options.setProduct(productService.getProduct(request.getProductId()));
+            .name(request.getName())
+            .price(request.getPrice())
+            .build();
+        options.setProduct(product);
         try {
             optionsRepository.save(options);
         } catch (DataIntegrityViolationException e) {

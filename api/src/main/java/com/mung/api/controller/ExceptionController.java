@@ -8,7 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
 @RestControllerAdvice
@@ -20,9 +23,9 @@ public class ExceptionController {
     public ErrorResponse inValidExceptionHandler(MethodArgumentNotValidException e) {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .code(HttpStatus.BAD_REQUEST.value())
-                .message(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .build();
+            .code(HttpStatus.BAD_REQUEST.value())
+            .message(HttpStatus.BAD_REQUEST.getReasonPhrase())
+            .build();
 
         for (FieldError fieldError : e.getFieldErrors()) {
             errorResponse.addValidation(fieldError.getField(), fieldError.getDefaultMessage());
@@ -38,14 +41,14 @@ public class ExceptionController {
         int statusCode = e.getStatusCode();
 
         ErrorResponse body = ErrorResponse.builder()
-                .code(statusCode)
-                .message(e.getMessage())
-                .validation(e.getValidation())
-                .build();
+            .code(statusCode)
+            .message(e.getMessage())
+            .validation(e.getValidation())
+            .build();
 
         return ResponseEntity
-                .status(statusCode)
-                .body(body);
+            .status(statusCode)
+            .body(body);
     }
 
     @ExceptionHandler(BadRequestException.class)
@@ -55,13 +58,13 @@ public class ExceptionController {
         log.error("badRequestExceptionHandler :: ", e);
 
         ErrorResponse body = ErrorResponse.builder()
-                .code(HttpStatus.BAD_REQUEST.value())
-                .message(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .build();
+            .code(HttpStatus.BAD_REQUEST.value())
+            .message(HttpStatus.BAD_REQUEST.getReasonPhrase())
+            .build();
 
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST.value())
-                .body(body);
+            .status(HttpStatus.BAD_REQUEST.value())
+            .body(body);
     }
 
     @ExceptionHandler(Exception.class)
@@ -71,13 +74,13 @@ public class ExceptionController {
         log.error("ExceptionHandler :: ", e);
 
         ErrorResponse body = ErrorResponse.builder()
-                .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .message(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .build();
+            .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            .message(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+            .build();
 
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .body(body);
+            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            .body(body);
     }
 
 }

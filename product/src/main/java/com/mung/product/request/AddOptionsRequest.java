@@ -12,10 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AddOptionsRequest {
 
-    @NotNull(message = Validate.MESSAGE.NOT_EMPTY)
+    @NotNull(message = Validate.Message.NOT_EMPTY)
     private Long productId;
 
-    @NotBlank(message = Validate.MESSAGE.NOT_EMPTY)
+    @NotBlank(message = Validate.Message.NOT_EMPTY)
     private String name;
 
     private int price;

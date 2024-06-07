@@ -10,32 +10,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class MainController {
 
-    @GetMapping ("/main")
+    @GetMapping("/main")
     public MessageResponse main() {
         return MessageResponse.builder()
-                .code(HttpStatus.OK.value())
-                .message("main").build();
+            .code(HttpStatus.OK.value())
+            .message("main").build();
     }
 
-    @GetMapping ("/user/ok")
+    @GetMapping("/user/ok")
     public MessageResponse userOk() {
         return MessageResponse.builder()
-                .code(HttpStatus.OK.value())
-                .message("userOk").build();
+            .code(HttpStatus.OK.value())
+            .message("userOk").build();
     }
 
-    @GetMapping ("/comp/ok")
+    @GetMapping("/comp/ok")
     public MessageResponse compOk() {
         return MessageResponse.builder()
-                .code(HttpStatus.OK.value())
-                .message("compOk").build();
+            .code(HttpStatus.OK.value())
+            .message("compOk").build();
     }
 
-    @GetMapping ("/admin/ok")
+    @GetMapping("/admin/ok")
     public MessageResponse adminOk() {
         return MessageResponse.builder()
-                .code(HttpStatus.OK.value())
-                .message("adminOk").build();
+            .code(HttpStatus.OK.value())
+            .message("adminOk").build();
     }
 
 }

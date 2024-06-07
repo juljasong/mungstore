@@ -13,7 +13,7 @@ public class UpdateMemberRequest {
 
     @Size(min = 11,
             max = 11,
-            message = Validate.MESSAGE.VALID_TEL)
+            message = Validate.Message.VALID_TEL)
     private String tel;
 
     private String password;

@@ -10,20 +10,20 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SignupRequest {
 
-    @NotBlank(message = Validate.MESSAGE.EMPTY_EMAIL)
-    @Pattern(regexp = Validate.REGEX.VALID_EMAIL
-            , message = Validate.MESSAGE.VALID_EMAIL)
+    @NotBlank(message = Validate.Message.EMPTY_EMAIL)
+    @Pattern(regexp = Validate.Regex.VALID_EMAIL
+            , message = Validate.Message.VALID_EMAIL)
     private String email;
 
-    @NotBlank(message = Validate.MESSAGE.EMPTY_PASSWORD)
-    @Pattern(regexp = Validate.REGEX.VALID_PASSWORD
-            , message = Validate.MESSAGE.VALID_PASSWORD)
+    @NotBlank(message = Validate.Message.EMPTY_PASSWORD)
+    @Pattern(regexp = Validate.Regex.VALID_PASSWORD
+            , message = Validate.Message.VALID_PASSWORD)
     private String password;
 
-    @NotBlank(message = Validate.MESSAGE.EMPTY_NAME)
+    @NotBlank(message = Validate.Message.EMPTY_NAME)
     private String name;
 
-    @Size(min = 11, max = 11, message = Validate.MESSAGE.VALID_TEL)
+    @Size(min = 11, max = 11, message = Validate.Message.VALID_TEL)
     private String tel;
 
     private String zipcode;

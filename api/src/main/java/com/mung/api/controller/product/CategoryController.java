@@ -6,7 +6,6 @@ import com.mung.product.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +20,8 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping("/category")
-    public MessageResponse<?> addCategory(@RequestBody @Valid AddCategoryRequest addCategoryRequest) throws BadRequestException {
+    public MessageResponse<?> addCategory(
+        @RequestBody @Valid AddCategoryRequest addCategoryRequest) {
         categoryService.addCategory(addCategoryRequest);
         return MessageResponse.ofSuccess();
     }

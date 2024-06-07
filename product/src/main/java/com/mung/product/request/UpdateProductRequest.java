@@ -14,21 +14,21 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UpdateProductRequest {
 
-    @NotNull(message = Validate.MESSAGE.NOT_EMPTY)
+    @NotNull(message = Validate.Message.NOT_EMPTY)
     private Long id;
 
-    @NotBlank(message = Validate.MESSAGE.NOT_EMPTY)
+    @NotBlank(message = Validate.Message.NOT_EMPTY)
     private String name;
 
     private int price;
 
-    @NotBlank(message = Validate.MESSAGE.NOT_EMPTY)
+    @NotBlank(message = Validate.Message.NOT_EMPTY)
     private String details;
 
-    @NotNull(message = Validate.MESSAGE.NOT_EMPTY)
+    @NotNull(message = Validate.Message.NOT_EMPTY)
     private List<Long> categoryId;
 
-    @NotNull(message = Validate.MESSAGE.NOT_EMPTY)
+    @NotNull(message = Validate.Message.NOT_EMPTY)
     private Boolean activeForSale;
 
     @Builder

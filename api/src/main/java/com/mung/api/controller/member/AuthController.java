@@ -13,8 +13,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Slf4j
@@ -25,40 +28,44 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signup")
-    public MessageResponse<?> signup(@RequestBody @Valid SignupRequest signupRequest) throws Exception {
+    public MessageResponse<?> signup(@RequestBody @Valid SignupRequest signupRequest) {
         authService.signup(signupRequest);
         return MessageResponse.ofSuccess();
     }
 
     @PostMapping("/login")
-    public MessageResponse<?> login(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse response) {
+    public MessageResponse<?> login(@RequestBody @Valid LoginRequest loginRequest,
+        HttpServletResponse response) {
+
         LoginDto loginDto = authService.login(loginRequest);
 
         response.addHeader("Authorization", "Bearer " + loginDto.getAccessToken());
         response.addCookie(new Cookie("refresh-token", loginDto.getRefreshToken()));
 
         return MessageResponse.builder()
-                .data(LoginResponse.builder()
-                        .memberId(loginDto.getMemberId())
-                        .build())
-                .build();
+            .data(LoginResponse.builder()
+                .memberId(loginDto.getMemberId())
+                .build())
+            .build();
     }
 
     @PostMapping("/refresh")
-    public MessageResponse<?> refreshAccessToken(@RequestBody RefreshTokenRequest refreshTokenRequest, HttpServletResponse response) throws BadRequestException {
-        LoginDto loginDto = authService.refreshAccessToken(refreshTokenRequest.getRefreshToken());
+    public MessageResponse<?> refreshAccessToken(
+        @RequestBody RefreshTokenRequest refreshTokenRequest, HttpServletResponse response) {
 
+        LoginDto loginDto = authService.refreshAccessToken(refreshTokenRequest.getRefreshToken());
         response.addHeader("Authorization", "Bearer " + loginDto.getAccessToken());
 
         return MessageResponse.builder()
-                .data(LoginResponse.builder()
-                        .memberId(loginDto.getMemberId())
-                        .build())
-                .build();
+            .data(LoginResponse.builder()
+                .memberId(loginDto.getMemberId())
+                .build())
+            .build();
     }
 
     @GetMapping("/logout")
-    public MessageResponse<?> logout(HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
+    public MessageResponse<?> logout(HttpServletRequest request, HttpServletResponse response) {
+
         authService.logout(request.getHeader("Authorization"));
         response.setHeader("Authorization", null);
 
