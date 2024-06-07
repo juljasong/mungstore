@@ -32,16 +32,17 @@ public class ProductService {
 
     @Transactional
     public void addProduct(AddProductRequest request) {
-        Product product = Product.builder()
+        Category category = categoryService.getCategory(request.getCategoryId());
+
+        productRepository.save(Product.builder()
             .name(request.getName())
             .details(request.getDetails())
             .price(request.getPrice())
             .compId(request.getCompId())
             .activeForSale(true)
             .useYn(true)
-            .category(categoryService.getCategory(request.getCategoryId()))
-            .build();
-        productRepository.save(product);
+            .category(category)
+            .build());
     }
 
     public Product getProduct(Long productId) {
@@ -98,6 +99,7 @@ public class ProductService {
                 .id(o.getId())
                 .name(o.getName())
                 .price(o.getPrice())
+                .available(o.getAvailable())
                 .build())
             .collect(Collectors.toList());
     }

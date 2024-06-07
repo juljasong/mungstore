@@ -39,6 +39,7 @@ class OptionsControllerTest {
         AddOptionsRequest request = AddOptionsRequest.builder()
             .productId(1L)
             .name("옵션1-1")
+            .available(true)
             .build();
         String json = objectMapper.writeValueAsString(request);
 
@@ -59,6 +60,7 @@ class OptionsControllerTest {
         AddOptionsRequest request = AddOptionsRequest.builder()
             .productId(1L)
             .name("옵션1-1")
+            .available(true)
             .build();
         String json = objectMapper.writeValueAsString(request);
 
@@ -83,6 +85,7 @@ class OptionsControllerTest {
         AddOptionsRequest request = AddOptionsRequest.builder()
             .productId(100L)
             .name("옵션100-1")
+            .available(true)
             .build();
         String json = objectMapper.writeValueAsString(request);
 

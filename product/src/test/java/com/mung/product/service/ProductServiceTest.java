@@ -8,7 +8,6 @@ import com.mung.product.domain.Product;
 import com.mung.product.dto.ProductDto.AddProductRequest;
 import com.mung.product.dto.ProductDto.DeleteProductRequest;
 import com.mung.product.dto.ProductDto.UpdateProductRequest;
-import com.mung.product.repository.CategoryRepository;
 import com.mung.product.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +22,6 @@ class ProductServiceTest {
     ProductService productService;
     @Autowired
     ProductRepository productRepository;
-    @Autowired
-    CategoryRepository categoryRepository;
 
     @Test
     public void 상품등록_성공() throws Exception {

@@ -1,6 +1,15 @@
 package com.mung.product.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,9 +18,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(uniqueConstraints = {@UniqueConstraint(
-        name = "OPTIONS_UNIQUE",
-        columnNames = {"PRODUCT_ID", "NAME"} )})
+@Table(uniqueConstraints = {
+    @UniqueConstraint(name = "OPTIONS_UNIQUE", columnNames = {"PRODUCT_ID", "NAME"})})
 public class Options {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -28,15 +36,18 @@ public class Options {
 
     private Integer price;
 
-    public void setProduct(Product product) {
-        this.product = product;
-        product.getOptions().add(this);
-    }
+    private Boolean available;
 
     @Builder
-    public Options(Long id, String name, Integer price) {
+    public Options(Long id, String name, Integer price, Boolean available) {
         this.id = id;
         this.name = name;
         this.price = price;
+        this.available = available;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+        product.getOptions().add(this);
     }
 }
