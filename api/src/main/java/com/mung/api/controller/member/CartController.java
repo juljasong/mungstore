@@ -27,7 +27,9 @@ public class CartController {
     public MessageResponse<?> getCart(HttpServletRequest request) {
         String jwt = request.getHeader("Authorization").replace("Bearer ", "");
 
-        return null;
+        return MessageResponse.builder()
+            .data(cartService.getCart(jwt))
+            .build();
     }
 
     @PostMapping

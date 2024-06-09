@@ -3,12 +3,15 @@ package com.mung.member.service;
 import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.Cart;
 import com.mung.member.dto.CartDto.AddCartDto;
+import com.mung.member.dto.CartDto.CartResponse;
 import com.mung.member.dto.CartDto.DeleteCartDto;
 import com.mung.member.repository.CartRedisRepository;
 import com.mung.product.service.OptionsService;
 import com.mung.product.service.ProductService;
 import com.mung.stock.exception.OutOfStockException;
 import com.mung.stock.service.StockService;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +40,8 @@ public class CartService {
             }
         }
 
-        Cart cartByMember = cartRedisRepository.findByMemberId(memberId);
+        Cart cartByMember = cartRedisRepository.findById(memberId)
+            .orElse(null);
 
         List<AddCartDto> newCartList;
 
@@ -74,7 +78,8 @@ public class CartService {
 
     public void deleteCartItem(String jwt, List<DeleteCartDto> deleteCartRequest) {
         Long memberId = jwtUtil.getMemberId(jwt);
-        Cart cartByMember = cartRedisRepository.findByMemberId(memberId);
+        Cart cartByMember = cartRedisRepository.findById(memberId)
+            .orElse(null);
         List<AddCartDto> newCartList;
 
         if (cartByMember == null) {
@@ -111,6 +116,27 @@ public class CartService {
                 .memberId(memberId)
                 .cartList(newCartList)
                 .build());
+        }
+    }
+
+    public List<CartResponse> getCart(String jwt) {
+        Long memberId = jwtUtil.getMemberId(jwt);
+        Cart cart = cartRedisRepository.findById(memberId).orElse(null);
+
+        if (cart == null) {
+            return Collections.emptyList();
+        } else {
+            List<AddCartDto> cartList = cart.getCartList();
+            List<CartResponse> cartResponseList = new ArrayList<>();
+
+            for (AddCartDto item : cartList) {
+                productService.getProductIdAndOptionId(item.getProductId(), item.getOptionId())
+                    .forEach(
+                        object -> cartResponseList.add(new CartResponse(object, item.getCount()))
+                    );
+            }
+
+            return cartResponseList;
         }
     }
 }

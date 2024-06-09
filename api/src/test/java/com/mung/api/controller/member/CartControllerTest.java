@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -96,7 +97,7 @@ class CartControllerTest {
             .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
             .andDo(print());
 
-        Cart byMemberId = cartRedisRepository.findByMemberId(1L);
+        Cart byMemberId = cartRedisRepository.findById(1L).get();
         assertEquals(2, byMemberId.getCartList().size());
     }
 
@@ -127,7 +128,7 @@ class CartControllerTest {
             .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
             .andDo(print());
 
-        Cart byMemberId = cartRedisRepository.findByMemberId(2L);
+        Cart byMemberId = cartRedisRepository.findById(2L).get();
         assertEquals(1, byMemberId.getCartList().size());
     }
 
@@ -158,7 +159,7 @@ class CartControllerTest {
             .andExpect(jsonPath("$.message").value(Message.BAD_REQUEST))
             .andDo(print());
 
-        Cart byMemberId = cartRedisRepository.findByMemberId(1L);
+        Cart byMemberId = cartRedisRepository.findById(1L).get();
         assertEquals(2, byMemberId.getCartList().size());
     }
 
@@ -189,7 +190,7 @@ class CartControllerTest {
             .andExpect(jsonPath("$.message").value(Message.BAD_REQUEST))
             .andDo(print());
 
-        Cart byMemberId = cartRedisRepository.findByMemberId(1L);
+        Cart byMemberId = cartRedisRepository.findById(1L).get();
         assertEquals(2, byMemberId.getCartList().size());
     }
 
@@ -220,7 +221,7 @@ class CartControllerTest {
             .andExpect(jsonPath("$.message").value(Message.OUT_OF_STOCK))
             .andDo(print());
 
-        Cart byMemberId = cartRedisRepository.findByMemberId(1L);
+        Cart byMemberId = cartRedisRepository.findById(1L).get();
         assertEquals(2, byMemberId.getCartList().size());
     }
 
@@ -253,7 +254,7 @@ class CartControllerTest {
             .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
             .andDo(print());
 
-        assertNull(cartRedisRepository.findByMemberId(1L));
+        assertNull(cartRedisRepository.findById(1L).orElse(null));
     }
 
     @Test
@@ -281,8 +282,40 @@ class CartControllerTest {
             .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
             .andDo(print());
 
-        Cart byMemberId = cartRedisRepository.findByMemberId(1L);
+        Cart byMemberId = cartRedisRepository.findById(1L).get();
         assertEquals(1, byMemberId.getCartList().size());
+    }
+
+    @Test
+    @MockMember(id = 1L, name = "USER", role = Role.USER)
+    public void 장바구니조회_성공() throws Exception {
+        // given
+        given(jwtUtil.getMemberId(anyString()))
+            .willReturn(1L);
+
+        // expected
+        mockMvc.perform(get("/cart")
+                .header("Authorization", "Bearer test")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
+            .andDo(print());
+    }
+
+    @Test
+    @MockMember(id = 2L, name = "USER", role = Role.USER)
+    public void 장바구니조회_성공_장바구니x() throws Exception {
+        // given
+        given(jwtUtil.getMemberId(anyString()))
+            .willReturn(2L);
+
+        // expected
+        mockMvc.perform(get("/cart")
+                .header("Authorization", "Bearer test")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
+            .andDo(print());
     }
 
 }
