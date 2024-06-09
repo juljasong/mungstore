@@ -25,6 +25,7 @@ public class OptionsService {
         Options options = Options.builder()
             .name(request.getName())
             .price(request.getPrice())
+            .available(request.getAvailable())
             .build();
         options.setProduct(product);
         try {
