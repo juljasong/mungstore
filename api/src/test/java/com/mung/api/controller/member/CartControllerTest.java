@@ -1,8 +1,11 @@
 package com.mung.api.controller.member;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -15,9 +18,11 @@ import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.Cart;
 import com.mung.member.domain.Role;
 import com.mung.member.dto.CartDto.AddCartDto;
+import com.mung.member.dto.CartDto.DeleteCartDto;
 import com.mung.member.repository.CartRedisRepository;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -35,12 +40,34 @@ class CartControllerTest {
     @MockBean
     JwtUtil jwtUtil;
     @Autowired
+    CartRedisRepository cartRedisRepository;
+    @Autowired
     private ObjectMapper objectMapper;
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    CartRedisRepository cartRedisRepository;
+    @BeforeEach
+    public void beforeEach() {
+        cartRedisRepository.deleteById(1L);
+        cartRedisRepository.deleteById(2L);
+
+        List<AddCartDto> addCartRequestList = new ArrayList<>();
+        addCartRequestList.add(AddCartDto.builder()
+            .productId(1L)
+            .optionId(1L)
+            .count(1)
+            .build());
+        addCartRequestList.add(AddCartDto.builder()
+            .productId(1L)
+            .optionId(2L)
+            .count(1)
+            .build());
+
+        cartRedisRepository.save(Cart.builder()
+            .memberId(1L)
+            .cartList(addCartRequestList)
+            .build());
+    }
 
     @Test
     @MockMember(id = 1L, name = "USER", role = Role.USER)
@@ -50,16 +77,6 @@ class CartControllerTest {
             .willReturn(1L);
 
         List<AddCartDto> addCartRequestList = new ArrayList<>();
-        addCartRequestList.add(AddCartDto.builder()
-            .productId(1L)
-            .optionId(1L)
-            .count(1)
-            .build());
-
-        cartRedisRepository.save(Cart.builder()
-            .memberId(1L)
-            .cartList(addCartRequestList)
-            .build());
 
         addCartRequestList.add(AddCartDto.builder()
             .productId(1L)
@@ -79,6 +96,8 @@ class CartControllerTest {
             .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
             .andDo(print());
 
+        Cart byMemberId = cartRedisRepository.findByMemberId(1L);
+        assertEquals(2, byMemberId.getCartList().size());
     }
 
     @Test
@@ -107,6 +126,9 @@ class CartControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
             .andDo(print());
+
+        Cart byMemberId = cartRedisRepository.findByMemberId(2L);
+        assertEquals(1, byMemberId.getCartList().size());
     }
 
     @Test
@@ -114,7 +136,7 @@ class CartControllerTest {
     public void 장바구니추가_실패_상품X() throws Exception {
         // given
         given(jwtUtil.getMemberId(anyString()))
-            .willReturn(2L);
+            .willReturn(1L);
 
         List<AddCartDto> addCartRequestList = new ArrayList<>();
         addCartRequestList.add(AddCartDto.builder()
@@ -135,6 +157,9 @@ class CartControllerTest {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.message").value(Message.BAD_REQUEST))
             .andDo(print());
+
+        Cart byMemberId = cartRedisRepository.findByMemberId(1L);
+        assertEquals(2, byMemberId.getCartList().size());
     }
 
     @Test
@@ -142,7 +167,7 @@ class CartControllerTest {
     public void 장바구니추가_실패_옵션X() throws Exception {
         // given
         given(jwtUtil.getMemberId(anyString()))
-            .willReturn(2L);
+            .willReturn(1L);
 
         List<AddCartDto> addCartRequestList = new ArrayList<>();
         addCartRequestList.add(AddCartDto.builder()
@@ -163,6 +188,9 @@ class CartControllerTest {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.message").value(Message.BAD_REQUEST))
             .andDo(print());
+
+        Cart byMemberId = cartRedisRepository.findByMemberId(1L);
+        assertEquals(2, byMemberId.getCartList().size());
     }
 
     @Test
@@ -191,6 +219,70 @@ class CartControllerTest {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.message").value(Message.OUT_OF_STOCK))
             .andDo(print());
+
+        Cart byMemberId = cartRedisRepository.findByMemberId(1L);
+        assertEquals(2, byMemberId.getCartList().size());
+    }
+
+    @Test
+    @MockMember(id = 1L, name = "USER", role = Role.USER)
+    public void 장바구니삭제_성공_전체삭제() throws Exception {
+        // given
+        given(jwtUtil.getMemberId(anyString()))
+            .willReturn(1L);
+
+        List<DeleteCartDto> deleteCartDtoList = new ArrayList<>();
+        deleteCartDtoList.add(DeleteCartDto.builder()
+            .productId(1L)
+            .optionId(1L)
+            .build());
+        deleteCartDtoList.add(DeleteCartDto.builder()
+            .productId(1L)
+            .optionId(2L)
+            .build());
+
+        String json = objectMapper.writeValueAsString(deleteCartDtoList);
+
+        // expected
+        mockMvc.perform(delete("/cart")
+                .header("Authorization", "Bearer test")
+                .contentType(APPLICATION_JSON)
+                .content(json)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
+            .andDo(print());
+
+        assertNull(cartRedisRepository.findByMemberId(1L));
+    }
+
+    @Test
+    @MockMember(id = 1L, name = "USER", role = Role.USER)
+    public void 장바구니삭제_성공_부분삭제() throws Exception {
+        // given
+        given(jwtUtil.getMemberId(anyString()))
+            .willReturn(1L);
+
+        List<DeleteCartDto> deleteCartDtoList = new ArrayList<>();
+        deleteCartDtoList.add(DeleteCartDto.builder()
+            .productId(1L)
+            .optionId(1L)
+            .build());
+
+        String json = objectMapper.writeValueAsString(deleteCartDtoList);
+
+        // expected
+        mockMvc.perform(delete("/cart")
+                .header("Authorization", "Bearer test")
+                .contentType(APPLICATION_JSON)
+                .content(json)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
+            .andDo(print());
+
+        Cart byMemberId = cartRedisRepository.findByMemberId(1L);
+        assertEquals(1, byMemberId.getCartList().size());
     }
 
 }

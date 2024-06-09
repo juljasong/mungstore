@@ -2,6 +2,7 @@ package com.mung.api.controller.member;
 
 import com.mung.common.response.MessageResponse;
 import com.mung.member.dto.CartDto.AddCartDto;
+import com.mung.member.dto.CartDto.DeleteCartDto;
 import com.mung.member.service.CartService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -30,19 +31,21 @@ public class CartController {
     }
 
     @PostMapping
-    public MessageResponse<?> addCart(HttpServletRequest request,
+    public MessageResponse<?> addCartItem(HttpServletRequest request,
         @RequestBody List<AddCartDto> addCartRequest) {
         String jwt = request.getHeader("Authorization").replace("Bearer ", "");
-        cartService.addCart(jwt, addCartRequest);
+        cartService.addCartItem(jwt, addCartRequest);
 
         return MessageResponse.ofSuccess();
     }
 
     @DeleteMapping
-    public MessageResponse<?> deleteCart(HttpServletRequest request, List<Long> productId) {
+    public MessageResponse<?> deleteCartItem(HttpServletRequest request,
+        @RequestBody List<DeleteCartDto> deleteCartDto) {
         String jwt = request.getHeader("Authorization").replace("Bearer ", "");
 
-        return null;
+        cartService.deleteCartItem(jwt, deleteCartDto);
+        return MessageResponse.ofSuccess();
     }
 
 }
