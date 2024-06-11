@@ -13,7 +13,8 @@ public enum Validate {
     EMPTY_TEL(Message.EMPTY_TEL),
     VALID_TEL(Message.VALID_TEL),
     EMPTY_NAME(Message.EMPTY_NAME),
-    VALID_ZIPCODE(Message.VALID_ZIPCODE);
+    VALID_ZIPCODE(Message.VALID_ZIPCODE),
+    OUT_OF_STOCK(Message.OUT_OF_STOCK);
 
     Validate(String message) {
     }
@@ -35,6 +36,7 @@ public enum Validate {
         public static final String VALID_TEL = "11자리의 휴대폰 번호를 입력해 주십시오.";
         public static final String EMPTY_NAME = "이름을 입력해 주십시오.";
         public static final String VALID_ZIPCODE = "우편번호는 숫자 5자리로 입력해 주십시오.";
+        public static final String OUT_OF_STOCK = "재고가 부족합니다.";
     }
 
     public static class Regex {

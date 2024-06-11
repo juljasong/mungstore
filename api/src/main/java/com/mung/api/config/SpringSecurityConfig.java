@@ -55,7 +55,7 @@ public class SpringSecurityConfig {
                     "/password", "/password/**", "/product", "/products", "/category").permitAll()
                 .requestMatchers("/", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 //.requestMatchers("/user").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') AND hasAuthority('WRITE')"))
-                .requestMatchers("/member/**").hasAnyRole(Role.USER.name(), Role.ADMIN.name())
+                .requestMatchers("/member/**", "/cart/**").hasAnyRole(Role.USER.name(), Role.ADMIN.name())
                 .requestMatchers("/comp/**").hasAnyRole(Role.COMP.name(), Role.ADMIN.name())
                 .requestMatchers("/admin/**").hasAnyRole(Role.ADMIN.name())
                 .requestMatchers("/test/**").permitAll()

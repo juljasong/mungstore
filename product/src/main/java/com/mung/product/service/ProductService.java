@@ -50,6 +50,10 @@ public class ProductService {
             .orElseThrow(BadRequestException::new);
     }
 
+    public List<Object[]> getProductIdAndOptionId(Long productId, Long optionId) {
+        return productRepository.findByIdAndOptionId(productId, optionId);
+    }
+
     public ProductResponse getProductResponse(Long productId) {
         Product product = productRepository.findByIdAndUseYn(productId, true)
             .orElseThrow(BadRequestException::new);

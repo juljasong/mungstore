@@ -1,5 +1,6 @@
 package com.mung.product.service;
 
+import com.mung.common.exception.BadRequestException;
 import com.mung.common.exception.DuplicateKeyException;
 import com.mung.product.domain.Options;
 import com.mung.product.domain.Product;
@@ -35,5 +36,10 @@ public class OptionsService {
         }
 
         return options;
+    }
+
+    public Options getOption(Long optionId) {
+        return optionsRepository.findById(optionId)
+            .orElseThrow(BadRequestException::new);
     }
 }
