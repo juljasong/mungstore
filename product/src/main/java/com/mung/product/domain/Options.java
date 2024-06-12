@@ -14,9 +14,11 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Getter
+@Audited
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(uniqueConstraints = {
     @UniqueConstraint(name = "OPTIONS_UNIQUE", columnNames = {"PRODUCT_ID", "NAME"})})

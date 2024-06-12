@@ -1,17 +1,31 @@
 package com.mung.member.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.verify;
+import static org.mockito.BDDMockito.when;
+
 import com.mung.common.exception.BadRequestException;
 import com.mung.member.config.JwtUtil;
-import com.mung.member.domain.*;
+import com.mung.common.domain.Address;
+import com.mung.member.domain.Member;
+import com.mung.member.domain.RefreshToken;
+import com.mung.member.domain.Role;
 import com.mung.member.dto.LoginDto;
 import com.mung.member.exception.AlreadyExistsEmailException;
 import com.mung.member.exception.AlreadyExistsTelException;
 import com.mung.member.exception.MemberNotFoundException;
 import com.mung.member.exception.Unauthorized;
-import com.mung.member.repository.*;
+import com.mung.member.repository.AccessTokenRedisRepository;
+import com.mung.member.repository.LoginLogRepository;
+import com.mung.member.repository.MemberRepository;
+import com.mung.member.repository.RefreshTokenRedisRepository;
 import com.mung.member.request.LoginRequest;
 import com.mung.member.request.SignupRequest;
 import jakarta.persistence.EntityManager;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.AdditionalAnswers;
@@ -21,39 +35,42 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
-
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
-    @Mock private MemberRepository memberRepository;
-    @Mock private LoginLogRepository loginLogRepository;
-    @Mock private PasswordEncoder passwordEncoder;
-    @Mock private JwtUtil jwtUtil;
-    @Mock private AccessTokenRedisRepository accessTokenRedisRepository;
-    @Mock private RefreshTokenRedisRepository refreshTokenRedisRepository;
-    @Mock private EntityManager em;
+    @Mock
+    private MemberRepository memberRepository;
+    @Mock
+    private LoginLogRepository loginLogRepository;
+    @Mock
+    private PasswordEncoder passwordEncoder;
+    @Mock
+    private JwtUtil jwtUtil;
+    @Mock
+    private AccessTokenRedisRepository accessTokenRedisRepository;
+    @Mock
+    private RefreshTokenRedisRepository refreshTokenRedisRepository;
+    @Mock
+    private EntityManager em;
 
-    @InjectMocks private AuthService authService;
+    @InjectMocks
+    private AuthService authService;
 
     @Test
     public void 회원가입_성공() throws Exception {
         // given
         SignupRequest signupRequest = SignupRequest.builder()
-                .email("test@gmail.com")
-                .password("test!Test1")
-                .name("테스트")
-                .role("user")
-                .build();
+            .email("test@gmail.com")
+            .password("test!Test1")
+            .name("테스트")
+            .role("user")
+            .build();
 
         Member member = Member.builder().address(new Address("", "", "")).build();
         ReflectionTestUtils.setField(member, "id", 0L);
 
         when(memberRepository.save(any(Member.class)))
-                .then(AdditionalAnswers.returnsFirstArg());
+            .then(AdditionalAnswers.returnsFirstArg());
 
         // when
         authService.signup(signupRequest);
@@ -66,61 +83,61 @@ class AuthServiceTest {
     public void 회원가입_실패_중복이메일() throws Exception {
         // given
         SignupRequest signupRequest = SignupRequest.builder()
-                .email("test@gmail.com")
-                .password("test!Test1")
-                .name("테스트")
-                .role("user")
-                .build();
+            .email("test@gmail.com")
+            .password("test!Test1")
+            .name("테스트")
+            .role("user")
+            .build();
         Member member = Member.builder().build();
 
         given(memberRepository.findByEmail(signupRequest.getEmail()))
-                .willReturn(Optional.ofNullable(member));
+            .willReturn(Optional.ofNullable(member));
 
         // expected
         assertThrows(AlreadyExistsEmailException.class,
-                () -> authService.signup(signupRequest));
+            () -> authService.signup(signupRequest));
     }
 
     @Test
     public void 회원가입_실패_중복휴대폰() throws Exception {
         // given
         SignupRequest signupRequest = SignupRequest.builder()
-                .email("test@gmail.com")
-                .password("test!Test1")
-                .name("테스트")
-                .role("user")
-                .build();
+            .email("test@gmail.com")
+            .password("test!Test1")
+            .name("테스트")
+            .role("user")
+            .build();
         Member member = Member.builder().build();
 
         given(memberRepository.findByTel(signupRequest.getTel()))
-                .willReturn(Optional.ofNullable(member));
+            .willReturn(Optional.ofNullable(member));
 
         // expected
         assertThrows(AlreadyExistsTelException.class,
-                () -> authService.signup(signupRequest));
+            () -> authService.signup(signupRequest));
     }
 
     @Test
     public void 로그인_성공() throws Exception {
         // given
         LoginRequest loginRequest = LoginRequest.builder()
-                .email("test@gmail.com")
-                .password("test")
-                .build();
+            .email("test@gmail.com")
+            .password("test")
+            .build();
 
         Member member = new Member("", "", "", null, Role.USER, null);
         ReflectionTestUtils.setField(member, "id", 15L);
 
         given(memberRepository.findByEmail(loginRequest.getEmail()))
-                .willReturn(Optional.of(member));
+            .willReturn(Optional.of(member));
 
         given(passwordEncoder.matches(any(), any()))
-                .willReturn(true);
+            .willReturn(true);
 
         given(jwtUtil.createToken(15L, JwtUtil.ACCESS_EXPIRATION_TIME))
-                .willReturn("accessToken");
+            .willReturn("accessToken");
         given(jwtUtil.createToken(15L, JwtUtil.REFRESH_EXPIRATION_TIME))
-                .willReturn("refreshToken");
+            .willReturn("refreshToken");
 
         // when
         LoginDto login = authService.login(loginRequest);
@@ -136,22 +153,22 @@ class AuthServiceTest {
     public void 로그인_실패_비밀번호불일치() throws Exception {
         // given
         LoginRequest loginRequest = LoginRequest.builder()
-                .email("test@gmail.com")
-                .password("test")
-                .build();
+            .email("test@gmail.com")
+            .password("test")
+            .build();
 
         Member member = new Member("", "", "", null, Role.USER, null);
         ReflectionTestUtils.setField(member, "id", 15L);
 
         given(memberRepository.findByEmail(loginRequest.getEmail()))
-                .willReturn(Optional.of(member));
+            .willReturn(Optional.of(member));
 
         given(passwordEncoder.matches(any(), any()))
-                .willReturn(false);
+            .willReturn(false);
 
         // expected
         assertThrows(MemberNotFoundException.class,
-                () -> authService.login(loginRequest));
+            () -> authService.login(loginRequest));
         verify(loginLogRepository).save(any());
     }
 
@@ -173,13 +190,13 @@ class AuthServiceTest {
         String refreshToken = "refreshToken";
 
         given(jwtUtil.checkAndGetRefreshToken(refreshToken))
-                .willReturn(Optional.ofNullable(RefreshToken.builder()
-                        .memberId(15L)
-                        .refreshToken("abc")
-                        .build()));
+            .willReturn(Optional.ofNullable(RefreshToken.builder()
+                .memberId(15L)
+                .refreshToken("abc")
+                .build()));
 
         given(jwtUtil.createToken(15L, JwtUtil.ACCESS_EXPIRATION_TIME))
-                .willReturn("accessToken");
+            .willReturn("accessToken");
 
         // when
         LoginDto loginDto = authService.refreshAccessToken(refreshToken);
@@ -195,11 +212,11 @@ class AuthServiceTest {
         String refreshToken = "refreshToken";
 
         given(jwtUtil.checkAndGetRefreshToken(refreshToken))
-                .willThrow(Unauthorized.class);
+            .willThrow(Unauthorized.class);
 
         // expected
         assertThrows(Unauthorized.class,
-                () -> authService.refreshAccessToken(refreshToken));
+            () -> authService.refreshAccessToken(refreshToken));
     }
 
     @Test
@@ -208,11 +225,11 @@ class AuthServiceTest {
         String refreshToken = "refreshToken";
 
         given(jwtUtil.checkAndGetRefreshToken(refreshToken))
-                .willThrow(BadRequestException.class);
+            .willThrow(BadRequestException.class);
 
         // expected
         assertThrows(BadRequestException.class,
-                () -> authService.refreshAccessToken(refreshToken));
+            () -> authService.refreshAccessToken(refreshToken));
     }
 
 

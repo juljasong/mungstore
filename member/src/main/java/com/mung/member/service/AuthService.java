@@ -3,7 +3,7 @@ package com.mung.member.service;
 import static org.springframework.util.StringUtils.hasText;
 
 import com.mung.member.config.JwtUtil;
-import com.mung.member.domain.Address;
+import com.mung.common.domain.Address;
 import com.mung.member.domain.LoginLog;
 import com.mung.member.domain.Member;
 import com.mung.member.domain.RefreshToken;

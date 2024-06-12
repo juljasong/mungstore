@@ -1,5 +1,6 @@
 package com.mung.member.service;
 
+import com.mung.common.domain.Address;
 import com.mung.common.domain.SendMailForm;
 import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.*;
@@ -121,7 +122,7 @@ class MemberServiceTest {
                 .willReturn(Optional.of(member));
 
         // when
-        MyPageResponse response = memberService.getMember(15L, "jwt");
+        MyPageResponse response = memberService.getMyPageInfo(15L, "jwt");
 
         // then
         assertEquals(15L, response.getMemberId());
@@ -138,7 +139,7 @@ class MemberServiceTest {
                 .willReturn(15L);
 
         // expected
-        assertThrows(Unauthorized.class, () -> memberService.getMember(14L, "jwt"));
+        assertThrows(Unauthorized.class, () -> memberService.getMyPageInfo(14L, "jwt"));
     }
 
     @Test
