@@ -1,9 +1,10 @@
 package com.mung.order.service;
 
 import com.mung.common.domain.Address;
+import com.mung.common.exception.NotExistMemberException;
 import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.Member;
-import com.mung.member.service.MemberService;
+import com.mung.member.repository.MemberRepository;
 import com.mung.order.domain.Delivery;
 import com.mung.order.domain.DeliveryStatus;
 import com.mung.order.domain.OrderItem;
@@ -31,16 +32,19 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class OrderService {
 
-    private final MemberService memberService;
+    private final OrderRepository orderRepository;
+    private final MemberRepository memberRepository;
+
     private final ProductService productService;
     private final StockService stockService;
     private final OptionsService optionsService;
-    private final OrderRepository orderRepository;
+
     private final JwtUtil jwtUtil;
 
     @Transactional
     public OrderResponse order(OrderRequest orderRequest, String jwt) {
-        Member member = memberService.getMemberById(jwtUtil.getMemberId(jwt));
+        Member member = memberRepository.findById(jwtUtil.getMemberId(jwt))
+            .orElseThrow(NotExistMemberException::new);
 
         Delivery delivery = createDelivery(orderRequest, orderRequest.getAddress());
         List<OrderItem> orderItems = createOrderItems(orderRequest, member);
@@ -50,6 +54,11 @@ public class OrderService {
         return OrderResponse.builder()
             .orderId(savedOrder.getId())
             .build();
+    }
+
+    @Transactional
+    public void cancelOrder(String jwt) {
+
     }
 
     private Delivery createDelivery(OrderRequest orderRequest, Address address) {
@@ -65,15 +74,15 @@ public class OrderService {
         List<Order> orders = orderRequest.getOrders();
         List<OrderItem> orderItems = new ArrayList<>();
         for (Order order : orders) {
-            productService.getProduct(order.getProductId());
+            Product product = productService.getProduct(order.getProductId());
             Stock stock = stockService.getStock(order.getOptionId());
-            optionsService.getOption(order.getOptionId());
+            Options option = optionsService.getOption(order.getOptionId());
 
             orderItems.add(OrderItem.builder()
-                .productId(order.getProductId())
-                .stockId(order.getOptionId())
-                .optionId(order.getOptionId())
-                .memberId(member.getId())
+                .product(product)
+                .stock(stock)
+                .options(option)
+                .member(member)
                 .orderPrice(order.getOrderPrice())
                 .quantity(order.getQuantity())
                 .contents(order.getContents())

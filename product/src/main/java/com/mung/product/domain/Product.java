@@ -66,11 +66,6 @@ public class Product extends BaseEntity {
     @NotAudited
     private List<Options> options = new ArrayList<>();
 
-//    @Column(nullable = false)
-//    @OneToMany(mappedBy = "product")
-//    @NotAudited
-//    private List<OrderItem> orderItems = new ArrayList<>();
-
 //    @OneToMany(mappedBy = "product")
 //    private List<Review> reviews = new ArrayList<>();
 

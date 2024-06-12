@@ -36,11 +36,6 @@ public class Stock extends BaseTimeEntity {
 
     private int quantity;
 
-//    @Column(nullable = false)
-//    @OneToMany(mappedBy = "product")
-//    @NotAudited
-//    private List<OrderItem> orderItems = new ArrayList<>();
-
     @Builder
     public Stock(String skuId, Long optionId, int quantity) {
         this.skuId = skuId;

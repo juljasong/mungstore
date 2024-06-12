@@ -46,21 +46,21 @@ public class OrderItem extends BaseEntity {
     @JoinColumn(name = "order_id")
     private Orders order;
 
-    private Long productId;
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "product_id")
+    private Product product;
 
-//    @ManyToOne(fetch = LAZY)
-//    @JoinColumn(name = "product_id")
-//    private Product product;
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "stock_id")
+    private Stock stock;
 
-    private Long stockId;
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "option_id")
+    private Options options;
 
-//    @ManyToOne(fetch = LAZY)
-//    @JoinColumn(name = "stock_id")
-//    private Stock stock;
-
-    private Long optionId;
-
-    private Long memberId;
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     private int orderPrice;
 
@@ -72,13 +72,13 @@ public class OrderItem extends BaseEntity {
     private OrderStatus status;
 
     @Builder
-    public OrderItem(Orders order, Long productId, Long stockId, Long optionId, Long memberId,
+    public OrderItem(Orders order, Product product, Stock stock, Options options, Member member,
         int orderPrice, int quantity, String contents, OrderStatus status) {
         this.order = order;
-        this.productId = productId;
-        this.stockId = stockId;
-        this.optionId = optionId;
-        this.memberId = memberId;
+        this.product = product;
+        this.stock = stock;
+        this.options = options;
+        this.member = member;
         this.orderPrice = orderPrice;
         this.quantity = quantity;
         this.contents = contents;
