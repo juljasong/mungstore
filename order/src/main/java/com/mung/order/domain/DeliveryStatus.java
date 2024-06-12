@@ -5,6 +5,7 @@ import lombok.Getter;
 @Getter
 public enum DeliveryStatus {
 
+    CANCELLED("주문 취소"),
     READY("준비 중"),
     SHIPPED("배송 중"),
     DELIVERED("배송 완료");

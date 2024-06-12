@@ -88,4 +88,8 @@ public class OrderItem extends BaseEntity {
     public int getTotalPrice() {
         return getOrderPrice() * getQuantity();
     }
+
+    public void updateStatus(OrderStatus status) {
+        this.status = status;
+    }
 }

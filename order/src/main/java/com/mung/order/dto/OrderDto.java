@@ -2,8 +2,10 @@ package com.mung.order.dto;
 
 import com.mung.common.domain.Address;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 public class OrderDto {
 
@@ -54,6 +56,17 @@ public class OrderDto {
 
         @Builder
         public OrderResponse(Long orderId) {
+            this.orderId = orderId;
+        }
+    }
+
+    @Data
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class OrderCancelRequest {
+        private Long orderId;
+
+        @Builder
+        public OrderCancelRequest(Long orderId) {
             this.orderId = orderId;
         }
     }

@@ -5,6 +5,8 @@ import static jakarta.persistence.FetchType.LAZY;
 import com.mung.common.domain.BaseEntity;
 import com.mung.common.domain.BaseTimeEntity;
 import com.mung.member.domain.Member;
+import com.mung.order.exception.AlreadyCancelledException;
+import com.mung.order.exception.AlreadyDeliveredException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,7 +29,6 @@ import lombok.Setter;
 import org.hibernate.envers.AuditOverride;
 import org.hibernate.envers.AuditOverrides;
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
 
 @Entity
 @Getter
@@ -49,7 +50,7 @@ public class Orders extends BaseEntity {
     private Member member;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    private List<OrderItem> orderItems = new ArrayList<>();
+    private final List<OrderItem> orderItems = new ArrayList<>();
 
     @OneToOne(fetch = LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "delivery_id")
@@ -95,10 +96,20 @@ public class Orders extends BaseEntity {
     }
 
     public void cancel() {
-        if (delivery.getStatus() == DeliveryStatus.DELIVERED) {
-            throw new IllegalStateException("이미 배송완료된 상품은 취소가 불가능 합니다.");
+        if (delivery.getStatus() == DeliveryStatus.DELIVERED
+            || delivery.getStatus() == DeliveryStatus.SHIPPED) {
+            throw new AlreadyDeliveredException();
         }
+        if (this.status == OrderStatus.CANCELLED) {
+            throw new AlreadyCancelledException();
+        }
+
         this.status = OrderStatus.CANCELLED;
+        this.delivery.updateStatus(DeliveryStatus.CANCELLED);
+        this.orderItems.forEach(item -> {
+            item.updateStatus(OrderStatus.CANCELLED);
+            item.getStock().addStock(item.getQuantity());
+        });
     }
 
     public int getTotalPrice() {

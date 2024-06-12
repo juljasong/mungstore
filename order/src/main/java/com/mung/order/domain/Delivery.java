@@ -68,4 +68,8 @@ public class Delivery extends BaseEntity {
         this.address = address;
         this.status = status;
     }
+
+    public void updateStatus(DeliveryStatus status) {
+        this.status = status;
+    }
 }

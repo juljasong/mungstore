@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -15,7 +16,9 @@ import com.mung.common.domain.Address;
 import com.mung.common.domain.Validate.Message;
 import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.Role;
+import com.mung.order.domain.Orders;
 import com.mung.order.dto.OrderDto.Order;
+import com.mung.order.dto.OrderDto.OrderCancelRequest;
 import com.mung.order.dto.OrderDto.OrderRequest;
 import com.mung.order.repository.OrderRepository;
 import com.mung.stock.repository.StockRepository;
@@ -136,7 +139,60 @@ class OrderControllerTest {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.message").value(Message.OUT_OF_STOCK))
             .andDo(print());
+    }
 
+    @Test
+    @MockMember(id = 1L, name = "USER", role = Role.USER)
+    public void 주문취소_성공() throws Exception {
+        // given
+        given(jwtUtil.getMemberId(anyString()))
+            .willReturn(1L);
+
+        Orders order = orderRepository.findAll().get(0);
+        OrderCancelRequest request = OrderCancelRequest.builder()
+            .orderId(order.getId())
+            .build();
+
+        String json = objectMapper.writeValueAsString(request);
+        int beforeStock1 = order.getOrderItems().get(0).getStock().getQuantity();
+
+        // expected
+        mockMvc.perform(patch("/order")
+                .contentType(APPLICATION_JSON)
+                .header("Authorization", "Bearer test")
+                .content(json)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
+            .andDo(print());
+
+        // then
+        int stock1 = order.getOrderItems().get(0).getStock().getQuantity();
+        assertEquals(order.getOrderItems().get(0).getQuantity(), (stock1 - beforeStock1));
+    }
+
+    @Test
+    @MockMember(id = 1L, name = "USER", role = Role.USER)
+    public void 주문취소_실패_없는주문() throws Exception {
+        // given
+        given(jwtUtil.getMemberId(anyString()))
+            .willReturn(1L);
+
+        OrderCancelRequest request = OrderCancelRequest.builder()
+            .orderId(98475L)
+            .build();
+
+        String json = objectMapper.writeValueAsString(request);
+
+        // expected
+        mockMvc.perform(patch("/order")
+                .contentType(APPLICATION_JSON)
+                .header("Authorization", "Bearer test")
+                .content(json)
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value(Message.BAD_REQUEST))
+            .andDo(print());
     }
 
 

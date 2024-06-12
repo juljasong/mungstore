@@ -1,6 +1,7 @@
 package com.mung.api.controller.order;
 
 import com.mung.common.response.MessageResponse;
+import com.mung.order.dto.OrderDto.OrderCancelRequest;
 import com.mung.order.dto.OrderDto.OrderRequest;
 import com.mung.order.dto.OrderDto.OrderResponse;
 import com.mung.order.service.OrderService;
@@ -48,11 +49,12 @@ public class OrderController {
     }
 
     @PatchMapping("/order")
-    public MessageResponse<?> cancelOrder() {
+    public MessageResponse<?> cancelOrder(@RequestBody OrderCancelRequest orderCancelRequest,
+        HttpServletRequest request) {
+        String jwt = request.getHeader("Authorization").replace("Bearer ", "");
 
-        return MessageResponse.builder()
-            .data(null)
-            .build();
+        orderService.cancelOrder(orderCancelRequest, jwt);
+        return MessageResponse.ofSuccess();
     }
 
 }
