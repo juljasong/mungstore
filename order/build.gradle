@@ -1,6 +1,8 @@
 dependencies {
     implementation project(':common')
-
+    implementation project(':product')
+    implementation project(':stock')
+    implementation project(':member')
 }
 
 bootJar {

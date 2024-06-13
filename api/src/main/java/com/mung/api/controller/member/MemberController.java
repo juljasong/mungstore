@@ -51,7 +51,7 @@ public class MemberController {
     @GetMapping("/member/{memberId}")
     public MessageResponse<?> myPage(@PathVariable Long memberId, HttpServletRequest request) {
         String jwt = request.getHeader("Authorization").replace("Bearer ", "");
-        MyPageResponse data = memberService.getMember(memberId, jwt);
+        MyPageResponse data = memberService.getMyPageInfo(memberId, jwt);
 
         return MessageResponse.builder()
             .data(data)

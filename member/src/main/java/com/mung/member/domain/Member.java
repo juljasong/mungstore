@@ -1,11 +1,22 @@
 package com.mung.member.domain;
 
+import com.mung.common.domain.Address;
 import com.mung.common.domain.BaseEntity;
 import com.mung.common.domain.BaseTimeEntity;
 import com.mung.common.domain.Validate;
 import com.mung.member.exception.InvalidPasswordException;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.envers.AuditOverride;
 import org.hibernate.envers.AuditOverrides;
@@ -16,12 +27,13 @@ import org.hibernate.envers.Audited;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Audited
 @AuditOverrides(value = {
-        @AuditOverride(forClass = BaseEntity.class),
-        @AuditOverride(forClass = BaseTimeEntity.class)
+    @AuditOverride(forClass = BaseEntity.class),
+    @AuditOverride(forClass = BaseTimeEntity.class)
 })
 public class Member extends BaseEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
     private Long id;
 
@@ -46,6 +58,17 @@ public class Member extends BaseEntity {
 
     @ColumnDefault("false")
     private boolean isLocked;
+
+    @Builder
+    public Member(String email, String password, String name, String tel, Role role,
+        Address address) {
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.tel = tel;
+        this.role = role;
+        this.address = address;
+    }
 
     public int addLoginFailCount() {
         this.loginFailCount += 1;
@@ -84,18 +107,9 @@ public class Member extends BaseEntity {
     }
 
     public void validatePassword(String password) {
-        if (!password.matches(Validate.Regex.VALID_PASSWORD))
+        if (!password.matches(Validate.Regex.VALID_PASSWORD)) {
             throw new InvalidPasswordException();
-    }
-
-    @Builder
-    public Member(String email, String password, String name, String tel, Role role, Address address) {
-        this.email = email;
-        this.password = password;
-        this.name = name;
-        this.tel = tel;
-        this.role = role;
-        this.address = address;
+        }
     }
 
 }

@@ -1,6 +1,6 @@
 package com.mung.member.response;
 
-import com.mung.member.domain.Address;
+import com.mung.common.domain.Address;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

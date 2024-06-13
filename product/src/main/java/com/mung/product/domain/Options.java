@@ -14,9 +14,11 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Getter
+@Audited
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(uniqueConstraints = {
     @UniqueConstraint(name = "OPTIONS_UNIQUE", columnNames = {"PRODUCT_ID", "NAME"})})
@@ -39,8 +41,7 @@ public class Options {
     private Boolean available;
 
     @Builder
-    public Options(Long id, String name, Integer price, Boolean available) {
-        this.id = id;
+    public Options(String name, Integer price, Boolean available) {
         this.name = name;
         this.price = price;
         this.available = available;

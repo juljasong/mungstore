@@ -11,7 +11,7 @@ public enum Role {
 
     private String full;
 
-    private Role(String full) {
+    Role(String full) {
         this.full = full;
     }
 

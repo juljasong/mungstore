@@ -1,4 +1,4 @@
-package com.mung.member.domain;
+package com.mung.common.domain;
 
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;

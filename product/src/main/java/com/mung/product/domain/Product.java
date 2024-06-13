@@ -64,7 +64,7 @@ public class Product extends BaseEntity {
     @Column(nullable = false)
     @OneToMany(mappedBy = "product")
     @NotAudited
-    private final List<Options> options = new ArrayList<>();
+    private List<Options> options = new ArrayList<>();
 
 //    @OneToMany(mappedBy = "product")
 //    private List<Review> reviews = new ArrayList<>();
@@ -98,4 +98,5 @@ public class Product extends BaseEntity {
     public void deleteProduct(Long id) {
         this.useYn = false;
     }
+
 }

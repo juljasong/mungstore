@@ -20,4 +20,8 @@ public class StockService {
         return (stock.getQuantity() - count) > 0;
     }
 
+    public Stock getStock(Long optionId) {
+        return stockRepository.findByOptionId(optionId)
+            .orElseThrow(BadRequestException::new);
+    }
 }
