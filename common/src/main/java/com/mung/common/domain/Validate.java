@@ -14,7 +14,9 @@ public enum Validate {
     VALID_TEL(Message.VALID_TEL),
     EMPTY_NAME(Message.EMPTY_NAME),
     VALID_ZIPCODE(Message.VALID_ZIPCODE),
-    OUT_OF_STOCK(Message.OUT_OF_STOCK);
+    OUT_OF_STOCK(Message.OUT_OF_STOCK),
+    ALREADY_DELIVERED(Message.ALREADY_DELIVERED),
+    ALREADY_CANCELLED(Message.ALREADY_CANCELLED);
 
     Validate(String message) {
     }
@@ -37,6 +39,8 @@ public enum Validate {
         public static final String EMPTY_NAME = "이름을 입력해 주십시오.";
         public static final String VALID_ZIPCODE = "우편번호는 숫자 5자리로 입력해 주십시오.";
         public static final String OUT_OF_STOCK = "재고가 부족합니다.";
+        public static final String ALREADY_DELIVERED = "이미 배송완료된 상품은 취소가 불가능 합니다.";
+        public static final String ALREADY_CANCELLED = "이미 취소된 주문입니다.";
     }
 
     public static class Regex {

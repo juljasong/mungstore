@@ -2,11 +2,11 @@ package com.mung.member.service;
 
 import static org.springframework.util.StringUtils.hasText;
 
+import com.mung.common.domain.Address;
 import com.mung.common.domain.SendMailForm;
 import com.mung.common.exception.BadRequestException;
 import com.mung.common.exception.NotExistMemberException;
 import com.mung.member.config.JwtUtil;
-import com.mung.member.domain.Address;
 import com.mung.member.domain.Member;
 import com.mung.member.domain.ResetPasswordUuid;
 import com.mung.member.exception.IncorrectEmailAndTelException;
@@ -19,7 +19,6 @@ import com.mung.member.request.ResetPasswordRequest;
 import com.mung.member.request.UpdateMemberRequest;
 import com.mung.member.response.MemberSearchResponse;
 import com.mung.member.response.MyPageResponse;
-import jakarta.persistence.EntityManager;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +38,6 @@ public class MemberService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final ResetPasswordUuidRedisRepository resetPasswordUuidRedisRepository;
     private final JwtUtil jwtUtil;
-    private final EntityManager em;
 
     public SendMailForm createPasswordResetMail(
         ResetPasswordEmailRequest resetPasswordEmailRequest) {
@@ -83,7 +81,7 @@ public class MemberService {
 
     }
 
-    public MyPageResponse getMember(Long memberId, String jwt) {
+    public MyPageResponse getMyPageInfo(Long memberId, String jwt) {
         identify(memberId, jwt);
 
         Member member = memberRepository.findById(memberId)
@@ -138,4 +136,8 @@ public class MemberService {
         }
     }
 
+    public Member getMemberById(Long memberId) {
+        return memberRepository.findById(memberId)
+            .orElseThrow(NotExistMemberException::new);
+    }
 }
