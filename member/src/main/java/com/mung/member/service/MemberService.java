@@ -6,6 +6,7 @@ import com.mung.common.domain.Address;
 import com.mung.common.domain.SendMailForm;
 import com.mung.common.exception.BadRequestException;
 import com.mung.common.exception.NotExistMemberException;
+import com.mung.common.utils.ValidateUtils;
 import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.Member;
 import com.mung.member.domain.ResetPasswordUuid;
@@ -76,6 +77,7 @@ public class MemberService {
         Member member = memberRepository.findById(resetPasswordUuid.getMemberId())
             .orElseThrow(NotExistMemberException::new);
 
+        ValidateUtils.validatePassword(resetPasswordRequest.getPassword());
         member.resetPassword(bCryptPasswordEncoder.encode(resetPasswordRequest.getPassword()));
         resetPasswordUuidRedisRepository.delete(resetPasswordUuid);
 
@@ -109,7 +111,7 @@ public class MemberService {
                 ":: modifyMember.Member Not found :: " + memberId));
 
         if (hasText(request.getPassword())) {
-            member.validatePassword(request.getPassword());
+            ValidateUtils.validatePassword(request.getPassword());
             member.updatePassword(bCryptPasswordEncoder.encode(request.getPassword()));
         }
         if (hasText(request.getTel())) {

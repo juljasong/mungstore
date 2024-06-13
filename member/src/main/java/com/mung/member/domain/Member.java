@@ -3,8 +3,6 @@ package com.mung.member.domain;
 import com.mung.common.domain.Address;
 import com.mung.common.domain.BaseEntity;
 import com.mung.common.domain.BaseTimeEntity;
-import com.mung.common.domain.Validate;
-import com.mung.member.exception.InvalidPasswordException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -106,10 +104,5 @@ public class Member extends BaseEntity {
         this.password = password;
     }
 
-    public void validatePassword(String password) {
-        if (!password.matches(Validate.Regex.VALID_PASSWORD)) {
-            throw new InvalidPasswordException();
-        }
-    }
 
 }

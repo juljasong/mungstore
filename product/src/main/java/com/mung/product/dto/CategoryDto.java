@@ -5,17 +5,13 @@ import com.mung.product.domain.Category;
 import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.Data;
 
 public class CategoryDto {
 
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @Data
     public static class AddCategoryRequest {
 
         private Long parentId;
@@ -30,8 +26,7 @@ public class CategoryDto {
         }
     }
 
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @Data
     public static class CategoryResponse {
 
         private Long id;
@@ -53,9 +48,7 @@ public class CategoryDto {
         }
     }
 
-    @Getter
-    @ToString
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @Data
     @AllArgsConstructor
     public static class CategoriesResponse {
 

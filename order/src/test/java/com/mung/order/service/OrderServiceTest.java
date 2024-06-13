@@ -11,6 +11,7 @@ import com.mung.common.domain.Address;
 import com.mung.common.exception.BadRequestException;
 import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.Member;
+import com.mung.member.exception.Unauthorized;
 import com.mung.member.repository.MemberRepository;
 import com.mung.order.domain.Delivery;
 import com.mung.order.domain.DeliveryStatus;
@@ -95,7 +96,9 @@ class OrderServiceTest {
             .totalPrice(60000)
             .tel1("01011111111")
             .tel2("01011112222")
-            .address(new Address("12345", "시티", "스트릿"))
+            .zipcode("12345")
+            .city("시티")
+            .street("스트릿")
             .build();
 
         // when
@@ -133,7 +136,9 @@ class OrderServiceTest {
             .totalPrice(2700)
             .tel1("01011111111")
             .tel2("01011112222")
-            .address(new Address("12345", "시티", "스트릿"))
+            .zipcode("12345")
+            .city("시티")
+            .street("스트릿")
             .build();
 
         // expected
@@ -241,7 +246,7 @@ class OrderServiceTest {
             .build();
 
         // when
-        assertThrows(BadRequestException.class,
+        assertThrows(Unauthorized.class,
             () -> orderService.cancelOrder(request, "Bearer test"));
     }
 
@@ -287,7 +292,7 @@ class OrderServiceTest {
                 .build()));
 
         // expected
-        assertThrows(BadRequestException.class,
+        assertThrows(Unauthorized.class,
             () -> orderService.getOrder(1L, "test"));
     }
 
@@ -316,7 +321,7 @@ class OrderServiceTest {
             .build();
 
         // expected
-        assertThrows(BadRequestException.class,
+        assertThrows(Unauthorized.class,
             () -> orderService.getOrders(request, "test"));
     }
 }

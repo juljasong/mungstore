@@ -1,13 +1,15 @@
 package com.mung.order.dto;
 
-import com.mung.common.domain.Address;
 import com.mung.common.domain.Validate;
+import com.mung.common.domain.Validate.Message;
+import com.mung.common.domain.Validate.Regex;
 import com.mung.common.request.BaseSearchRequest;
 import com.mung.order.domain.OrderItem;
 import com.mung.order.domain.OrderStatus;
 import com.mung.order.dto.AddressDto.DeliveryAddressDto;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AccessLevel;
@@ -25,22 +27,34 @@ public class OrderDto {
         private List<OrderItemDto> orderItems;
         private int totalPrice;
 
-        @NotBlank(message = Validate.Message.NOT_EMPTY)
+        @NotBlank(message = Validate.Message.EMPTY_TEL)
+        @Size(min = 11, max = 11, message = Validate.Message.VALID_TEL)
         private String tel1;
 
+        @Size(min = 11, max = 11, message = Validate.Message.VALID_TEL)
         private String tel2;
 
-        @NotNull(message = Validate.Message.NOT_EMPTY)
-        private Address address;
+        @NotBlank(message = Message.NOT_EMPTY)
+        @Pattern(regexp = Regex.VALID_ZIPCODE,
+            message = Validate.Message.VALID_ZIPCODE)
+        private String zipcode;
+
+        @NotBlank(message = Message.NOT_EMPTY)
+        private String city;
+
+        @NotBlank(message = Message.NOT_EMPTY)
+        private String street;
 
         @Builder
         public OrderRequest(List<OrderItemDto> orderItems, int totalPrice, String tel1, String tel2,
-            Address address) {
+            String zipcode, String city, String street) {
             this.orderItems = orderItems;
             this.totalPrice = totalPrice;
             this.tel1 = tel1;
             this.tel2 = tel2;
-            this.address = address;
+            this.zipcode = zipcode;
+            this.city = city;
+            this.street = street;
         }
     }
 
@@ -127,13 +141,16 @@ public class OrderDto {
     public static class OrderSearchRequest extends BaseSearchRequest {
 
         private Long memberId;
+
         @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime orderedAtFrom;
+
         @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime orderedAtTo;
 
         @Builder
-        public OrderSearchRequest(Long memberId, LocalDateTime orderedAtFrom, LocalDateTime orderedAtTo) {
+        public OrderSearchRequest(Long memberId, LocalDateTime orderedAtFrom,
+            LocalDateTime orderedAtTo) {
             this.memberId = memberId;
             this.orderedAtFrom = orderedAtFrom;
             this.orderedAtTo = orderedAtTo;

@@ -5,6 +5,7 @@ import com.mung.common.exception.BadRequestException;
 import com.mung.common.exception.NotExistMemberException;
 import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.Member;
+import com.mung.member.exception.Unauthorized;
 import com.mung.member.repository.MemberRepository;
 import com.mung.order.domain.Delivery;
 import com.mung.order.domain.DeliveryStatus;
@@ -55,7 +56,9 @@ public class OrderService {
         Member member = memberRepository.findById(jwtUtil.getMemberId(jwt))
             .orElseThrow(NotExistMemberException::new);
 
-        Delivery delivery = createDelivery(orderRequest, orderRequest.getAddress());
+        Delivery delivery = createDelivery(orderRequest,
+            new Address(orderRequest.getZipcode(), orderRequest.getCity(),
+                orderRequest.getStreet()));
         List<OrderItem> orderItems = createOrderItems(orderRequest, member);
         Orders order = Orders.createOrder(member, delivery, orderItems);
 
@@ -73,7 +76,7 @@ public class OrderService {
             .orElseThrow(BadRequestException::new);
 
         if (!Objects.equals(memberId, order.getMember().getId())) {
-            throw new BadRequestException();
+            throw new Unauthorized();
         }
 
         order.cancel();
@@ -83,7 +86,7 @@ public class OrderService {
         return Delivery.builder()
             .tel1(orderRequest.getTel1())
             .tel2(orderRequest.getTel2())
-            .address(new Address(address.getZipcode(), address.getCity(), address.getStreet()))
+            .address(address)
             .status(DeliveryStatus.READY)
             .build();
     }
@@ -122,7 +125,7 @@ public class OrderService {
             .orElseThrow(BadRequestException::new);
 
         if (!Objects.equals(order.getMember().getId(), memberId)) {
-            throw new BadRequestException();
+            throw new Unauthorized();
         }
 
         List<OrderItemDto> orderItems = order.getOrderItems().stream()
@@ -142,7 +145,7 @@ public class OrderService {
         Long memberId = jwtUtil.getMemberId(jwt);
 
         if (!Objects.equals(condition.getMemberId(), memberId)) {
-            throw new BadRequestException();
+            throw new Unauthorized();
         }
 
         PageRequest pageRequest = PageRequest.of(condition.getPageNumber(),

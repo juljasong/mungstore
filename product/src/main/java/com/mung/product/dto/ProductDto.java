@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -41,8 +42,7 @@ public class ProductDto {
         }
     }
 
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @Data
     public static class ProductResponse {
 
         private Long id;
@@ -65,8 +65,7 @@ public class ProductDto {
         }
     }
 
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @Data
     public static class ProductSearchResponse {
 
         private final List<OptionsResponse> options = new ArrayList<>();
@@ -86,8 +85,7 @@ public class ProductDto {
         }
     }
 
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @Data
     public static class AddProductRequest {
 
         @NotBlank(message = Validate.Message.NOT_EMPTY)
@@ -110,8 +108,7 @@ public class ProductDto {
         }
     }
 
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @Data
     public static class UpdateProductRequest {
 
         @NotNull(message = Validate.Message.NOT_EMPTY)
@@ -138,7 +135,7 @@ public class ProductDto {
         }
     }
 
-    @Getter
+    @Data
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class DeleteProductRequest {
 

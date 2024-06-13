@@ -1,7 +1,6 @@
-package com.mung.member.exception;
+package com.mung.common.exception;
 
 import com.mung.common.domain.Validate;
-import com.mung.common.exception.CommonException;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 

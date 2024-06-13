@@ -4,15 +4,12 @@ import com.mung.common.domain.Validate;
 import com.mung.common.domain.Validate.Message;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Data;
 
 public class OptionsDto {
 
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @Data
     public static class AddOptionsRequest {
 
         @NotNull(message = Validate.Message.NOT_EMPTY)
@@ -35,8 +32,7 @@ public class OptionsDto {
         }
     }
 
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @Data
     public static class OptionsResponse {
 
         private Long id;

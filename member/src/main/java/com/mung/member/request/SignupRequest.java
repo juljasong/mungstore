@@ -11,13 +11,13 @@ import lombok.*;
 public class SignupRequest {
 
     @NotBlank(message = Validate.Message.EMPTY_EMAIL)
-    @Pattern(regexp = Validate.Regex.VALID_EMAIL
-            , message = Validate.Message.VALID_EMAIL)
+    @Pattern(regexp = Validate.Regex.VALID_EMAIL,
+        message = Validate.Message.VALID_EMAIL)
     private String email;
 
     @NotBlank(message = Validate.Message.EMPTY_PASSWORD)
-    @Pattern(regexp = Validate.Regex.VALID_PASSWORD
-            , message = Validate.Message.VALID_PASSWORD)
+    @Pattern(regexp = Validate.Regex.VALID_PASSWORD,
+        message = Validate.Message.VALID_PASSWORD)
     private String password;
 
     @NotBlank(message = Validate.Message.EMPTY_NAME)

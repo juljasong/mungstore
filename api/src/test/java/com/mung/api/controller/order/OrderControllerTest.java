@@ -13,7 +13,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mung.api.controller.MockMember;
-import com.mung.common.domain.Address;
 import com.mung.common.domain.Validate.Message;
 import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.Role;
@@ -84,7 +83,9 @@ class OrderControllerTest {
             .totalPrice(2700)
             .tel1("01011111111")
             .tel2("01011112222")
-            .address(new Address("12345", "시티", "스트릿"))
+            .zipcode("12345")
+            .city("시티")
+            .street("스트릿")
             .build();
 
         String json = objectMapper.writeValueAsString(orderReq);
@@ -128,7 +129,9 @@ class OrderControllerTest {
             .totalPrice(2700)
             .tel1("01011111111")
             .tel2("01011112222")
-            .address(new Address("12345", "시티", "스트릿"))
+            .zipcode("12345")
+            .city("시티")
+            .street("스트릿")
             .build();
 
         String json = objectMapper.writeValueAsString(orderReq);

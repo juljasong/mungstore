@@ -4,15 +4,18 @@ import com.mung.common.domain.Validate;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ResetPasswordEmailRequest {
 
     @NotBlank(message = Validate.Message.EMPTY_EMAIL)
-    @Pattern(regexp = Validate.Regex.VALID_EMAIL
-            , message = Validate.Message.VALID_EMAIL)
+    @Pattern(regexp = Validate.Regex.VALID_EMAIL,
+        message = Validate.Message.VALID_EMAIL)
     private String email;
 
     @NotBlank(message = Validate.Message.EMPTY_TEL)

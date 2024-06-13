@@ -44,7 +44,7 @@ public enum Validate {
     }
 
     public static class Regex {
-
+        public static final String VALID_ZIPCODE = "[0-6][0-3]\\d{3}";
         public static final String VALID_EMAIL = "^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])+[.][a-zA-Z]{2,3}$";
         public static final String VALID_PASSWORD = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,15}$";
     }
