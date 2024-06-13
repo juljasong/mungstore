@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -17,9 +18,10 @@ import com.mung.common.domain.Validate.Message;
 import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.Role;
 import com.mung.order.domain.Orders;
-import com.mung.order.dto.OrderDto.Order;
 import com.mung.order.dto.OrderDto.OrderCancelRequest;
+import com.mung.order.dto.OrderDto.OrderItemDto;
 import com.mung.order.dto.OrderDto.OrderRequest;
+import com.mung.order.dto.OrderDto.OrderSearchRequest;
 import com.mung.order.repository.OrderRepository;
 import com.mung.stock.repository.StockRepository;
 import java.util.ArrayList;
@@ -30,6 +32,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,15 +62,15 @@ class OrderControllerTest {
         int beforeStock1 = stockRepository.findByOptionId(1L).get().getQuantity();
         int beforeStock2 = stockRepository.findByOptionId(2L).get().getQuantity();
 
-        List<Order> orders = new ArrayList<>();
-        orders.add(Order.builder()
+        List<OrderItemDto> orders = new ArrayList<>();
+        orders.add(OrderItemDto.builder()
             .productId(1L)
             .productName("pname1")
             .optionId(1L)
             .quantity(2)
             .orderPrice(1200)
             .build());
-        orders.add(Order.builder()
+        orders.add(OrderItemDto.builder()
             .productId(1L)
             .productName("pname2")
             .optionId(2L)
@@ -77,7 +80,7 @@ class OrderControllerTest {
             .build());
 
         OrderRequest orderReq = OrderRequest.builder()
-            .orders(orders)
+            .orderItems(orders)
             .totalPrice(2700)
             .tel1("01011111111")
             .tel2("01011112222")
@@ -111,8 +114,8 @@ class OrderControllerTest {
         given(jwtUtil.getMemberId(anyString()))
             .willReturn(1L);
 
-        List<Order> orders = new ArrayList<>();
-        orders.add(Order.builder()
+        List<OrderItemDto> orders = new ArrayList<>();
+        orders.add(OrderItemDto.builder()
             .productId(1L)
             .productName("pname1")
             .optionId(1L)
@@ -121,7 +124,7 @@ class OrderControllerTest {
             .build());
 
         OrderRequest orderReq = OrderRequest.builder()
-            .orders(orders)
+            .orderItems(orders)
             .totalPrice(2700)
             .tel1("01011111111")
             .tel2("01011112222")
@@ -195,5 +198,49 @@ class OrderControllerTest {
             .andDo(print());
     }
 
+    @Test
+    @MockMember(id = 1L, name = "USER", role = Role.USER)
+    public void 주문조회_단건_성공() throws Exception {
+        // given
+        given(jwtUtil.getMemberId(anyString()))
+            .willReturn(1L);
 
+        Long orderId = orderRepository.findAll().get(0).getId();
+
+        // expected
+        mockMvc.perform(get("/order?orderId=" + orderId)
+                .contentType(APPLICATION_JSON)
+                .header("Authorization", "Bearer test")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
+            .andExpect(jsonPath("$.data.orderId").value(orderId))
+            .andDo(print());
+    }
+
+    @Test
+    @MockMember(id = 1L, name = "USER", role = Role.USER)
+    public void 주문조회_리스트_성공() throws Exception {
+        // given
+        given(jwtUtil.getMemberId(anyString()))
+            .willReturn(1L);
+
+        OrderSearchRequest request = OrderSearchRequest.builder()
+            .memberId(1L)
+            .build();
+        ReflectionTestUtils.setField(request, "pageNumber", 0);
+        ReflectionTestUtils.setField(request, "pageSize", 3);
+        String json = objectMapper.writeValueAsString(request);
+
+        // expected
+        mockMvc.perform(post("/orders")
+                .contentType(APPLICATION_JSON)
+                .header("Authorization", "Bearer test")
+                .content(json)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
+            .andExpect(jsonPath("$.data.content").exists())
+            .andDo(print());
+    }
 }

@@ -11,10 +11,14 @@ import com.mung.order.domain.DeliveryStatus;
 import com.mung.order.domain.OrderItem;
 import com.mung.order.domain.OrderStatus;
 import com.mung.order.domain.Orders;
-import com.mung.order.dto.OrderDto.Order;
+import com.mung.order.dto.AddressDto.DeliveryAddressDto;
+import com.mung.order.dto.OrderDto.GetOrderResponse;
+import com.mung.order.dto.OrderDto.GetOrdersResponse;
 import com.mung.order.dto.OrderDto.OrderCancelRequest;
+import com.mung.order.dto.OrderDto.OrderItemDto;
 import com.mung.order.dto.OrderDto.OrderRequest;
 import com.mung.order.dto.OrderDto.OrderResponse;
+import com.mung.order.dto.OrderDto.OrderSearchRequest;
 import com.mung.order.repository.OrderRepository;
 import com.mung.product.domain.Options;
 import com.mung.product.domain.Product;
@@ -25,8 +29,11 @@ import com.mung.stock.repository.StockRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,9 +89,9 @@ public class OrderService {
     }
 
     private List<OrderItem> createOrderItems(OrderRequest orderRequest, Member member) {
-        List<Order> orders = orderRequest.getOrders();
+        List<OrderItemDto> orders = orderRequest.getOrderItems();
         List<OrderItem> orderItems = new ArrayList<>();
-        for (Order order : orders) {
+        for (OrderItemDto order : orders) {
             Product product = productRepository.findById(order.getProductId())
                 .orElseThrow(BadRequestException::new);
             Stock stock = stockRepository.findByOptionId(order.getOptionId())
@@ -108,4 +115,38 @@ public class OrderService {
         return orderItems;
     }
 
+    public GetOrderResponse getOrder(Long orderId, String jwt) {
+        Long memberId = jwtUtil.getMemberId(jwt);
+
+        Orders order = orderRepository.findById(orderId)
+            .orElseThrow(BadRequestException::new);
+
+        if (!Objects.equals(order.getMember().getId(), memberId)) {
+            throw new BadRequestException();
+        }
+
+        List<OrderItemDto> orderItems = order.getOrderItems().stream()
+            .map(OrderItemDto::new)
+            .collect(Collectors.toList());
+
+        return GetOrderResponse.builder()
+            .orderId(order.getId())
+            .orderItems(orderItems)
+            .deliveryAddress(new DeliveryAddressDto(order.getDelivery()))
+            .orderStatus(order.getStatus())
+            .totalPrice(order.getTotalPrice())
+            .build();
+    }
+
+    public Page<GetOrdersResponse> getOrders(OrderSearchRequest condition, String jwt) {
+        Long memberId = jwtUtil.getMemberId(jwt);
+
+        if (!Objects.equals(condition.getMemberId(), memberId)) {
+            throw new BadRequestException();
+        }
+
+        PageRequest pageRequest = PageRequest.of(condition.getPageNumber(),
+            condition.getPageSize());
+        return orderRepository.search(condition, pageRequest);
+    }
 }

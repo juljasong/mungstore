@@ -16,10 +16,12 @@ import com.mung.order.domain.Delivery;
 import com.mung.order.domain.DeliveryStatus;
 import com.mung.order.domain.OrderStatus;
 import com.mung.order.domain.Orders;
-import com.mung.order.dto.OrderDto.Order;
+import com.mung.order.dto.OrderDto.GetOrderResponse;
 import com.mung.order.dto.OrderDto.OrderCancelRequest;
+import com.mung.order.dto.OrderDto.OrderItemDto;
 import com.mung.order.dto.OrderDto.OrderRequest;
 import com.mung.order.dto.OrderDto.OrderResponse;
+import com.mung.order.dto.OrderDto.OrderSearchRequest;
 import com.mung.order.exception.AlreadyCancelledException;
 import com.mung.order.exception.AlreadyDeliveredException;
 import com.mung.order.repository.OrderRepository;
@@ -79,8 +81,8 @@ class OrderServiceTest {
         given(orderRepository.save(any()))
             .willReturn(order);
 
-        List<Order> orders = new ArrayList<>();
-        orders.add(Order.builder()
+        List<OrderItemDto> orders = new ArrayList<>();
+        orders.add(OrderItemDto.builder()
             .productId(1L)
             .productName("pname1")
             .optionId(1L)
@@ -89,7 +91,7 @@ class OrderServiceTest {
             .build());
 
         OrderRequest orderReq = OrderRequest.builder()
-            .orders(orders)
+            .orderItems(orders)
             .totalPrice(60000)
             .tel1("01011111111")
             .tel2("01011112222")
@@ -117,8 +119,8 @@ class OrderServiceTest {
         given(optionsRepository.findById(anyLong()))
             .willReturn(Optional.of(Options.builder().build()));
 
-        List<Order> orders = new ArrayList<>();
-        orders.add(Order.builder()
+        List<OrderItemDto> orders = new ArrayList<>();
+        orders.add(OrderItemDto.builder()
             .productId(1L)
             .productName("pname1")
             .optionId(1L)
@@ -127,7 +129,7 @@ class OrderServiceTest {
             .build());
 
         OrderRequest orderReq = OrderRequest.builder()
-            .orders(orders)
+            .orderItems(orders)
             .totalPrice(2700)
             .tel1("01011111111")
             .tel2("01011112222")
@@ -243,5 +245,78 @@ class OrderServiceTest {
             () -> orderService.cancelOrder(request, "Bearer test"));
     }
 
+    @Test
+    public void 주문조회_단건_성공() {
+        // given
+        given(jwtUtil.getMemberId(anyString()))
+            .willReturn(1L);
 
+        Member member = Member.builder().build();
+        ReflectionTestUtils.setField(member, "id", 1L);
+
+        given(orderRepository.findById(anyLong()))
+            .willReturn(Optional.of(Orders.builder()
+                .member(member)
+                .delivery(Delivery.builder()
+                    .address(new Address("12345", "city", "street"))
+                    .build())
+                .build()));
+
+        // when
+        GetOrderResponse response = orderService.getOrder(1L, "test");
+
+        // then
+        System.out.println("response = " + response);
+    }
+
+    @Test
+    public void 주문조회_단건_실패_다른유저() {
+        // given
+        given(jwtUtil.getMemberId(anyString()))
+            .willReturn(123L);
+
+        Member member = Member.builder().build();
+        ReflectionTestUtils.setField(member, "id", 1L);
+
+        given(orderRepository.findById(anyLong()))
+            .willReturn(Optional.of(Orders.builder()
+                .member(member)
+                .delivery(Delivery.builder()
+                    .address(new Address("12345", "city", "street"))
+                    .build())
+                .build()));
+
+        // expected
+        assertThrows(BadRequestException.class,
+            () -> orderService.getOrder(1L, "test"));
+    }
+
+    @Test
+    public void 주문조회_단건_실패_없는주문() {
+        // given
+        given(jwtUtil.getMemberId(anyString()))
+            .willReturn(123L);
+
+        given(orderRepository.findById(anyLong()))
+            .willReturn(Optional.empty());
+
+        // expected
+        assertThrows(BadRequestException.class,
+            () -> orderService.getOrder(1L, "test"));
+    }
+
+    @Test
+    public void 주문조회_리스트_실패_다른유저() throws Exception {
+        // given
+        given(jwtUtil.getMemberId(anyString()))
+            .willReturn(123L);
+
+        OrderSearchRequest request = OrderSearchRequest.builder()
+            .memberId(1L)
+            .build();
+
+        // expected
+        assertThrows(BadRequestException.class,
+            () -> orderService.getOrders(request, "test"));
+    }
 }
