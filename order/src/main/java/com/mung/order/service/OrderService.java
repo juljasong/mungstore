@@ -3,7 +3,6 @@ package com.mung.order.service;
 import com.mung.common.domain.Address;
 import com.mung.common.exception.BadRequestException;
 import com.mung.common.exception.NotExistMemberException;
-import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.Member;
 import com.mung.member.exception.Unauthorized;
 import com.mung.member.repository.MemberRepository;
@@ -49,11 +48,9 @@ public class OrderService {
     private final StockRepository stockRepository;
     private final OptionsRepository optionsRepository;
 
-    private final JwtUtil jwtUtil;
-
     @Transactional
-    public OrderResponse order(OrderRequest orderRequest, String jwt) {
-        Member member = memberRepository.findById(jwtUtil.getMemberId(jwt))
+    public OrderResponse order(OrderRequest orderRequest, Long memberId) {
+        Member member = memberRepository.findById(memberId)
             .orElseThrow(NotExistMemberException::new);
 
         Delivery delivery = createDelivery(orderRequest,
@@ -69,8 +66,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void cancelOrder(OrderCancelRequest orderCancelRequest, String jwt) {
-        Long memberId = jwtUtil.getMemberId(jwt);
+    public void cancelOrder(OrderCancelRequest orderCancelRequest, Long memberId) {
 
         Orders order = orderRepository.findById(orderCancelRequest.getOrderId())
             .orElseThrow(BadRequestException::new);
@@ -118,9 +114,7 @@ public class OrderService {
         return orderItems;
     }
 
-    public GetOrderResponse getOrder(Long orderId, String jwt) {
-        Long memberId = jwtUtil.getMemberId(jwt);
-
+    public GetOrderResponse getOrder(Long orderId, Long memberId) {
         Orders order = orderRepository.findById(orderId)
             .orElseThrow(BadRequestException::new);
 
@@ -141,9 +135,7 @@ public class OrderService {
             .build();
     }
 
-    public Page<GetOrdersResponse> getOrders(OrderSearchRequest condition, String jwt) {
-        Long memberId = jwtUtil.getMemberId(jwt);
-
+    public Page<GetOrdersResponse> getOrders(OrderSearchRequest condition, Long memberId) {
         if (!Objects.equals(condition.getMemberId(), memberId)) {
             throw new Unauthorized();
         }

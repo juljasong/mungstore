@@ -11,19 +11,16 @@ import static org.mockito.BDDMockito.verify;
 import com.mung.common.domain.Address;
 import com.mung.common.domain.SendMailForm;
 import com.mung.common.exception.InvalidPasswordException;
-import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.Member;
 import com.mung.member.domain.ResetPasswordUuid;
 import com.mung.member.domain.Role;
 import com.mung.member.exception.IncorrectEmailAndTelException;
-import com.mung.member.exception.Unauthorized;
 import com.mung.member.repository.MemberRepository;
 import com.mung.member.repository.ResetPasswordUuidRedisRepository;
 import com.mung.member.request.ResetPasswordEmailRequest;
 import com.mung.member.request.ResetPasswordRequest;
 import com.mung.member.request.UpdateMemberRequest;
 import com.mung.member.response.MyPageResponse;
-import jakarta.persistence.EntityManager;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,16 +39,12 @@ class MemberServiceTest {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Mock
     private ResetPasswordUuidRedisRepository resetPasswordUuidRedisRepository;
-    @Mock
-    private JwtUtil jwtUtil;
-    @Mock
-    private EntityManager em;
 
     @InjectMocks
     private MemberService memberService;
 
     @Test
-    public void 비밀번호_재설정_메일_생성_성공() throws Exception {
+    public void 비밀번호_재설정_메일_생성_성공() {
         // given
         String email = "test@gmail.com";
 
@@ -77,7 +70,7 @@ class MemberServiceTest {
     }
 
     @Test
-    public void 비밀번호_재설정_메일_생성_실패() throws Exception {
+    public void 비밀번호_재설정_메일_생성_실패() {
         String email = "test@gmail.com";
 
         ResetPasswordEmailRequest resetPasswordEmailRequest = ResetPasswordEmailRequest.builder()
@@ -95,7 +88,7 @@ class MemberServiceTest {
     }
 
     @Test
-    public void 비밀번호_재설정_성공() throws Exception {
+    public void 비밀번호_재설정_성공() {
         // given
         String uuid = "abcd";
         ResetPasswordRequest resetPasswordRequest = ResetPasswordRequest.builder()
@@ -124,41 +117,25 @@ class MemberServiceTest {
     }
 
     @Test
-    public void 마이페이지조회_성공() throws Exception {
+    public void 마이페이지조회_성공() {
         // given
         Member member = new Member("test@gmail.com", "", "", null, Role.USER,
             new Address("", "", ""));
-        ReflectionTestUtils.setField(member, "id", 15L);
+        ReflectionTestUtils.setField(member, "id", 1L);
 
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(15L);
         given(memberRepository.findById(anyLong()))
             .willReturn(Optional.of(member));
 
         // when
-        MyPageResponse response = memberService.getMyPageInfo(15L, "jwt");
+        MyPageResponse response = memberService.getMyPageInfo(1L);
 
         // then
-        assertEquals(15L, response.getMemberId());
+        assertEquals(1L, response.getMemberId());
         assertEquals("test@gmail.com", response.getEmail());
     }
 
     @Test
-    public void 마이페이지조회_실패_jwt불일치() throws Exception {
-        // given
-        Member member = new Member("test@gmail.com", "", "", null, Role.USER,
-            new Address("", "", ""));
-        ReflectionTestUtils.setField(member, "id", 15L);
-
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(15L);
-
-        // expected
-        assertThrows(Unauthorized.class, () -> memberService.getMyPageInfo(14L, "jwt"));
-    }
-
-    @Test
-    public void 회원정보수정_성공() throws Exception {
+    public void 회원정보수정_성공() {
         // given
         Long memberId = 15L;
         UpdateMemberRequest request = UpdateMemberRequest.builder()
@@ -169,16 +146,13 @@ class MemberServiceTest {
             .build();
         Member member = new Member("test@gmail.com", "", "", null, Role.USER,
             new Address("", "", ""));
-        ReflectionTestUtils.setField(member, "id", 15L);
+        ReflectionTestUtils.setField(member, "id", memberId);
 
         given(memberRepository.findById(anyLong()))
             .willReturn(Optional.of(member));
 
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(15L);
-
         // when
-        Member result = memberService.updateMemberInfo(request, memberId, "jwt");
+        Member result = memberService.updateMemberInfo(request, memberId);
 
         // then
         assertEquals(15L, result.getId());
@@ -187,7 +161,7 @@ class MemberServiceTest {
     }
 
     @Test
-    public void 회원정보수정_실패_비밀번호유효성() throws Exception {
+    public void 회원정보수정_실패_비밀번호유효성() {
         // given
         Long memberId = 15L;
         UpdateMemberRequest request = UpdateMemberRequest.builder()
@@ -200,12 +174,9 @@ class MemberServiceTest {
         given(memberRepository.findById(anyLong()))
             .willReturn(Optional.of(member));
 
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(15L);
-
         // expected
         assertThrows(InvalidPasswordException.class,
-            () -> memberService.updateMemberInfo(request, memberId, "jwt"));
+            () -> memberService.updateMemberInfo(request, memberId));
     }
 
 }

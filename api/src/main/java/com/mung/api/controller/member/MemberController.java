@@ -1,5 +1,6 @@
 package com.mung.api.controller.member;
 
+import com.mung.api.config.auth.PrincipalDetails;
 import com.mung.api.service.EmailSendService;
 import com.mung.common.domain.SendMailForm;
 import com.mung.common.response.MessageResponse;
@@ -9,11 +10,11 @@ import com.mung.member.request.ResetPasswordRequest;
 import com.mung.member.request.UpdateMemberRequest;
 import com.mung.member.response.MyPageResponse;
 import com.mung.member.service.MemberService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,24 +49,23 @@ public class MemberController {
         return MessageResponse.ofSuccess();
     }
 
-    @GetMapping("/member/{memberId}")
-    public MessageResponse<?> myPage(@PathVariable Long memberId, HttpServletRequest request) {
-        String jwt = request.getHeader("Authorization").replace("Bearer ", "");
-        MyPageResponse data = memberService.getMyPageInfo(memberId, jwt);
+    @GetMapping("/member")
+    public MessageResponse<?> myPage() {
+        Long memberId = ((PrincipalDetails) (SecurityContextHolder.getContext()
+            .getAuthentication()).getPrincipal()).getMemberId();
+        MyPageResponse data = memberService.getMyPageInfo(memberId);
 
         return MessageResponse.builder()
             .data(data)
             .build();
     }
 
-    @PatchMapping("/member/{memberId}")
+    @PatchMapping("/member")
     public MessageResponse<?> updateMemberInfo(
-        @RequestBody @Valid UpdateMemberRequest updateMemberRequest,
-        @PathVariable Long memberId,
-        HttpServletRequest request) {
-
-        String jwt = request.getHeader("Authorization").replace("Bearer ", "");
-        memberService.updateMemberInfo(updateMemberRequest, memberId, jwt);
+        @RequestBody @Valid UpdateMemberRequest updateMemberRequest) {
+        Long memberId = ((PrincipalDetails) (SecurityContextHolder.getContext()
+            .getAuthentication()).getPrincipal()).getMemberId();
+        memberService.updateMemberInfo(updateMemberRequest, memberId);
 
         return MessageResponse.ofSuccess();
     }

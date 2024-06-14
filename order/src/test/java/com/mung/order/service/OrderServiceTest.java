@@ -4,12 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.anyLong;
-import static org.mockito.BDDMockito.anyString;
 import static org.mockito.BDDMockito.given;
 
 import com.mung.common.domain.Address;
 import com.mung.common.exception.BadRequestException;
-import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.Member;
 import com.mung.member.exception.Unauthorized;
 import com.mung.member.repository.MemberRepository;
@@ -60,14 +58,9 @@ class OrderServiceTest {
     @Mock
     OptionsRepository optionsRepository;
 
-    @Mock
-    JwtUtil jwtUtil;
-
     @Test
     public void 주문_성공() {
         // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(1L);
         given(memberRepository.findById(anyLong()))
             .willReturn(Optional.of(Member.builder().build()));
         given(productRepository.findById(anyLong()))
@@ -102,7 +95,7 @@ class OrderServiceTest {
             .build();
 
         // when
-        OrderResponse response = orderService.order(orderReq, "jwt");
+        OrderResponse response = orderService.order(orderReq, 1L);
 
         // then
         assertEquals(1L, response.getOrderId());
@@ -111,8 +104,6 @@ class OrderServiceTest {
     @Test
     public void 주문_실패_재고부족() {
         // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(1L);
         given(memberRepository.findById(anyLong()))
             .willReturn(Optional.of(Member.builder().build()));
         given(productRepository.findById(anyLong()))
@@ -143,7 +134,7 @@ class OrderServiceTest {
 
         // expected
         assertThrows(OutOfStockException.class,
-            () -> orderService.order(orderReq, "jwt"));
+            () -> orderService.order(orderReq, 1L));
     }
 
     @Test
@@ -156,8 +147,6 @@ class OrderServiceTest {
             .status(DeliveryStatus.READY)
             .build();
 
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(1L);
         given(orderRepository.findById(anyLong()))
             .willReturn(Optional.of(Orders.builder()
                 .member(member)
@@ -167,7 +156,7 @@ class OrderServiceTest {
         OrderCancelRequest request = OrderCancelRequest.builder().orderId(1L).build();
 
         // when
-        orderService.cancelOrder(request, "Bearer test");
+        orderService.cancelOrder(request, 1L);
     }
 
     @Test
@@ -180,8 +169,6 @@ class OrderServiceTest {
             .status(DeliveryStatus.SHIPPED)
             .build();
 
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(1L);
         given(orderRepository.findById(anyLong()))
             .willReturn(Optional.of(Orders.builder()
                 .member(member)
@@ -192,7 +179,7 @@ class OrderServiceTest {
 
         // when
         assertThrows(AlreadyDeliveredException.class,
-            () -> orderService.cancelOrder(request, "Bearer test"));
+            () -> orderService.cancelOrder(request, 1L));
     }
 
     @Test
@@ -205,8 +192,6 @@ class OrderServiceTest {
             .status(DeliveryStatus.READY)
             .build();
 
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(1L);
         given(orderRepository.findById(anyLong()))
             .willReturn(Optional.of(Orders.builder()
                 .member(member)
@@ -220,7 +205,7 @@ class OrderServiceTest {
 
         // when
         assertThrows(AlreadyCancelledException.class,
-            () -> orderService.cancelOrder(request, "Bearer test"));
+            () -> orderService.cancelOrder(request, 1L));
     }
 
     @Test
@@ -233,8 +218,6 @@ class OrderServiceTest {
             .status(DeliveryStatus.READY)
             .build();
 
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(1L);
         given(orderRepository.findById(anyLong()))
             .willReturn(Optional.of(Orders.builder()
                 .member(member)
@@ -247,15 +230,12 @@ class OrderServiceTest {
 
         // when
         assertThrows(Unauthorized.class,
-            () -> orderService.cancelOrder(request, "Bearer test"));
+            () -> orderService.cancelOrder(request, 1L));
     }
 
     @Test
     public void 주문조회_단건_성공() {
         // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(1L);
-
         Member member = Member.builder().build();
         ReflectionTestUtils.setField(member, "id", 1L);
 
@@ -268,7 +248,7 @@ class OrderServiceTest {
                 .build()));
 
         // when
-        GetOrderResponse response = orderService.getOrder(1L, "test");
+        GetOrderResponse response = orderService.getOrder(1L, 1L);
 
         // then
         System.out.println("response = " + response);
@@ -277,9 +257,6 @@ class OrderServiceTest {
     @Test
     public void 주문조회_단건_실패_다른유저() {
         // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(123L);
-
         Member member = Member.builder().build();
         ReflectionTestUtils.setField(member, "id", 1L);
 
@@ -293,35 +270,29 @@ class OrderServiceTest {
 
         // expected
         assertThrows(Unauthorized.class,
-            () -> orderService.getOrder(1L, "test"));
+            () -> orderService.getOrder(1L, 123L));
     }
 
     @Test
     public void 주문조회_단건_실패_없는주문() {
         // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(123L);
-
         given(orderRepository.findById(anyLong()))
             .willReturn(Optional.empty());
 
         // expected
         assertThrows(BadRequestException.class,
-            () -> orderService.getOrder(1L, "test"));
+            () -> orderService.getOrder(1L, 123L));
     }
 
     @Test
     public void 주문조회_리스트_실패_다른유저() throws Exception {
         // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(123L);
-
         OrderSearchRequest request = OrderSearchRequest.builder()
             .memberId(1L)
             .build();
 
         // expected
         assertThrows(Unauthorized.class,
-            () -> orderService.getOrders(request, "test"));
+            () -> orderService.getOrders(request, 123L));
     }
 }

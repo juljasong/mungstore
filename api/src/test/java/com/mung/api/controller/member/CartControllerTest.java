@@ -2,8 +2,6 @@ package com.mung.api.controller.member;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.BDDMockito.anyString;
-import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -74,9 +72,6 @@ class CartControllerTest {
     @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 장바구니추가_성공() throws Exception {
         // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(1L);
-
         List<AddCartDto> addCartRequestList = new ArrayList<>();
 
         addCartRequestList.add(AddCartDto.builder()
@@ -89,7 +84,6 @@ class CartControllerTest {
 
         // expected
         mockMvc.perform(post("/cart")
-                .header("Authorization", "Bearer test")
                 .contentType(APPLICATION_JSON)
                 .content(json)
             )
@@ -105,9 +99,6 @@ class CartControllerTest {
     @MockMember(id = 2L, name = "USER", role = Role.USER)
     public void 장바구니추가_장바구니존재x() throws Exception {
         // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(2L);
-
         List<AddCartDto> addCartRequestList = new ArrayList<>();
         addCartRequestList.add(AddCartDto.builder()
             .productId(1L)
@@ -120,7 +111,6 @@ class CartControllerTest {
 
         // expected
         mockMvc.perform(post("/cart")
-                .header("Authorization", "Bearer test")
                 .contentType(APPLICATION_JSON)
                 .content(json)
             )
@@ -136,9 +126,6 @@ class CartControllerTest {
     @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 장바구니추가_실패_상품X() throws Exception {
         // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(1L);
-
         List<AddCartDto> addCartRequestList = new ArrayList<>();
         addCartRequestList.add(AddCartDto.builder()
             .productId(11241123L)
@@ -151,7 +138,6 @@ class CartControllerTest {
 
         // expected
         mockMvc.perform(post("/cart")
-                .header("Authorization", "Bearer test")
                 .contentType(APPLICATION_JSON)
                 .content(json)
             )
@@ -167,9 +153,6 @@ class CartControllerTest {
     @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 장바구니추가_실패_옵션X() throws Exception {
         // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(1L);
-
         List<AddCartDto> addCartRequestList = new ArrayList<>();
         addCartRequestList.add(AddCartDto.builder()
             .productId(1L)
@@ -178,11 +161,9 @@ class CartControllerTest {
             .build());
 
         String json = objectMapper.writeValueAsString(addCartRequestList);
-        System.out.println("json = " + json);
 
         // expected
         mockMvc.perform(post("/cart")
-                .header("Authorization", "Bearer test")
                 .contentType(APPLICATION_JSON)
                 .content(json)
             )
@@ -198,9 +179,6 @@ class CartControllerTest {
     @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 장바구니추가_실패_재고부족() throws Exception {
         // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(1L);
-
         List<AddCartDto> addCartRequestList = new ArrayList<>();
         addCartRequestList.add(AddCartDto.builder()
             .productId(1L)
@@ -209,11 +187,9 @@ class CartControllerTest {
             .build());
 
         String json = objectMapper.writeValueAsString(addCartRequestList);
-        System.out.println("json = " + json);
 
         // expected
         mockMvc.perform(post("/cart")
-                .header("Authorization", "Bearer test")
                 .contentType(APPLICATION_JSON)
                 .content(json)
             )
@@ -229,9 +205,6 @@ class CartControllerTest {
     @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 장바구니삭제_성공_전체삭제() throws Exception {
         // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(1L);
-
         List<DeleteCartDto> deleteCartDtoList = new ArrayList<>();
         deleteCartDtoList.add(DeleteCartDto.builder()
             .productId(1L)
@@ -246,7 +219,6 @@ class CartControllerTest {
 
         // expected
         mockMvc.perform(delete("/cart")
-                .header("Authorization", "Bearer test")
                 .contentType(APPLICATION_JSON)
                 .content(json)
             )
@@ -261,9 +233,6 @@ class CartControllerTest {
     @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 장바구니삭제_성공_부분삭제() throws Exception {
         // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(1L);
-
         List<DeleteCartDto> deleteCartDtoList = new ArrayList<>();
         deleteCartDtoList.add(DeleteCartDto.builder()
             .productId(1L)
@@ -274,7 +243,6 @@ class CartControllerTest {
 
         // expected
         mockMvc.perform(delete("/cart")
-                .header("Authorization", "Bearer test")
                 .contentType(APPLICATION_JSON)
                 .content(json)
             )
@@ -289,14 +257,8 @@ class CartControllerTest {
     @Test
     @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 장바구니조회_성공() throws Exception {
-        // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(1L);
-
         // expected
-        mockMvc.perform(get("/cart")
-                .header("Authorization", "Bearer test")
-            )
+        mockMvc.perform(get("/cart"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
             .andDo(print());
@@ -306,13 +268,8 @@ class CartControllerTest {
     @MockMember(id = 2L, name = "USER", role = Role.USER)
     public void 장바구니조회_성공_장바구니x() throws Exception {
         // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(2L);
-
         // expected
-        mockMvc.perform(get("/cart")
-                .header("Authorization", "Bearer test")
-            )
+        mockMvc.perform(get("/cart"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
             .andDo(print());
