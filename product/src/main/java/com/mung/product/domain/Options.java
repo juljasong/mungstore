@@ -17,12 +17,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
 
 @Entity
 @Getter
-@Audited
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(uniqueConstraints = {
     @UniqueConstraint(name = "OPTIONS_UNIQUE", columnNames = {"PRODUCT_ID", "NAME"})})
@@ -46,7 +43,6 @@ public class Options {
 
     @OneToOne(fetch = LAZY)
     @JoinColumn(name = "option_id")
-    @NotAudited
     private Stock stock;
 
     @Builder
