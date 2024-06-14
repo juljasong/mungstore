@@ -32,8 +32,7 @@ public class CartService {
     private final StockService stockService;
     private final JwtUtil jwtUtil;
 
-    public void addCartItem(String jwt, List<AddCartDto> addCartRequest) {
-        Long memberId = jwtUtil.getMemberId(jwt);
+    public void addCartItem(Long memberId, List<AddCartDto> addCartRequest) {
 
         for (AddCartDto request : addCartRequest) {
             productService.getProduct(request.getProductId())
@@ -72,8 +71,7 @@ public class CartService {
         saveNewCartList(memberId, newCartList);
     }
 
-    public void deleteCartItem(String jwt, List<DeleteCartDto> deleteCartRequest) {
-        Long memberId = jwtUtil.getMemberId(jwt);
+    public void deleteCartItem(Long memberId, List<DeleteCartDto> deleteCartRequest) {
         Cart cartByMember = cartRedisRepository.findById(memberId)
             .orElse(null);
         List<AddCartDto> newCartList;
@@ -115,8 +113,7 @@ public class CartService {
         }
     }
 
-    public List<CartResponse> getCart(String jwt) {
-        Long memberId = jwtUtil.getMemberId(jwt);
+    public List<CartResponse> getCart(Long memberId) {
         Cart cart = cartRedisRepository.findById(memberId)
             .orElse(null);
 

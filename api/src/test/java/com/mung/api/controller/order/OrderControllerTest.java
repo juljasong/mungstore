@@ -1,8 +1,6 @@
 package com.mung.api.controller.order;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.BDDMockito.anyString;
-import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -55,9 +53,6 @@ class OrderControllerTest {
     @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 주문_성공() throws Exception {
         // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(1L);
-
         int beforeStock1 = stockRepository.findByOptionId(1L).get().getQuantity();
         int beforeStock2 = stockRepository.findByOptionId(2L).get().getQuantity();
 
@@ -93,7 +88,6 @@ class OrderControllerTest {
         // expected
         mockMvc.perform(post("/order")
                 .contentType(APPLICATION_JSON)
-                .header("Authorization", "Bearer test")
                 .content(json)
             )
             .andExpect(status().isOk())
@@ -112,9 +106,6 @@ class OrderControllerTest {
     @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 주문_실패_재고초과() throws Exception {
         // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(1L);
-
         List<OrderItemDto> orders = new ArrayList<>();
         orders.add(OrderItemDto.builder()
             .productId(1L)
@@ -139,7 +130,6 @@ class OrderControllerTest {
         // expected
         mockMvc.perform(post("/order")
                 .contentType(APPLICATION_JSON)
-                .header("Authorization", "Bearer test")
                 .content(json)
             )
             .andExpect(status().isBadRequest())
@@ -151,9 +141,6 @@ class OrderControllerTest {
     @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 주문취소_성공() throws Exception {
         // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(1L);
-
         Orders order = orderRepository.findAll().get(0);
         OrderCancelRequest request = OrderCancelRequest.builder()
             .orderId(order.getId())
@@ -165,7 +152,6 @@ class OrderControllerTest {
         // expected
         mockMvc.perform(patch("/order")
                 .contentType(APPLICATION_JSON)
-                .header("Authorization", "Bearer test")
                 .content(json)
             )
             .andExpect(status().isOk())
@@ -181,9 +167,6 @@ class OrderControllerTest {
     @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 주문취소_실패_없는주문() throws Exception {
         // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(1L);
-
         OrderCancelRequest request = OrderCancelRequest.builder()
             .orderId(98475L)
             .build();
@@ -193,7 +176,6 @@ class OrderControllerTest {
         // expected
         mockMvc.perform(patch("/order")
                 .contentType(APPLICATION_JSON)
-                .header("Authorization", "Bearer test")
                 .content(json)
             )
             .andExpect(status().isBadRequest())
@@ -205,15 +187,11 @@ class OrderControllerTest {
     @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 주문조회_단건_성공() throws Exception {
         // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(1L);
-
         Long orderId = orderRepository.findAll().get(0).getId();
 
         // expected
         mockMvc.perform(get("/order?orderId=" + orderId)
                 .contentType(APPLICATION_JSON)
-                .header("Authorization", "Bearer test")
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
@@ -225,9 +203,6 @@ class OrderControllerTest {
     @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 주문조회_리스트_성공() throws Exception {
         // given
-        given(jwtUtil.getMemberId(anyString()))
-            .willReturn(1L);
-
         OrderSearchRequest request = OrderSearchRequest.builder()
             .memberId(1L)
             .build();
@@ -238,7 +213,6 @@ class OrderControllerTest {
         // expected
         mockMvc.perform(post("/orders")
                 .contentType(APPLICATION_JSON)
-                .header("Authorization", "Bearer test")
                 .content(json)
             )
             .andExpect(status().isOk())

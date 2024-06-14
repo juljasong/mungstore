@@ -11,7 +11,6 @@ import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.Member;
 import com.mung.member.domain.ResetPasswordUuid;
 import com.mung.member.exception.IncorrectEmailAndTelException;
-import com.mung.member.exception.Unauthorized;
 import com.mung.member.repository.MemberRepository;
 import com.mung.member.repository.ResetPasswordUuidRedisRepository;
 import com.mung.member.request.MemberSearchCondition;
@@ -20,7 +19,7 @@ import com.mung.member.request.ResetPasswordRequest;
 import com.mung.member.request.UpdateMemberRequest;
 import com.mung.member.response.MemberSearchResponse;
 import com.mung.member.response.MyPageResponse;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -83,8 +82,7 @@ public class MemberService {
 
     }
 
-    public MyPageResponse getMyPageInfo(Long memberId, String jwt) {
-        identify(memberId, jwt);
+    public MyPageResponse getMyPageInfo(Long memberId) {
 
         Member member = memberRepository.findById(memberId)
             .orElseThrow(
@@ -103,12 +101,10 @@ public class MemberService {
     }
 
     @Transactional
-    public Member updateMemberInfo(UpdateMemberRequest request, Long memberId, String jwt) {
-        identify(memberId, jwt);
+    public Member updateMemberInfo(UpdateMemberRequest request, Long memberId) {
 
         Member member = memberRepository.findById(memberId)
-            .orElseThrow(() -> new NotExistMemberException(
-                ":: modifyMember.Member Not found :: " + memberId));
+            .orElseThrow(NotExistMemberException::new);
 
         if (hasText(request.getPassword())) {
             ValidateUtils.validatePassword(request.getPassword());
@@ -132,14 +128,7 @@ public class MemberService {
         return memberRepository.search(condition, pageRequest);
     }
 
-    private void identify(Long memberId, String jwt) {
-        if (!Objects.equals(memberId, jwtUtil.getMemberId(jwt))) {
-            throw new Unauthorized();
-        }
-    }
-
-    public Member getMemberById(Long memberId) {
-        return memberRepository.findById(memberId)
-            .orElseThrow(NotExistMemberException::new);
+    public Optional<Member> getMemberById(Long memberId) {
+        return memberRepository.findById(memberId);
     }
 }

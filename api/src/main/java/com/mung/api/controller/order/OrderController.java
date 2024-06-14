@@ -1,5 +1,6 @@
 package com.mung.api.controller.order;
 
+import com.mung.api.config.auth.PrincipalDetails;
 import com.mung.common.response.MessageResponse;
 import com.mung.order.dto.OrderDto.GetOrderResponse;
 import com.mung.order.dto.OrderDto.GetOrdersResponse;
@@ -8,10 +9,10 @@ import com.mung.order.dto.OrderDto.OrderRequest;
 import com.mung.order.dto.OrderDto.OrderResponse;
 import com.mung.order.dto.OrderDto.OrderSearchRequest;
 import com.mung.order.service.OrderService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,42 +28,45 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping("/orders")
-    public MessageResponse<?> getOrders(@RequestBody OrderSearchRequest orderSearchRequest, HttpServletRequest request) {
-        String jwt = request.getHeader("Authorization").replace("Bearer ", "");
+    public MessageResponse<?> getOrders(@RequestBody OrderSearchRequest orderSearchRequest) {
+        Long memberId = ((PrincipalDetails) (SecurityContextHolder.getContext()
+            .getAuthentication()).getPrincipal()).getMemberId();
 
-        Page<GetOrdersResponse> getOrdersResponse = orderService.getOrders(orderSearchRequest, jwt);
+        Page<GetOrdersResponse> getOrdersResponse = orderService.getOrders(orderSearchRequest,
+            memberId);
         return MessageResponse.builder()
             .data(getOrdersResponse)
             .build();
     }
 
     @GetMapping("/order")
-    public MessageResponse<?> getOrder(@RequestParam Long orderId, HttpServletRequest request) {
-        String jwt = request.getHeader("Authorization").replace("Bearer ", "");
+    public MessageResponse<?> getOrder(@RequestParam Long orderId) {
+        Long memberId = ((PrincipalDetails) (SecurityContextHolder.getContext()
+            .getAuthentication()).getPrincipal()).getMemberId();
 
-        GetOrderResponse orderResponse = orderService.getOrder(orderId, jwt);
+        GetOrderResponse orderResponse = orderService.getOrder(orderId, memberId);
         return MessageResponse.builder()
             .data(orderResponse)
             .build();
     }
 
     @PostMapping("/order")
-    public MessageResponse<?> order(@RequestBody OrderRequest orderRequest,
-        HttpServletRequest request) {
-        String jwt = request.getHeader("Authorization").replace("Bearer ", "");
+    public MessageResponse<?> order(@RequestBody OrderRequest orderRequest) {
+        Long memberId = ((PrincipalDetails) (SecurityContextHolder.getContext()
+            .getAuthentication()).getPrincipal()).getMemberId();
 
-        OrderResponse order = orderService.order(orderRequest, jwt);
+        OrderResponse order = orderService.order(orderRequest, memberId);
         return MessageResponse.builder()
             .data(order)
             .build();
     }
 
     @PatchMapping("/order")
-    public MessageResponse<?> cancelOrder(@RequestBody OrderCancelRequest orderCancelRequest,
-        HttpServletRequest request) {
-        String jwt = request.getHeader("Authorization").replace("Bearer ", "");
+    public MessageResponse<?> cancelOrder(@RequestBody OrderCancelRequest orderCancelRequest) {
+        Long memberId = ((PrincipalDetails) (SecurityContextHolder.getContext()
+            .getAuthentication()).getPrincipal()).getMemberId();
 
-        orderService.cancelOrder(orderCancelRequest, jwt);
+        orderService.cancelOrder(orderCancelRequest, memberId);
         return MessageResponse.ofSuccess();
     }
 
