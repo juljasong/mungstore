@@ -13,6 +13,7 @@ import com.mung.product.dto.ProductDto.SearchProductCondition;
 import com.mung.product.dto.ProductDto.UpdateProductRequest;
 import com.mung.product.repository.ProductRepository;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,9 +46,8 @@ public class ProductService {
             .build());
     }
 
-    public Product getProduct(Long productId) {
-        return productRepository.findByIdAndUseYn(productId, true)
-            .orElseThrow(BadRequestException::new);
+    public Optional<Product> getProduct(Long productId) {
+        return productRepository.findByIdAndUseYn(productId, true);
     }
 
     public List<Object[]> getProductIdAndOptionId(Long productId, Long optionId) {

@@ -1,5 +1,6 @@
 package com.mung.member.service;
 
+import com.mung.common.exception.BadRequestException;
 import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.Cart;
 import com.mung.member.dto.CartDto.AddCartDto;
@@ -12,7 +13,9 @@ import com.mung.stock.exception.OutOfStockException;
 import com.mung.stock.service.StockService;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +36,10 @@ public class CartService {
         Long memberId = jwtUtil.getMemberId(jwt);
 
         for (AddCartDto request : addCartRequest) {
-            productService.getProduct(request.getProductId());
-            optionsService.getOption(request.getOptionId());
+            productService.getProduct(request.getProductId())
+                .orElseThrow(BadRequestException::new);
+            optionsService.getOption(request.getOptionId())
+                .orElseThrow(BadRequestException::new);
             if (!stockService.isStockAvailable(request.getOptionId(), request.getCount())) {
                 throw new OutOfStockException();
             }
@@ -44,33 +49,24 @@ public class CartService {
             .orElse(null);
 
         List<AddCartDto> newCartList;
-
         if (cartByMember == null) {
             newCartList = addCartRequest;
         } else {
-            newCartList = cartByMember.getCartList();
-            int size = newCartList.size();
+            Map<Long, AddCartDto> cartMap = new HashMap<>();
+
+            for (AddCartDto cartItem : cartByMember.getCartList()) {
+                cartMap.put(cartItem.getOptionId(), cartItem);
+            }
 
             for (AddCartDto requestItem : addCartRequest) {
-
-                boolean isContained = false;
-                for (int i = 0; i < size; i++) {
-                    AddCartDto cartDto = newCartList.get(i);
-
-                    if (cartDto.equals(requestItem)) {
-                        newCartList.remove(i);
-                        cartDto.addCount(requestItem.getCount());
-                        newCartList.add(cartDto);
-                        isContained = true;
-                        break;
-                    }
+                if (cartMap.containsKey(requestItem.getOptionId())) {
+                    cartMap.get(requestItem.getOptionId())
+                        .addCount(requestItem.getCount());
+                } else {
+                    cartMap.put(requestItem.getOptionId(), requestItem);
                 }
-
-                if (!isContained) {
-                    newCartList.add(requestItem);
-                }
-
             }
+            newCartList = new ArrayList<>(cartMap.values());
         }
 
         saveNewCartList(memberId, newCartList);
@@ -121,7 +117,8 @@ public class CartService {
 
     public List<CartResponse> getCart(String jwt) {
         Long memberId = jwtUtil.getMemberId(jwt);
-        Cart cart = cartRedisRepository.findById(memberId).orElse(null);
+        Cart cart = cartRedisRepository.findById(memberId)
+            .orElse(null);
 
         if (cart == null) {
             return Collections.emptyList();

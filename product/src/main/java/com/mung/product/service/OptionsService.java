@@ -6,6 +6,7 @@ import com.mung.product.domain.Options;
 import com.mung.product.domain.Product;
 import com.mung.product.dto.OptionsDto.AddOptionsRequest;
 import com.mung.product.repository.OptionsRepository;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,7 +23,8 @@ public class OptionsService {
 
     @Transactional
     public Options addOptions(AddOptionsRequest request) {
-        Product product = productService.getProduct(request.getProductId());
+        Product product = productService.getProduct(request.getProductId())
+            .orElseThrow(BadRequestException::new);
         Options options = Options.builder()
             .name(request.getName())
             .price(request.getPrice())
@@ -38,8 +40,7 @@ public class OptionsService {
         return options;
     }
 
-    public Options getOption(Long optionId) {
-        return optionsRepository.findById(optionId)
-            .orElseThrow(BadRequestException::new);
+    public Optional<Options> getOption(Long optionId) {
+        return optionsRepository.findById(optionId);
     }
 }
