@@ -48,4 +48,29 @@ public class OptionsDto {
             this.available = available;
         }
     }
+
+    @Data
+    public static class OptionsStockResponse {
+
+        private Long id;
+        private String name;
+        private Integer price;
+        private Boolean available;
+        private String skuId;
+        private int quantity;
+
+        @Builder
+        public OptionsStockResponse(Long id, String name, Integer price, Boolean available,
+            String skuId,
+            int quantity) {
+            this.id = id;
+            this.name = name;
+            this.price = price;
+            this.available = available;
+            this.skuId = skuId;
+            this.quantity = quantity;
+        }
+    }
+
+
 }

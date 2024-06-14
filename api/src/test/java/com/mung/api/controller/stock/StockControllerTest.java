@@ -40,7 +40,8 @@ class StockControllerTest {
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
-            .andExpect(jsonPath("$.data[0].productId").value(1))
+            .andExpect(jsonPath("$.data.productId").value(1))
+            .andExpect(jsonPath("$.data.options[0].quantity").isNotEmpty())
             .andDo(print());
     }
 

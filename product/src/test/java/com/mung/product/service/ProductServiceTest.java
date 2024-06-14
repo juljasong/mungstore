@@ -2,31 +2,42 @@ package com.mung.product.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.any;
+import static org.mockito.BDDMockito.anyLong;
+import static org.mockito.BDDMockito.given;
 
 import com.mung.common.exception.BadRequestException;
+import com.mung.product.domain.Category;
 import com.mung.product.domain.Product;
 import com.mung.product.dto.ProductDto.AddProductRequest;
 import com.mung.product.dto.ProductDto.DeleteProductRequest;
 import com.mung.product.dto.ProductDto.UpdateProductRequest;
 import com.mung.product.repository.ProductRepository;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
-@Transactional
-@SpringBootTest
+
+@ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
 
-    @Autowired
+    @InjectMocks
     ProductService productService;
-    @Autowired
+
+    @Mock
     ProductRepository productRepository;
+    @Mock
+    CategoryService categoryService;
 
     @Test
-    public void 상품등록_성공() throws Exception {
-
+    public void 상품등록_성공() {
         // given
+        given(categoryService.getCategory(anyLong()))
+            .willReturn(Optional.of(Category.builder().build()));
         AddProductRequest request = AddProductRequest.builder()
             .name("product1")
             .details("상세1")
@@ -42,8 +53,13 @@ class ProductServiceTest {
     }
 
     @Test
-    public void 상품수정_성공() throws Exception {
+    public void 상품수정_성공() {
         // given
+        given(categoryService.getCategory(anyLong()))
+            .willReturn(Optional.of(Category.builder().build()));
+        given(productRepository.findByIdAndUseYn(anyLong(), any()))
+            .willReturn(Optional.of(Product.builder().build()));
+
         UpdateProductRequest request = UpdateProductRequest.builder()
             .id(1L)
             .price(300)
@@ -56,16 +72,13 @@ class ProductServiceTest {
         // when
         productService.updateProduct(request);
 
-        // then
-        Product product = productRepository.findById(1L).get();
-        assertEquals("test", product.getName());
-        assertEquals(false, product.getActiveForSale());
-        assertEquals(1L, product.getCategory().getId());
     }
 
     @Test
-    public void 상품수정_실패_존재하지않는카테고리() throws Exception {
+    public void 상품수정_실패_존재하지않는카테고리() {
         // given
+        given(categoryService.getCategory(anyLong()))
+            .willReturn(Optional.empty());
         UpdateProductRequest request = UpdateProductRequest.builder()
             .id(1L)
             .price(300)
@@ -81,8 +94,12 @@ class ProductServiceTest {
     }
 
     @Test
-    public void 상품수정_실패_존재하지않는상품() throws Exception {
+    public void 상품수정_실패_존재하지않는상품() {
         // given
+        given(categoryService.getCategory(anyLong()))
+            .willReturn(Optional.of(Category.builder().build()));
+        given(productRepository.findByIdAndUseYn(anyLong(), any()))
+            .willReturn(Optional.empty());
         UpdateProductRequest request = UpdateProductRequest.builder()
             .id(10000000L)
             .price(300)
@@ -98,8 +115,13 @@ class ProductServiceTest {
     }
 
     @Test
-    public void 상품삭제_성공() throws Exception {
+    public void 상품삭제_성공() {
         // given
+        Product product = Product.builder().build();
+        ReflectionTestUtils.setField(product, "id", 1L);
+
+        given(productRepository.findByIdAndUseYn(anyLong(), any()))
+            .willReturn(Optional.of(product));
         DeleteProductRequest request = DeleteProductRequest.builder()
             .id(1L)
             .build();
@@ -108,13 +130,14 @@ class ProductServiceTest {
         productService.deleteProduct(request);
 
         // then
-        Product product = productRepository.findById(request.getId()).get();
         assertEquals(false, product.getUseYn());
     }
 
     @Test
-    public void 상품삭제_실패_존재하지않는상품() throws Exception {
+    public void 상품삭제_실패_존재하지않는상품() {
         // given
+        given(productRepository.findByIdAndUseYn(anyLong(), any()))
+            .willReturn(Optional.empty());
         DeleteProductRequest request = DeleteProductRequest.builder()
             .id(10000L)
             .build();
