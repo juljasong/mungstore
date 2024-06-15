@@ -2,16 +2,20 @@ package com.mung.product.service;
 
 import com.mung.common.exception.BadRequestException;
 import com.mung.product.domain.Category;
+import com.mung.product.domain.Options;
 import com.mung.product.domain.Product;
 import com.mung.product.dto.CategoryDto.CategoryResponse;
 import com.mung.product.dto.OptionsDto.OptionsResponse;
+import com.mung.product.dto.OptionsDto.OptionsStockResponse;
 import com.mung.product.dto.ProductDto.AddProductRequest;
 import com.mung.product.dto.ProductDto.DeleteProductRequest;
 import com.mung.product.dto.ProductDto.ProductResponse;
 import com.mung.product.dto.ProductDto.ProductSearchResponse;
+import com.mung.product.dto.ProductDto.ProductStockResponse;
 import com.mung.product.dto.ProductDto.SearchProductCondition;
 import com.mung.product.dto.ProductDto.UpdateProductRequest;
 import com.mung.product.repository.ProductRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,7 +25,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 @Slf4j
 @Service
@@ -33,7 +36,8 @@ public class ProductService {
 
     @Transactional
     public void addProduct(AddProductRequest request) {
-        Category category = categoryService.getCategory(request.getCategoryId());
+        Category category = categoryService.getCategory(request.getCategoryId())
+            .orElseThrow(BadRequestException::new);
 
         productRepository.save(Product.builder()
             .name(request.getName())
@@ -70,7 +74,8 @@ public class ProductService {
 
     @Transactional
     public void updateProduct(UpdateProductRequest request) {
-        Category category = categoryService.getCategory(request.getCategoryId());
+        Category category = categoryService.getCategory(request.getCategoryId())
+            .orElseThrow(BadRequestException::new);
 
         Product product = productRepository.findByIdAndUseYn(request.getId(), true)
             .orElseThrow(BadRequestException::new);
@@ -113,6 +118,31 @@ public class ProductService {
             condition.getPageSize());
 
         return productRepository.search(condition, pageRequest);
+    }
+
+    public ProductStockResponse getStockByProduct(Long productId) {
+        Product product = productRepository.findById(productId)
+            .orElseThrow(BadRequestException::new);
+
+        List<OptionsStockResponse> options = new ArrayList<>();
+        for (Options option : product.getOptions()) {
+            options.add(OptionsStockResponse.builder()
+                .id(option.getId())
+                .name(option.getName())
+                .price(option.getPrice())
+                .available(option.getAvailable())
+                .skuId(option.getStock().getSkuId())
+                .quantity(option.getStock().getQuantity())
+                .build());
+        }
+
+        return ProductStockResponse.builder()
+            .productId(product.getId())
+            .name(product.getName())
+            .compId(product.getCompId())
+            .category(getCategoryResponse(product))
+            .options(options)
+            .build();
     }
 
 }

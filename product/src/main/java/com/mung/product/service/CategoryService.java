@@ -6,6 +6,7 @@ import com.mung.product.dto.CategoryDto.AddCategoryRequest;
 import com.mung.product.dto.CategoryDto.CategoriesResponse;
 import com.mung.product.repository.CategoryRepository;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,9 +39,8 @@ public class CategoryService {
         return category;
     }
 
-    public Category getCategory(Long categoryId)  {
-        return categoryRepository.findById(categoryId)
-            .orElseThrow(BadRequestException::new);
+    public Optional<Category> getCategory(Long categoryId)  {
+        return categoryRepository.findById(categoryId);
     }
 
     public List<CategoriesResponse> getAllCategoriesResponse() {

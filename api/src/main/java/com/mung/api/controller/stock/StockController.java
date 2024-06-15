@@ -1,7 +1,7 @@
 package com.mung.api.controller.stock;
 
 import com.mung.common.response.MessageResponse;
-import com.mung.products.service.ProductStockService;
+import com.mung.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin")
 public class StockController {
 
-    private final ProductStockService productStockService;
+    private final ProductService productService;
 
     @GetMapping("/stock/{productId}")
     public MessageResponse<?> getStockByProduct(@PathVariable Long productId) {
         return MessageResponse.builder()
-            .data(productStockService.getStockByProduct(productId))
+            .data(productService.getStockByProduct(productId))
             .build();
     }
 

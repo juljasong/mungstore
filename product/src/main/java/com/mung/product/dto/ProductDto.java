@@ -6,6 +6,7 @@ import com.mung.product.domain.Category;
 import com.mung.product.domain.Product;
 import com.mung.product.dto.CategoryDto.CategoryResponse;
 import com.mung.product.dto.OptionsDto.OptionsResponse;
+import com.mung.product.dto.OptionsDto.OptionsStockResponse;
 import com.querydsl.core.annotations.QueryProjection;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -50,7 +51,7 @@ public class ProductDto {
         private String details;
         private Long compId;
         private CategoryDto.CategoryResponse category;
-        private List<OptionsResponse> options = new ArrayList<>();
+        private List<OptionsResponse> options;
 
         @Builder
         @QueryProjection
@@ -147,4 +148,26 @@ public class ProductDto {
             this.id = id;
         }
     }
+
+    @Data
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class ProductStockResponse {
+
+        private Long productId;
+        private String name;
+        private Long compId;
+        private CategoryDto.CategoryResponse category;
+        private List<OptionsStockResponse> options;
+
+        @Builder
+        public ProductStockResponse(Long productId, String name, Long compId,
+            CategoryResponse category, List<OptionsStockResponse> options) {
+            this.productId = productId;
+            this.name = name;
+            this.compId = compId;
+            this.category = category;
+            this.options = options;
+        }
+    }
+
 }

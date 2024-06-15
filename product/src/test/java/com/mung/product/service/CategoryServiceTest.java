@@ -2,24 +2,31 @@ package com.mung.product.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.anyLong;
+import static org.mockito.BDDMockito.given;
 
 import com.mung.common.exception.BadRequestException;
 import com.mung.product.domain.Category;
 import com.mung.product.dto.CategoryDto.AddCategoryRequest;
+import com.mung.product.repository.CategoryRepository;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@Transactional
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
 
-    @Autowired
+    @InjectMocks
     CategoryService categoryService;
 
+    @Mock
+    CategoryRepository categoryRepository;
+
     @Test
-    public void 카테고리_등록_메인() throws Exception {
+    public void 카테고리_등록_메인() {
         // given
         AddCategoryRequest addCategoryRequest = AddCategoryRequest.builder()
             .name("main1")
@@ -36,6 +43,10 @@ class CategoryServiceTest {
     @Test
     public void 카테고리_등록_서브() throws Exception {
         // given
+        given(categoryRepository.findById(anyLong()))
+            .willReturn(Optional.of(Category.builder()
+                .depth(0)
+                .build()));
         AddCategoryRequest addCategoryRequest = AddCategoryRequest.builder()
             .parentId(1L)
             .name("sub2")

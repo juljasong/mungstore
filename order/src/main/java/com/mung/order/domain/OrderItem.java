@@ -25,6 +25,7 @@ import lombok.Setter;
 import org.hibernate.envers.AuditOverride;
 import org.hibernate.envers.AuditOverrides;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 @Entity
 @Getter
@@ -56,6 +57,7 @@ public class OrderItem extends BaseEntity {
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "option_id")
+    @NotAudited
     private Options options;
 
     @ManyToOne(fetch = LAZY)
