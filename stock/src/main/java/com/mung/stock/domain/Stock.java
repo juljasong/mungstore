@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,6 +15,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.envers.AuditOverride;
 import org.hibernate.envers.AuditOverrides;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 @Entity
 @Getter
@@ -35,6 +37,10 @@ public class Stock extends BaseTimeEntity {
     private Long optionId;
 
     private int quantity;
+
+    @Version
+    @NotAudited
+    private Long version;
 
     @Builder
     public Stock(String skuId, Long optionId, int quantity) {
