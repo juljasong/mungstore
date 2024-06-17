@@ -11,6 +11,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -24,7 +25,7 @@ public class OrderDto {
     @Data
     public static class OrderRequest {
 
-        private List<OrderItemDto> orderItems;
+        private List<OrderItemDto> orderItems = new ArrayList<>();
         private int totalPrice;
 
         @NotBlank(message = Validate.Message.EMPTY_TEL)
@@ -120,7 +121,7 @@ public class OrderDto {
     public static class GetOrderResponse {
 
         private Long orderId;
-        private List<OrderItemDto> orderItems;
+        private List<OrderItemDto> orderItems = new ArrayList<>();
         private DeliveryAddressDto deliveryAddress;
         private OrderStatus orderStatus;
         private int totalPrice;

@@ -51,11 +51,11 @@ public class OrderController {
     }
 
     @PostMapping("/order")
-    public MessageResponse<?> order(@RequestBody OrderRequest orderRequest) {
+    public MessageResponse<?> requestOrder(@RequestBody OrderRequest orderRequest) {
         Long memberId = ((PrincipalDetails) (SecurityContextHolder.getContext()
             .getAuthentication()).getPrincipal()).getMemberId();
 
-        OrderResponse order = orderService.order(orderRequest, memberId);
+        OrderResponse order = orderService.requestOrder(orderRequest, memberId);
         return MessageResponse.builder()
             .data(order)
             .build();

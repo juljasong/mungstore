@@ -38,9 +38,12 @@ public class AuthController {
         HttpServletResponse response) {
 
         LoginDto loginDto = authService.login(loginRequest);
+        Cookie refreshToken = new Cookie("refresh-token", loginDto.getRefreshToken());
+        refreshToken.setHttpOnly(true);
+        refreshToken.setSecure(true);
 
         response.addHeader("Authorization", "Bearer " + loginDto.getAccessToken());
-        response.addCookie(new Cookie("refresh-token", loginDto.getRefreshToken()));
+        response.addCookie(refreshToken);
 
         return MessageResponse.builder()
             .data(LoginResponse.builder()

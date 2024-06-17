@@ -28,8 +28,8 @@ public class ProductDto {
         private String name;
         private Long compId;
         private Boolean activeForSale;
-        private List<Long> categoryIds;
-        private List<Long> optionIds;
+        private List<Long> categoryIds = new ArrayList<>();
+        private List<Long> optionIds = new ArrayList<>();
 
         @Builder
         public SearchProductCondition(Long id, String name, Long compId, Boolean activeForSale,
@@ -51,7 +51,7 @@ public class ProductDto {
         private String details;
         private Long compId;
         private CategoryDto.CategoryResponse category;
-        private List<OptionsResponse> options;
+        private List<OptionsResponse> options = new ArrayList<>();
 
         @Builder
         @QueryProjection
@@ -157,7 +157,7 @@ public class ProductDto {
         private String name;
         private Long compId;
         private CategoryDto.CategoryResponse category;
-        private List<OptionsStockResponse> options;
+        private List<OptionsStockResponse> options = new ArrayList<>();
 
         @Builder
         public ProductStockResponse(Long productId, String name, Long compId,

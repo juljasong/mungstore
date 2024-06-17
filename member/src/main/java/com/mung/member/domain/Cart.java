@@ -1,6 +1,7 @@
 package com.mung.member.domain;
 
 import com.mung.member.dto.CartDto.AddCartDto;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +17,7 @@ public class Cart {
     @Id
     private Long memberId;
 
-    private List<AddCartDto> cartList;
+    private List<AddCartDto> cartList = new ArrayList<>();
 
     @Builder
     public Cart(Long memberId, List<AddCartDto> cartList) {

@@ -12,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.envers.AuditOverride;
 import org.hibernate.envers.AuditOverrides;
 import org.hibernate.envers.Audited;
@@ -36,6 +37,7 @@ public class Stock extends BaseTimeEntity {
 
     private Long optionId;
 
+    @Setter
     private int quantity;
 
     @Version

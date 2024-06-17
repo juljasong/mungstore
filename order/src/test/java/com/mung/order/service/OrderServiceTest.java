@@ -11,6 +11,7 @@ import com.mung.common.exception.BadRequestException;
 import com.mung.member.domain.Member;
 import com.mung.member.exception.Unauthorized;
 import com.mung.member.repository.MemberRepository;
+import com.mung.member.service.CartService;
 import com.mung.order.domain.Delivery;
 import com.mung.order.domain.DeliveryStatus;
 import com.mung.order.domain.OrderStatus;
@@ -57,6 +58,8 @@ class OrderServiceTest {
     StockRepository stockRepository;
     @Mock
     OptionsRepository optionsRepository;
+    @Mock
+    CartService cartService;
 
     @Test
     public void 주문_성공() {
@@ -95,7 +98,7 @@ class OrderServiceTest {
             .build();
 
         // when
-        OrderResponse response = orderService.order(orderReq, 1L);
+        OrderResponse response = orderService.requestOrder(orderReq, 1L);
 
         // then
         assertEquals(1L, response.getOrderId());
@@ -134,7 +137,7 @@ class OrderServiceTest {
 
         // expected
         assertThrows(OutOfStockException.class,
-            () -> orderService.order(orderReq, 1L));
+            () -> orderService.requestOrder(orderReq, 1L));
     }
 
     @Test

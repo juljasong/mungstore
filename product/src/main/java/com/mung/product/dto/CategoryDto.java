@@ -3,6 +3,7 @@ package com.mung.product.dto;
 import com.mung.common.domain.Validate;
 import com.mung.product.domain.Category;
 import jakarta.validation.constraints.NotBlank;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -55,7 +56,7 @@ public class CategoryDto {
         private Long id;
         private String name;
         private Integer depth;
-        private List<CategoriesResponse> children;
+        private List<CategoriesResponse> children = new ArrayList<>();
 
         public static CategoriesResponse of(Category category) {
             return new CategoriesResponse(category.getId(),

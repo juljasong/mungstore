@@ -3,6 +3,7 @@ package com.mung.product.request;
 import com.mung.common.domain.Validate;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.ArrayList;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,7 +27,7 @@ public class UpdateProductRequest {
     private String details;
 
     @NotNull(message = Validate.Message.NOT_EMPTY)
-    private List<Long> categoryId;
+    private List<Long> categoryId = new ArrayList<>();
 
     @NotNull(message = Validate.Message.NOT_EMPTY)
     private Boolean activeForSale;

@@ -14,6 +14,7 @@ import com.mung.stock.service.StockService;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -76,26 +77,37 @@ public class CartService {
             .orElse(null);
         List<AddCartDto> newCartList;
 
-        if (cartByMember == null) {
+        if (cartByMember == null || cartByMember.getCartList().isEmpty()) {
             return;
         } else {
             newCartList = cartByMember.getCartList();
-            int size = newCartList.size();
-
             for (DeleteCartDto deleteItem : deleteCartRequest) {
-
-                for (int i = 0; i < size; i++) {
-                    AddCartDto cartDto = newCartList.get(i);
-
+                Iterator<AddCartDto> iterator = newCartList.iterator();
+                while (iterator.hasNext()) {
+                    AddCartDto cartDto = iterator.next();
                     if (Objects.equals(cartDto.getProductId(), deleteItem.getProductId())
                         && Objects.equals(cartDto.getOptionId(), deleteItem.getOptionId())) {
-                        newCartList.remove(i);
+                        iterator.remove();
                         break;
                     }
-
                 }
-
             }
+//            int size = newCartList.size();
+//
+//            for (DeleteCartDto deleteItem : deleteCartRequest) {
+//
+//                for (int i = 0; i < size; i++) {
+//                    AddCartDto cartDto = newCartList.get(i);
+//
+//                    if (Objects.equals(cartDto.getProductId(), deleteItem.getProductId())
+//                        && Objects.equals(cartDto.getOptionId(), deleteItem.getOptionId())) {
+//                        newCartList.remove(i);
+//                        break;
+//                    }
+//
+//                }
+//
+//            }
 
         }
 

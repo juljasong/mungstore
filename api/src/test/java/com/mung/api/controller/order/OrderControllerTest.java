@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mung.api.controller.MockMember;
 import com.mung.common.domain.Validate.Message;
+import com.mung.common.exception.BadRequestException;
 import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.Role;
 import com.mung.order.domain.Orders;
@@ -20,15 +21,23 @@ import com.mung.order.dto.OrderDto.OrderItemDto;
 import com.mung.order.dto.OrderDto.OrderRequest;
 import com.mung.order.dto.OrderDto.OrderSearchRequest;
 import com.mung.order.repository.OrderRepository;
+import com.mung.stock.domain.Stock;
 import com.mung.stock.repository.StockRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +47,7 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 class OrderControllerTest {
 
+    private static final Logger log = LoggerFactory.getLogger(OrderControllerTest.class);
     @MockBean
     JwtUtil jwtUtil;
     @Autowired
@@ -48,6 +58,35 @@ class OrderControllerTest {
     private OrderRepository orderRepository;
     @Autowired
     private StockRepository stockRepository;
+
+    @Test
+    @Rollback(value = false)
+    @MockMember(id = 1L, name = "USER", role = Role.USER)
+    public void 재고_동시성테스트() throws Exception {
+
+        int numberOfThreads = 100;
+        ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
+        CountDownLatch latch = new CountDownLatch(numberOfThreads);
+
+        for (int i = 0; i < numberOfThreads; i++) {
+            executorService.submit(() -> {
+                try {
+                    Stock stock = stockRepository.findByOptionId(1L)
+                        .orElseThrow(
+                            BadRequestException::new);
+                    stock.removeStock(1);
+                    stockRepository.save(stock);
+                } catch (ObjectOptimisticLockingFailureException e) {
+                    log.error("exception:: 충돌 감지");
+                } catch (Exception e) {
+                    log.error("exception:: ", e);
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+        latch.await();
+    }
 
     @Test
     @MockMember(id = 1L, name = "USER", role = Role.USER)

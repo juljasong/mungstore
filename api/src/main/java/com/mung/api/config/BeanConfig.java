@@ -6,7 +6,13 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan(basePackages = {"com.mung.member", "com.mung.product", "com.mung.stock", "com.mung.products", "com.mung.order"})
+@ComponentScan(basePackages = {
+    "com.mung.member",
+    "com.mung.product",
+    "com.mung.stock",
+    "com.mung.products",
+    "com.mung.order",
+    "com.mung.payment"})
 public class BeanConfig {
 
 }

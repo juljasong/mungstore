@@ -112,6 +112,13 @@ public class Orders extends BaseEntity {
         });
     }
 
+    public void updateStatus(OrderStatus status) {
+        if (this.status == OrderStatus.CANCELLED) {
+            throw new AlreadyCancelledException();
+        }
+        this.status = status;
+    }
+
     public int getTotalPrice() {
         return orderItems.stream()
             .mapToInt(OrderItem::getTotalPrice)

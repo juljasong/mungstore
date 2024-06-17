@@ -4,8 +4,10 @@ import com.mung.common.domain.Address;
 import com.mung.common.exception.BadRequestException;
 import com.mung.common.exception.NotExistMemberException;
 import com.mung.member.domain.Member;
+import com.mung.member.dto.CartDto.DeleteCartDto;
 import com.mung.member.exception.Unauthorized;
 import com.mung.member.repository.MemberRepository;
+import com.mung.member.service.CartService;
 import com.mung.order.domain.Delivery;
 import com.mung.order.domain.DeliveryStatus;
 import com.mung.order.domain.OrderItem;
@@ -48,10 +50,14 @@ public class OrderService {
     private final StockRepository stockRepository;
     private final OptionsRepository optionsRepository;
 
+    private final CartService cartService;
+
     @Transactional
-    public OrderResponse order(OrderRequest orderRequest, Long memberId) {
+    public OrderResponse requestOrder(OrderRequest orderRequest, Long memberId) {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(NotExistMemberException::new);
+
+        deleteOrderedItemInCart(memberId, orderRequest);
 
         Delivery delivery = createDelivery(orderRequest,
             new Address(orderRequest.getZipcode(), orderRequest.getCity(),
@@ -63,6 +69,19 @@ public class OrderService {
         return OrderResponse.builder()
             .orderId(savedOrder.getId())
             .build();
+    }
+
+
+    private void deleteOrderedItemInCart(Long memberId, OrderRequest orderRequest) {
+        List<OrderItemDto> orderItems = orderRequest.getOrderItems();
+        List<DeleteCartDto> deleteCartDtoList = new ArrayList<>();
+        for (OrderItemDto orderItemDto : orderItems) {
+            deleteCartDtoList.add(DeleteCartDto.builder()
+                .productId(orderItemDto.getProductId())
+                .optionId(orderItemDto.getOptionId())
+                .build());
+        }
+        cartService.deleteCartItem(memberId, deleteCartDtoList);
     }
 
     @Transactional
@@ -88,6 +107,7 @@ public class OrderService {
     }
 
     private List<OrderItem> createOrderItems(OrderRequest orderRequest, Member member) {
+
         List<OrderItemDto> orders = orderRequest.getOrderItems();
         List<OrderItem> orderItems = new ArrayList<>();
         for (OrderItemDto order : orders) {
@@ -112,6 +132,7 @@ public class OrderService {
             stock.removeStock(order.getQuantity());
         }
         return orderItems;
+
     }
 
     public GetOrderResponse getOrder(Long orderId, Long memberId) {
