@@ -92,22 +92,6 @@ public class CartService {
                     }
                 }
             }
-//            int size = newCartList.size();
-//
-//            for (DeleteCartDto deleteItem : deleteCartRequest) {
-//
-//                for (int i = 0; i < size; i++) {
-//                    AddCartDto cartDto = newCartList.get(i);
-//
-//                    if (Objects.equals(cartDto.getProductId(), deleteItem.getProductId())
-//                        && Objects.equals(cartDto.getOptionId(), deleteItem.getOptionId())) {
-//                        newCartList.remove(i);
-//                        break;
-//                    }
-//
-//                }
-//
-//            }
 
         }
 

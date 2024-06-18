@@ -60,7 +60,6 @@ class OrderControllerTest {
     private StockRepository stockRepository;
 
     @Test
-    @Rollback(value = false)
     @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 재고_동시성테스트() throws Exception {
 

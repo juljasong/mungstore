@@ -7,6 +7,7 @@ import com.mung.payment.dto.PaymentDto.KaKaoCompletePaymentRequest;
 import com.mung.payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,6 +30,10 @@ public class PaymentController {
         CompletePaymentDto response = paymentService.kakaoComplete(request, memberId);
 
         return MessageResponse.builder()
+            .code(response.getMessage() == null ? HttpStatus.OK.value()
+                : HttpStatus.INTERNAL_SERVER_ERROR.value())
+            .message(response.getMessage() == null ? HttpStatus.OK.getReasonPhrase()
+                : HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
             .data(response)
             .build();
     }

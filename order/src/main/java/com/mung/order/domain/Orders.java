@@ -80,7 +80,7 @@ public class Orders extends BaseEntity {
         for (OrderItem orderItem : orderItems) {
             order.addOrderItem(orderItem);
         }
-        order.setTotalPrice(order.getTotalPrice());
+        order.setTotalPrice(order.calcTotalPrice());
 
         return order;
     }
@@ -119,7 +119,7 @@ public class Orders extends BaseEntity {
         this.status = status;
     }
 
-    public int getTotalPrice() {
+    public int calcTotalPrice() {
         return orderItems.stream()
             .mapToInt(OrderItem::getTotalPrice)
             .sum();

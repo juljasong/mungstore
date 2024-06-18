@@ -12,7 +12,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -38,7 +37,6 @@ public class Payment extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
-    @Builder
     public Payment(KaKaoCompletePaymentRequest request) {
         this.orderId = Long.valueOf(request.getPartnerOrderId());
         this.tid = request.getTid();

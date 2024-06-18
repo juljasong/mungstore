@@ -3,6 +3,7 @@ package com.mung.payment.dto;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.util.Date;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
@@ -10,6 +11,8 @@ public class PaymentDto {
 
     @Data
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @AllArgsConstructor
+    @Builder
     public static class KaKaoCompletePaymentRequest {
         private String aid;
         private String tid;
@@ -27,7 +30,9 @@ public class PaymentDto {
         private String payload;
 
         @Data
-        public class Amount {
+        @AllArgsConstructor
+        @Builder
+        public static class Amount {
             private Integer total;
             private Integer taxFree;
             private Integer vat;
@@ -37,7 +42,9 @@ public class PaymentDto {
         }
 
         @Data
-        public class CardInfo {
+        @AllArgsConstructor
+        @Builder
+        public static class CardInfo {
             private String kakaopayPurchaseCorp;
             private String kakaopayPurchaseCorpCode;
             private String kakaopayIssuerCorp;
@@ -57,11 +64,13 @@ public class PaymentDto {
     public static class CompletePaymentDto {
         private Long orderId;
         private int totalAmount;
+        private String message;
 
         @Builder
-        public CompletePaymentDto(Long orderId,int totalAmount) {
+        public CompletePaymentDto(Long orderId,int totalAmount, String message) {
             this.orderId = orderId;
             this.totalAmount = totalAmount;
+            this.message = message;
         }
     }
 

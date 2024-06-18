@@ -152,7 +152,7 @@ public class OrderService {
             .orderItems(orderItems)
             .deliveryAddress(new DeliveryAddressDto(order.getDelivery()))
             .orderStatus(order.getStatus())
-            .totalPrice(order.getTotalPrice())
+            .totalPrice(order.calcTotalPrice())
             .build();
     }
 
