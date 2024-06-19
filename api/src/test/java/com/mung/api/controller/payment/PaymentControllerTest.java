@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mung.api.controller.MockMember;
 import com.mung.common.domain.PaymentMethod;
 import com.mung.member.domain.Role;
+import com.mung.payment.dto.PaymentDto.CancelPaymentRequest;
 import com.mung.payment.dto.PaymentDto.KaKaoCompletePaymentRequest;
 import com.mung.payment.dto.PaymentDto.KaKaoCompletePaymentRequest.Amount;
 import com.mung.payment.dto.PaymentDto.KaKaoCompletePaymentRequest.CardInfo;
@@ -113,6 +114,27 @@ class PaymentControllerTest {
             .andExpect(
                 jsonPath("$.message").value(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()))
             .andExpect(jsonPath("$.data.message").exists())
+            .andDo(print());
+    }
+
+    @Test
+    @MockMember(id = 1L, name = "USER", role = Role.USER)
+    public void 카카오취소_성공() throws Exception {
+        // given
+        CancelPaymentRequest request = CancelPaymentRequest.builder()
+            .orderId(8L)
+            .build();
+
+        String json = objectMapper.writeValueAsString(request);
+
+        // expected
+        mockMvc.perform(post("/payment/cancel")
+                .contentType(APPLICATION_JSON)
+                .content(json)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
+            .andExpect(jsonPath("$.data.tid").exists())
             .andDo(print());
     }
 

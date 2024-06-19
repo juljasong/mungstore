@@ -21,6 +21,8 @@ import com.mung.order.dto.OrderDto.OrderItemDto;
 import com.mung.order.dto.OrderDto.OrderRequest;
 import com.mung.order.dto.OrderDto.OrderSearchRequest;
 import com.mung.order.repository.OrderRepository;
+import com.mung.payment.repository.PaymentRepository;
+import com.mung.payment.service.PaymentService;
 import com.mung.stock.domain.Stock;
 import com.mung.stock.repository.StockRepository;
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +40,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,6 +60,11 @@ class OrderControllerTest {
     private OrderRepository orderRepository;
     @Autowired
     private StockRepository stockRepository;
+    @Autowired
+    private PaymentService paymentService;
+
+    @Mock
+    private PaymentRepository paymentRepository;
 
     @Test
     @MockMember(id = 1L, name = "USER", role = Role.USER)
@@ -194,6 +201,7 @@ class OrderControllerTest {
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
+            .andExpect(jsonPath("$.data.tid").isNotEmpty())
             .andDo(print());
 
         // then

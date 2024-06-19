@@ -85,7 +85,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void cancelOrder(OrderCancelRequest orderCancelRequest, Long memberId) {
+    public Long cancelOrder(OrderCancelRequest orderCancelRequest, Long memberId) {
 
         Orders order = orderRepository.findById(orderCancelRequest.getOrderId())
             .orElseThrow(BadRequestException::new);
@@ -95,6 +95,7 @@ public class OrderService {
         }
 
         order.cancel();
+        return order.getId();
     }
 
     private Delivery createDelivery(OrderRequest orderRequest, Address address) {

@@ -2,15 +2,20 @@ package com.mung.payment.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
+import com.mung.common.domain.PaymentProvider;
 import com.mung.common.domain.Validate.Message;
+import com.mung.common.exception.BadRequestException;
 import com.mung.order.domain.Orders;
 import com.mung.order.repository.OrderRepository;
 import com.mung.payment.domain.Payment;
-import com.mung.payment.dto.PaymentDto.CompletePaymentDto;
+import com.mung.payment.dto.PaymentDto.CancelPaymentRequest;
+import com.mung.payment.dto.PaymentDto.CancelPaymentResponse;
+import com.mung.payment.dto.PaymentDto.CompletePaymentResponse;
 import com.mung.payment.dto.PaymentDto.KaKaoCompletePaymentRequest;
 import com.mung.payment.dto.PaymentDto.KaKaoCompletePaymentRequest.Amount;
 import com.mung.payment.dto.PaymentDto.KaKaoCompletePaymentRequest.CardInfo;
@@ -59,7 +64,8 @@ class PaymentServiceTest {
             .willReturn(Optional.of(Orders.builder().totalPrice(1000).build()));
 
         // when
-        CompletePaymentDto completePaymentDto = paymentService.kakaoComplete(request, memberId);
+        CompletePaymentResponse completePaymentDto = paymentService.kakaoComplete(request,
+            memberId);
 
         // then
         assertEquals(1L, completePaymentDto.getOrderId());
@@ -90,7 +96,8 @@ class PaymentServiceTest {
             .willReturn(Optional.of(Orders.builder().totalPrice(100).build()));
 
         // when
-        CompletePaymentDto completePaymentDto = paymentService.kakaoComplete(request, memberId);
+        CompletePaymentResponse completePaymentDto = paymentService.kakaoComplete(request,
+            memberId);
 
         // then
         assertEquals(Message.BAD_REQUEST, completePaymentDto.getMessage());
@@ -114,12 +121,57 @@ class PaymentServiceTest {
         ReflectionTestUtils.setField(payment, "id", 1L);
 
         // when
-        CompletePaymentDto completePaymentDto = paymentService.kakaoComplete(request, memberId);
+        CompletePaymentResponse completePaymentDto = paymentService.kakaoComplete(request,
+            memberId);
 
         // then
         assertEquals(Message.BAD_REQUEST, completePaymentDto.getMessage());
         verify(paymentKaKaoLogRepository).save(any());
     }
 
+    @Test
+    public void 결제취소_카카오_성공() {
+        // given
+        CancelPaymentRequest request = CancelPaymentRequest.builder().orderId(8L).build();
+        Long memberId = 1L;
 
+        Payment payment = Payment.builder()
+            .tid("1234")
+            .paymentProvider(PaymentProvider.KAKAO)
+            .totalAmount(1000)
+            .taxFree(0)
+            .vat(200)
+            .build();
+        ReflectionTestUtils.setField(payment, "createdBy", 1L);
+        given(paymentRepository.findByOrderId(any()))
+            .willReturn(Optional.of(payment));
+
+        // when
+        CancelPaymentResponse response = paymentService.cancelPayment(request, memberId);
+
+        // then
+        assertEquals("1234", response.getTid());
+    }
+
+    @Test
+    public void 결제취소_카카오_실패_주문자불일치() {
+        // given
+        CancelPaymentRequest request = CancelPaymentRequest.builder().orderId(8L).build();
+        Long memberId = 2L;
+
+        Payment payment = Payment.builder()
+            .tid("1234")
+            .paymentProvider(PaymentProvider.KAKAO)
+            .totalAmount(1000)
+            .taxFree(0)
+            .vat(200)
+            .build();
+        ReflectionTestUtils.setField(payment, "createdBy", 1L);
+        given(paymentRepository.findByOrderId(any()))
+            .willReturn(Optional.of(payment));
+
+        // expected
+        assertThrows(BadRequestException.class,
+            () -> paymentService.cancelPayment(request, memberId));
+    }
 }

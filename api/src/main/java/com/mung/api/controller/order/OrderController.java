@@ -9,6 +9,9 @@ import com.mung.order.dto.OrderDto.OrderRequest;
 import com.mung.order.dto.OrderDto.OrderResponse;
 import com.mung.order.dto.OrderDto.OrderSearchRequest;
 import com.mung.order.service.OrderService;
+import com.mung.payment.dto.PaymentDto.CancelPaymentRequest;
+import com.mung.payment.dto.PaymentDto.CancelPaymentResponse;
+import com.mung.payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
 
     private final OrderService orderService;
+    private final PaymentService paymentService;
 
     @PostMapping("/orders")
     public MessageResponse<?> getOrders(@RequestBody OrderSearchRequest orderSearchRequest) {
@@ -66,8 +70,14 @@ public class OrderController {
         Long memberId = ((PrincipalDetails) (SecurityContextHolder.getContext()
             .getAuthentication()).getPrincipal()).getMemberId();
 
-        orderService.cancelOrder(orderCancelRequest, memberId);
-        return MessageResponse.ofSuccess();
+        Long orderId = orderService.cancelOrder(orderCancelRequest, memberId);
+        CancelPaymentResponse response = paymentService.cancelPayment(CancelPaymentRequest.builder()
+                .orderId(orderId).build(),
+            memberId);
+
+        return MessageResponse.builder()
+            .data(response)
+            .build();
     }
 
 }

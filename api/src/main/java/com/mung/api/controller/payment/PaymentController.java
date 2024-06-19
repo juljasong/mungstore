@@ -2,7 +2,9 @@ package com.mung.api.controller.payment;
 
 import com.mung.api.config.auth.PrincipalDetails;
 import com.mung.common.response.MessageResponse;
-import com.mung.payment.dto.PaymentDto.CompletePaymentDto;
+import com.mung.payment.dto.PaymentDto.CancelPaymentRequest;
+import com.mung.payment.dto.PaymentDto.CancelPaymentResponse;
+import com.mung.payment.dto.PaymentDto.CompletePaymentResponse;
 import com.mung.payment.dto.PaymentDto.KaKaoCompletePaymentRequest;
 import com.mung.payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;
@@ -27,13 +29,24 @@ public class PaymentController {
         Long memberId = ((PrincipalDetails) (SecurityContextHolder.getContext()
             .getAuthentication()).getPrincipal()).getMemberId();
 
-        CompletePaymentDto response = paymentService.kakaoComplete(request, memberId);
+        CompletePaymentResponse response = paymentService.kakaoComplete(request, memberId);
 
         return MessageResponse.builder()
             .code(response.getMessage() == null ? HttpStatus.OK.value()
                 : HttpStatus.INTERNAL_SERVER_ERROR.value())
             .message(response.getMessage() == null ? HttpStatus.OK.getReasonPhrase()
                 : HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+            .data(response)
+            .build();
+    }
+
+    @PostMapping("/cancel")
+    public MessageResponse<?> cancelPayment(@RequestBody CancelPaymentRequest request) {
+        Long memberId = ((PrincipalDetails) (SecurityContextHolder.getContext()
+            .getAuthentication()).getPrincipal()).getMemberId();
+
+        CancelPaymentResponse response = paymentService.cancelPayment(request, memberId);
+        return MessageResponse.builder()
             .data(response)
             .build();
     }
