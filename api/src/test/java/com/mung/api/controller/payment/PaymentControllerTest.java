@@ -14,6 +14,7 @@ import com.mung.common.domain.Validate.Message;
 import com.mung.member.domain.Role;
 import com.mung.order.dto.OrderDto.OrderItemDto;
 import com.mung.order.dto.OrderDto.OrderRequest;
+import com.mung.payment.dto.PaymentDto.CancelPaymentRequest;
 import com.mung.stock.repository.StockRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +42,7 @@ class PaymentControllerTest {
     private StockRepository stockRepository;
 
     @Test
+    //@Rollback(value = false)
     @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 카카오결제준비_성공() throws Exception {
         // given
@@ -134,23 +137,44 @@ class PaymentControllerTest {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.message").value(Message.OUT_OF_STOCK))
             .andDo(print());
-
-        // then
     }
 
-    //@Test
+    @Test
     @MockMember(id = 1L, name = "USER", role = Role.USER)
+    @Rollback(value = false)
     public void 카카오결제승인_성공() throws Exception {
         // given
         String agent = "pc";
 
         // expected
         mockMvc.perform(
-                get("/payment/kakaopay/approve/" + agent + "?id=318&pg_token=e45d365432270eb8c126")
-                    .contentType(APPLICATION_JSON)
+                get("/payment/kakaopay/approve/" + agent + "?id=327&pg_token=5115457a35921f850594")
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
+            .andDo(print());
+    }
+
+    //@Test
+    //@Rollback(value = false)
+    @MockMember(id = 1L, name = "USER", role = Role.USER)
+    public void 카카오결제취소_성공() throws Exception {
+        // given
+        String agent = "pc";
+        CancelPaymentRequest orderReq = CancelPaymentRequest.builder()
+            .orderId(327L)
+            .build();
+
+        String json = objectMapper.writeValueAsString(orderReq);
+
+        // expected
+        mockMvc.perform(post("/payment/kakaopay/cancel")
+                .contentType(APPLICATION_JSON)
+                .content(json)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
+            .andExpect(jsonPath("$.data.tid").isNotEmpty())
             .andDo(print());
     }
 

@@ -323,7 +323,7 @@ class OrderServiceTest {
                 .build()));
 
         // expected
-        assertThrows(BadRequestException.class,
+        assertThrows(AlreadyCancelledException.class,
             () -> orderService.updateOrderStatus(anyLong(), OrderStatus.ORDER_CONFIRMED)) ;
     }
 }

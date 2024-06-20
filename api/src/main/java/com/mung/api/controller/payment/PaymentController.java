@@ -23,17 +23,6 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-//    @PostMapping("/cancel")
-//    public MessageResponse<?> cancelPayment(@RequestBody CancelPaymentRequest request) {
-//        Long memberId = ((PrincipalDetails) (SecurityContextHolder.getContext()
-//            .getAuthentication()).getPrincipal()).getMemberId();
-//
-//        CancelPaymentResponse response = paymentService.cancelPayment(request, memberId);
-//        return MessageResponse.builder()
-//            .data(response)
-//            .build();
-//    }
-
     // 카카오페이 결제 요청
     @PostMapping("/kakaopay/ready/{agent}")
     public MessageResponse<?> ready(@PathVariable("agent") String agent,
@@ -56,14 +45,6 @@ public class PaymentController {
         return MessageResponse.builder()
             .data(paymentService.completeKakaoPayment(agent, pgToken, memberId, orderId))
             .build();
-    }
-
-    // 카카오페이 결제 취소
-    @GetMapping("/kakaopay/cancel/{agent}")
-    public MessageResponse<?> cancel(@PathVariable("agent") String agent) {
-        // 주문건이 진짜 취소되었는지 확인 후 취소 처리
-        // 결제내역조회(/v1/payment/status) api에서 status를 확인한다.
-        return MessageResponse.ofSuccess();
     }
 
     // 카카오페이 결제 실패 시 redirect되는 url

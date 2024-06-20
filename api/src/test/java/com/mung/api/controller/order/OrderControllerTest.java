@@ -1,7 +1,11 @@
 package com.mung.api.controller.order;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.BDDMockito.any;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -9,11 +13,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mung.api.controller.MockMember;
+import com.mung.common.domain.Validate.Message;
 import com.mung.common.exception.BadRequestException;
 import com.mung.member.config.JwtUtil;
 import com.mung.member.domain.Role;
+import com.mung.order.domain.Orders;
+import com.mung.order.dto.OrderDto.OrderCancelRequest;
 import com.mung.order.dto.OrderDto.OrderSearchRequest;
 import com.mung.order.repository.OrderRepository;
+import com.mung.payment.dto.KakaopayDto.KakaopayCancelResponse;
+import com.mung.payment.service.KakaopayService;
 import com.mung.payment.service.PaymentService;
 import com.mung.stock.domain.Stock;
 import com.mung.stock.repository.StockRepository;
@@ -52,6 +61,9 @@ class OrderControllerTest {
     @Autowired
     private PaymentService paymentService;
 
+    @MockBean
+    private KakaopayService kakaopayService;
+
     @Test
     @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 재고_동시성테스트() throws Exception {
@@ -80,52 +92,58 @@ class OrderControllerTest {
         latch.await();
     }
 
-//    @Test
-//    @MockMember(id = 1L, name = "USER", role = Role.USER)
-//    public void 주문취소_성공() throws Exception {
-//        // given
-//        Orders order = orderRepository.findAll().get(0);
-//        OrderCancelRequest request = OrderCancelRequest.builder()
-//            .orderId(order.getId())
-//            .build();
-//
-//        String json = objectMapper.writeValueAsString(request);
-//        int beforeStock1 = order.getOrderItems().get(0).getStock().getQuantity();
-//
-//        // expected
-//        mockMvc.perform(patch("/order")
-//                .contentType(APPLICATION_JSON)
-//                .content(json)
-//            )
-//            .andExpect(status().isOk())
-//            .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
-//            .andExpect(jsonPath("$.data.tid").isNotEmpty())
-//            .andDo(print());
-//
-//        // then
-//        int stock1 = order.getOrderItems().get(0).getStock().getQuantity();
-//        assertEquals(order.getOrderItems().get(0).getQuantity(), (stock1 - beforeStock1));
-//    }
-//
-//    @Test
-//    @MockMember(id = 1L, name = "USER", role = Role.USER)
-//    public void 주문취소_실패_없는주문() throws Exception {
-//        // given
-//        OrderCancelRequest request = OrderCancelRequest.builder()
-//            .orderId(98475L)
-//            .build();
-//
-//        String json = objectMapper.writeValueAsString(request);
-//
-//        // expected
-//        mockMvc.perform(patch("/order")
-//                .contentType(APPLICATION_JSON)
-//                .content(json)
-//            )
-//            .andExpect(status().isBadRequest())
-//            .andExpect(jsonPath("$.message").value(Message.BAD_REQUEST))
-//            .andDo(print());
-//    }
+    @Test
+    @MockMember(id = 1L, name = "USER", role = Role.USER)
+    public void 주문취소_성공() throws Exception {
+        // given
+        Orders order = orderRepository.findAll().get(0);
+        OrderCancelRequest request = OrderCancelRequest.builder()
+            .orderId(order.getId())
+            .build();
+
+        String json = objectMapper.writeValueAsString(request);
+        int beforeStock1 = order.getOrderItems().get(0).getStock().getQuantity();
+
+        given(kakaopayService.cancel(any()))
+            .willReturn(KakaopayCancelResponse.builder()
+                .tid("tid")
+                .status("status")
+                .build());
+
+        // expected
+        mockMvc.perform(patch("/order")
+                .contentType(APPLICATION_JSON)
+                .content(json)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
+            .andExpect(jsonPath("$.data.tid").isNotEmpty())
+            .andDo(print());
+
+        // then
+        int stock1 = order.getOrderItems().get(0).getStock().getQuantity();
+        assertEquals(order.getOrderItems().get(0).getQuantity(), (stock1 - beforeStock1));
+    }
+
+    @Test
+    @MockMember(id = 1L, name = "USER", role = Role.USER)
+    public void 주문취소_실패_없는주문() throws Exception {
+        // given
+        OrderCancelRequest request = OrderCancelRequest.builder()
+            .orderId(98475L)
+            .build();
+
+        String json = objectMapper.writeValueAsString(request);
+
+        // expected
+        mockMvc.perform(patch("/order")
+                .contentType(APPLICATION_JSON)
+                .content(json)
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value(Message.BAD_REQUEST))
+            .andDo(print());
+    }
 
     @Test
     @MockMember(id = 1L, name = "USER", role = Role.USER)

@@ -116,7 +116,7 @@ public class KakaopayDto {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     @AllArgsConstructor
     @Builder
-    public static class KakaopayCancelPaymentRequest {
+    public static class KakaopayCancelRequest {
 
         private String cid;
         private String cidSecret;
@@ -130,6 +130,8 @@ public class KakaopayDto {
     }
 
     @Data
+    @AllArgsConstructor
+    @Builder
     public static class KakaopayCancelResponse {
 
         private String aid;

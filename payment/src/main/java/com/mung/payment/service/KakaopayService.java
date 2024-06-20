@@ -4,11 +4,15 @@ import com.mung.order.domain.OrderItem;
 import com.mung.order.domain.Orders;
 import com.mung.order.dto.OrderDto.OrderRequest;
 import com.mung.payment.domain.KakaopayPayment;
+import com.mung.payment.domain.Payment;
 import com.mung.payment.domain.PaymentKakaoLog;
 import com.mung.payment.dto.KakaopayDto.KakaopayApproveRequest;
 import com.mung.payment.dto.KakaopayDto.KakaopayApproveResponse;
+import com.mung.payment.dto.KakaopayDto.KakaopayCancelRequest;
+import com.mung.payment.dto.KakaopayDto.KakaopayCancelResponse;
 import com.mung.payment.dto.KakaopayDto.KakaopayReadyRequest;
 import com.mung.payment.dto.KakaopayDto.KakaopayReadyResponse;
+import com.mung.payment.dto.PaymentDto.CancelPaymentResponse;
 import com.mung.payment.repository.KakaopayLogRepository;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -101,6 +105,42 @@ public class KakaopayService {
                 KakaopayApproveResponse.class
             );
             log.info("KakaopayService.approve :: response : {}", response);
+            kakaoPayLogRepository.save(new PaymentKakaoLog(Objects.requireNonNull(response.getBody())));
+
+            return response.getBody();
+        } catch (HttpStatusCodeException ex) {
+            log.error(ex.getResponseBodyAsString());
+            throw new RuntimeException();
+        }
+    }
+
+    public KakaopayCancelResponse cancel(Payment payment) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "SECRET_KEY " + kakaopaySecretKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Request param
+        KakaopayCancelRequest cancelRequest = KakaopayCancelRequest.builder()
+            .cid(cid)
+            //.cidSecret()
+            .tid(payment.getTid())
+            .cancelAmount(payment.getTotalAmount())
+            .cancelTaxFreeAmount(payment.getTaxFree())
+            .cancelVatAmount(payment.getVat())
+            //.cancelAvailableAmount()
+            //.payload()
+            .build();
+        log.info("KakaopayService.cancel :: request params : {}", cancelRequest.toString());
+
+        try {
+            // Send Request
+            HttpEntity<KakaopayCancelRequest> entityMap = new HttpEntity<>(cancelRequest, headers);
+            ResponseEntity<KakaopayCancelResponse> response = new RestTemplate().postForEntity(
+                "https://open-api.kakaopay.com/online/v1/payment/cancel",
+                entityMap,
+                KakaopayCancelResponse.class
+            );
+            log.info("KakaopayService.cancel :: response : {}", response);
             kakaoPayLogRepository.save(new PaymentKakaoLog(Objects.requireNonNull(response.getBody())));
 
             return response.getBody();

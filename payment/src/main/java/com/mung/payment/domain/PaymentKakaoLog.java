@@ -1,7 +1,9 @@
 package com.mung.payment.domain;
 
+import com.mung.common.domain.PaymentStatus;
 import com.mung.payment.dto.KakaopayDto.KakaopayApproveResponse;
 import com.mung.payment.dto.KakaopayDto.KakaopayApproveResponse.CardInfo;
+import com.mung.payment.dto.KakaopayDto.KakaopayCancelResponse;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import java.util.Date;
@@ -20,6 +22,7 @@ public class PaymentKakaoLog {
     private String aid;
     private String tid;
     private String cid;
+    private String status;
     private String partnerUserId;
     private String partnerOrderId;  // 주문번호
     private String paymentMethodType;
@@ -52,6 +55,7 @@ public class PaymentKakaoLog {
         this.aid = response.getAid();
         this.tid = response.getTid();
         this.cid = response.getCid();
+        this.status = PaymentStatus.COMPLETED.name();
         this.partnerUserId = response.getPartnerUserId();
         this.partnerOrderId = response.getPartnerOrderId();
         this.paymentMethodType = response.getPaymentMethodType();
@@ -73,6 +77,28 @@ public class PaymentKakaoLog {
         this.interestFreeInstall = getCardInfoField(response, CardInfo::getInterestFreeInstall);
         this.installmentType = getCardInfoField(response, CardInfo::getInstallmentType);
         this.cardItemCode = getCardInfoField(response, CardInfo::getCardItemCode);
+        this.itemName = response.getItemName();
+        this.itemCode = response.getItemCode();
+        this.quantity = response.getQuantity();
+        this.createdAt = response.getCreatedAt();
+        this.approvedAt = response.getApprovedAt();
+        this.payload = response.getPayload();
+    }
+
+    public PaymentKakaoLog(KakaopayCancelResponse response) {
+        this.aid = response.getAid();
+        this.tid = response.getTid();
+        this.cid = response.getCid();
+        this.status = response.getStatus();
+        this.partnerUserId = response.getPartnerUserId();
+        this.partnerOrderId = response.getPartnerOrderId();
+        this.paymentMethodType = response.getPaymentMethodType();
+        this.total = response.getAmount().getTotal();
+        this.taxFree = response.getAmount().getTaxFree();
+        this.vat = response.getAmount().getVat();
+        this.point = response.getAmount().getPoint();
+        this.discount = response.getAmount().getDiscount();
+        this.greenDeposit = response.getAmount().getGreenDeposit();
         this.itemName = response.getItemName();
         this.itemCode = response.getItemCode();
         this.quantity = response.getQuantity();

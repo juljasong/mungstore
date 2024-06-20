@@ -1,5 +1,6 @@
 package com.mung.payment.service;
 
+import com.mung.common.domain.PaymentProvider;
 import com.mung.common.exception.BadRequestException;
 import com.mung.order.domain.OrderStatus;
 import com.mung.order.domain.Orders;
@@ -8,10 +9,14 @@ import com.mung.order.service.OrderService;
 import com.mung.payment.domain.KakaopayPayment;
 import com.mung.payment.domain.Payment;
 import com.mung.payment.dto.KakaopayDto.KakaopayApproveResponse;
+import com.mung.payment.dto.KakaopayDto.KakaopayCancelResponse;
 import com.mung.payment.dto.KakaopayDto.KakaopayReadyResponse;
+import com.mung.payment.dto.PaymentDto.CancelPaymentRequest;
+import com.mung.payment.dto.PaymentDto.CancelPaymentResponse;
 import com.mung.payment.dto.PaymentDto.CompletePaymentResponse;
 import com.mung.payment.repository.KakaopayPaymentRedisRepository;
 import com.mung.payment.repository.PaymentRepository;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -85,100 +90,29 @@ public class PaymentService {
             .build();
     }
 
-//
-//    @Transactional
-//    public CancelPaymentResponse cancelPayment(CancelPaymentRequest request, Long memberId) {
-//        Payment payment = paymentRepository.findByOrderId(request.getOrderId())
-//            .orElseThrow(BadRequestException::new);
-//
-//        if (!Objects.equals(payment.getCreatedBy(), memberId)) {
-//            log.error(
-//                "PaymentService.cancelPayment :: 주문자 불일치 payment.createdBy = {}, memberId = {}",
-//                payment.getCreatedBy(), memberId);
-//            throw new BadRequestException();
-//        }
-//
-//        CancelPaymentResponse response = null;
-//        if (payment.getPaymentProvider() == PaymentProvider.KAKAO) {
-//            response = cancelKaKao(payment);
-//        }
-//
-//        return response;
-//    }
-//
-//    @Transactional
-//    private CancelPaymentResponse cancelKaKao(Payment payment) {
-//        KakaoCancelPaymentResponse response = feignKakaoCancel(KaKaoCancelPaymentRequest.builder()
-//            .cid("가맹점코드")
-//            .tid(payment.getTid())
-//            .cancelAmount(payment.getTotalAmount())
-//            .cancelTaxFreeAmount(
-//                payment.getTaxFree())  // 비과세(tax_free_amount)와 부가세(vat_amount)를 맞게 요청해야 함
-//            .cancelVatAmount(payment.getVat())
-//            .build());
-//
-//        if (response.getStatus().equals(KakaoPayStatus.CANCEL_PAYMENT.name())) {
-//            payment.updateStatus(PaymentStatus.CANCELLED);
-//        } else {
-//            log.error("PaymentService.cancelKaKao :: 카카오 취소 실패 tid = {}, status = {}",
-//                response.getTid(), response.getStatus());
-//            throw new BadRequestException();
-//        }
-//
-//        return CancelPaymentResponse.builder()
-//            .message(response.getStatus())
-//            .tid(payment.getTid())
-//            .build();
-//    }
-//
-//    private KakaoCancelPaymentResponse feignKakaoCancel(KaKaoCancelPaymentRequest request) {
-//        // TODO :: Feign 으로 결제 취소 요청 날리기 -> KakaoCancelPaymentResponse 받기
-//        try {
-//            return KakaoCancelPaymentResponse.builder()
-//                .tid("T1234567890123456789")
-//                .cid("TC0ONETIME")
-//                .status("CANCEL_PAYMENT")
-//                .partnerUserId("partner_order_id")
-//                .partnerOrderId("partner_user_id")
-//                .paymentMethodType("MONEY")
-//                .itemName("초코파이")
-//                .amount(Amount.builder()
-//                    .total(3900)
-//                    .taxFree(0)
-//                    .vat(200)
-//                    .point(0)
-//                    .discount(0)
-//                    .greenDeposit(0)
-//                    .build())
-//                .approvedCancelAmount(Amount.builder()
-//                    .total(3900)
-//                    .taxFree(0)
-//                    .vat(200)
-//                    .point(0)
-//                    .discount(0)
-//                    .greenDeposit(0)
-//                    .build())
-//                .canceledAmount(Amount.builder()
-//                    .total(3900)
-//                    .taxFree(0)
-//                    .vat(200)
-//                    .point(0)
-//                    .discount(0)
-//                    .greenDeposit(0)
-//                    .build())
-//                .cancelAvailableAmount(Amount.builder().build())
-//                .canceledAt(
-//                    new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse("2023-07-15T21:18:22"))
-//                .approvedAt(
-//                    new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse("2023-07-15T21:18:22"))
-//                .canceledAt(
-//                    new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse("2023-07-15T21:18:22"))
-//                .build();
-//        } catch (ParseException e) {
-//            log.error("PaymentService.feignKakaoCancel", e);
-//        }
-//        return null;
-//    }
 
+    @Transactional
+    public CancelPaymentResponse cancelPayment(CancelPaymentRequest request, Long memberId) {
+        Payment payment = paymentRepository.findByOrderId(request.getOrderId())
+            .orElseThrow(BadRequestException::new);
+
+        if (!Objects.equals(payment.getCreatedBy(), memberId)) {
+            log.error(
+                "PaymentService.cancelPayment :: 주문자 불일치 payment.createdBy = {}, memberId = {}",
+                payment.getCreatedBy(), memberId);
+            throw new BadRequestException();
+        }
+
+        CancelPaymentResponse response = null;
+        if (payment.getPaymentProvider() == PaymentProvider.KAKAO) {
+            KakaopayCancelResponse kakaopayCancelResponse = kakaopayService.cancel(payment);
+            response = CancelPaymentResponse.builder()
+                .tid(kakaopayCancelResponse.getTid())
+                .message(kakaopayCancelResponse.getStatus())
+                .build();
+        }
+
+        return response;
+    }
 
 }
