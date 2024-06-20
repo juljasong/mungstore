@@ -19,7 +19,6 @@ import com.mung.order.dto.OrderDto.GetOrdersResponse;
 import com.mung.order.dto.OrderDto.OrderCancelRequest;
 import com.mung.order.dto.OrderDto.OrderItemDto;
 import com.mung.order.dto.OrderDto.OrderRequest;
-import com.mung.order.dto.OrderDto.OrderResponse;
 import com.mung.order.dto.OrderDto.OrderSearchRequest;
 import com.mung.order.repository.OrderRepository;
 import com.mung.product.domain.Options;
@@ -53,7 +52,7 @@ public class OrderService {
     private final CartService cartService;
 
     @Transactional
-    public OrderResponse requestOrder(OrderRequest orderRequest, Long memberId) {
+    public Orders requestOrder(OrderRequest orderRequest, Long memberId) {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(NotExistMemberException::new);
 
@@ -65,12 +64,8 @@ public class OrderService {
         List<OrderItem> orderItems = createOrderItems(orderRequest, member);
         Orders order = Orders.createOrder(member, delivery, orderItems);
 
-        Orders savedOrder = orderRepository.save(order);
-        return OrderResponse.builder()
-            .orderId(savedOrder.getId())
-            .build();
+        return orderRepository.save(order);
     }
-
 
     private void deleteOrderedItemInCart(Long memberId, OrderRequest orderRequest) {
         List<OrderItemDto> orderItems = orderRequest.getOrderItems();
@@ -136,7 +131,7 @@ public class OrderService {
 
     }
 
-    public GetOrderResponse getOrder(Long orderId, Long memberId) {
+    public GetOrderResponse getOrderResponse(Long orderId, Long memberId) {
         Orders order = orderRepository.findById(orderId)
             .orElseThrow(BadRequestException::new);
 
@@ -165,5 +160,24 @@ public class OrderService {
         PageRequest pageRequest = PageRequest.of(condition.getPageNumber(),
             condition.getPageSize());
         return orderRepository.search(condition, pageRequest);
+    }
+
+    public Orders getOrder(Long orderId, Long memberId) {
+        Orders order = orderRepository.findById(orderId)
+            .orElseThrow(BadRequestException::new);
+
+        if (!Objects.equals(order.getMember().getId(), memberId)) {
+            throw new Unauthorized();
+        }
+
+        return order;
+    }
+
+    @Transactional
+    public Orders updateOrderStatus(Long orderId, OrderStatus status) {
+        Orders order = orderRepository.findById(orderId)
+            .orElseThrow(BadRequestException::new);
+        order.updateStatus(status);
+        return order;
     }
 }

@@ -4,6 +4,7 @@ import static jakarta.persistence.FetchType.LAZY;
 
 import com.mung.common.domain.BaseEntity;
 import com.mung.common.domain.BaseTimeEntity;
+import com.mung.common.exception.BadRequestException;
 import com.mung.member.domain.Member;
 import com.mung.order.exception.AlreadyCancelledException;
 import com.mung.order.exception.AlreadyDeliveredException;
@@ -26,10 +27,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.envers.AuditOverride;
 import org.hibernate.envers.AuditOverrides;
 import org.hibernate.envers.Audited;
 
+@Slf4j
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -40,18 +43,15 @@ import org.hibernate.envers.Audited;
 })
 public class Orders extends BaseEntity {
 
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    private final List<OrderItem> orderItems = new ArrayList<>();
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_id")
     private Long id;
-
     @ManyToOne(fetch = LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "member_id")
     private Member member;
-
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    private final List<OrderItem> orderItems = new ArrayList<>();
-
     @OneToOne(fetch = LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "delivery_id")
     private Delivery delivery;
@@ -115,6 +115,10 @@ public class Orders extends BaseEntity {
     public void updateStatus(OrderStatus status) {
         if (this.status == OrderStatus.CANCELLED) {
             throw new AlreadyCancelledException();
+        }
+        if (status == OrderStatus.ORDER_CONFIRMED && this.status != OrderStatus.PAYMENT_PENDING) {
+            log.error("Orders.updateStatus.ORDER_CONFIRMED:: 주문번호 {} :: 결제 대기 상태가 아님.", this.id);
+            throw new BadRequestException();
         }
         this.status = status;
     }

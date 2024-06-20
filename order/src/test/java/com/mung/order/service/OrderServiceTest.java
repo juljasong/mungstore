@@ -20,7 +20,6 @@ import com.mung.order.dto.OrderDto.GetOrderResponse;
 import com.mung.order.dto.OrderDto.OrderCancelRequest;
 import com.mung.order.dto.OrderDto.OrderItemDto;
 import com.mung.order.dto.OrderDto.OrderRequest;
-import com.mung.order.dto.OrderDto.OrderResponse;
 import com.mung.order.dto.OrderDto.OrderSearchRequest;
 import com.mung.order.exception.AlreadyCancelledException;
 import com.mung.order.exception.AlreadyDeliveredException;
@@ -35,6 +34,7 @@ import com.mung.stock.repository.StockRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.aspectj.weaver.ast.Or;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -98,10 +98,10 @@ class OrderServiceTest {
             .build();
 
         // when
-        OrderResponse response = orderService.requestOrder(orderReq, 1L);
+        Orders response = orderService.requestOrder(orderReq, 1L);
 
         // then
-        assertEquals(1L, response.getOrderId());
+        assertEquals(1L, response.getId());
     }
 
     @Test
@@ -251,7 +251,7 @@ class OrderServiceTest {
                 .build()));
 
         // when
-        GetOrderResponse response = orderService.getOrder(1L, 1L);
+        GetOrderResponse response = orderService.getOrderResponse(1L, 1L);
 
         // then
         System.out.println("response = " + response);
@@ -273,7 +273,7 @@ class OrderServiceTest {
 
         // expected
         assertThrows(Unauthorized.class,
-            () -> orderService.getOrder(1L, 123L));
+            () -> orderService.getOrderResponse(1L, 123L));
     }
 
     @Test
@@ -284,7 +284,7 @@ class OrderServiceTest {
 
         // expected
         assertThrows(BadRequestException.class,
-            () -> orderService.getOrder(1L, 123L));
+            () -> orderService.getOrderResponse(1L, 123L));
     }
 
     @Test
@@ -297,5 +297,33 @@ class OrderServiceTest {
         // expected
         assertThrows(Unauthorized.class,
             () -> orderService.getOrders(request, 123L));
+    }
+
+    @Test
+    public void 주문상태변경_성공_결제() throws Exception {
+        // given
+        given(orderRepository.findById(anyLong()))
+            .willReturn(Optional.of(Orders.builder()
+                    .status(OrderStatus.PAYMENT_PENDING)
+                .build()));
+
+        // when
+        Orders order = orderService.updateOrderStatus(anyLong(), OrderStatus.ORDER_CONFIRMED);
+
+        // then
+        assertEquals(OrderStatus.ORDER_CONFIRMED, order.getStatus());
+    }
+
+    @Test
+    public void 주문상태변경_실패_결제() throws Exception {
+        // given
+        given(orderRepository.findById(anyLong()))
+            .willReturn(Optional.of(Orders.builder()
+                .status(OrderStatus.CANCELLED)
+                .build()));
+
+        // expected
+        assertThrows(BadRequestException.class,
+            () -> orderService.updateOrderStatus(anyLong(), OrderStatus.ORDER_CONFIRMED)) ;
     }
 }

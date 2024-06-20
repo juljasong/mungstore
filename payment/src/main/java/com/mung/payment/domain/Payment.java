@@ -4,7 +4,8 @@ import com.mung.common.domain.BaseEntity;
 import com.mung.common.domain.PaymentMethod;
 import com.mung.common.domain.PaymentProvider;
 import com.mung.common.domain.PaymentStatus;
-import com.mung.payment.dto.PaymentDto.KaKaoCompletePaymentRequest;
+import com.mung.payment.dto.KakaopayDto.KakaopayApproveResponse;
+import com.mung.payment.dto.KakaopayDto.KakaopayApproveResponse.CardInfo;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,6 +13,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.util.Optional;
+import java.util.function.Function;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,21 +46,21 @@ public class Payment extends BaseEntity {
     private int taxFree;
     private int vat;
 
-    public Payment(KaKaoCompletePaymentRequest request) {
-        this.orderId = Long.valueOf(request.getPartnerOrderId());
-        this.tid = request.getTid();
-        this.approvalId = request.getAid();
-        this.totalAmount = request.getAmount().getTotal();
-        this.paymentMethod = request.getPaymentMethodType()
+    public Payment(KakaopayApproveResponse response) {
+        this.orderId = Long.valueOf(response.getPartnerOrderId());
+        this.tid = response.getTid();
+        this.approvalId = response.getAid();
+        this.totalAmount = response.getAmount().getTotal();
+        this.paymentMethod = response.getPaymentMethodType()
             .equals("CARD") ? PaymentMethod.CARD : PaymentMethod.BANK;
         this.cardNo = null;
-        this.cardCorp = request.getCardInfo().getKakaopayPurchaseCorp();
-        this.installMonth = request.getCardInfo().getInstallMonth();
+        this.cardCorp = getCardInfoField(response, CardInfo::getKakaopayPurchaseCorp);
+        this.installMonth = getCardInfoField(response, CardInfo::getInstallMonth);
         this.status = PaymentStatus.COMPLETED;
         this.paymentProvider = PaymentProvider.KAKAO;
         this.taxFree =
-            request.getAmount().getTaxFree() != null ? request.getAmount().getTaxFree() : 0;
-        this.vat = request.getAmount().getVat() != null ? request.getAmount().getVat() : 0;
+            response.getAmount().getTaxFree() != null ? response.getAmount().getTaxFree() : 0;
+        this.vat = response.getAmount().getVat() != null ? response.getAmount().getVat() : 0;
     }
 
     @Builder
@@ -80,5 +83,12 @@ public class Payment extends BaseEntity {
 
     public void updateStatus(PaymentStatus status) {
         this.status = status;
+    }
+
+    private String getCardInfoField(KakaopayApproveResponse response,
+        Function<CardInfo, String> getter) {
+        return Optional.ofNullable(response.getCardInfo())
+            .map(getter)
+            .orElse(null);
     }
 }

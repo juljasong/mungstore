@@ -1,25 +1,21 @@
 package com.mung.payment.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
-import com.mung.common.domain.PaymentProvider;
-import com.mung.common.domain.Validate.Message;
-import com.mung.common.exception.BadRequestException;
 import com.mung.order.domain.Orders;
-import com.mung.order.repository.OrderRepository;
-import com.mung.payment.domain.Payment;
-import com.mung.payment.dto.PaymentDto.CancelPaymentRequest;
-import com.mung.payment.dto.PaymentDto.CancelPaymentResponse;
+import com.mung.order.dto.OrderDto.OrderRequest;
+import com.mung.order.service.OrderService;
+import com.mung.payment.domain.KakaopayPayment;
+import com.mung.payment.dto.KakaopayDto.KakaopayApproveResponse;
+import com.mung.payment.dto.KakaopayDto.KakaopayApproveResponse.Amount;
+import com.mung.payment.dto.KakaopayDto.KakaopayReadyResponse;
 import com.mung.payment.dto.PaymentDto.CompletePaymentResponse;
-import com.mung.payment.dto.PaymentDto.KaKaoCompletePaymentRequest;
-import com.mung.payment.dto.PaymentDto.KaKaoCompletePaymentRequest.Amount;
-import com.mung.payment.dto.PaymentDto.KaKaoCompletePaymentRequest.CardInfo;
-import com.mung.payment.repository.PaymentKaKaoLogRepository;
+import com.mung.payment.repository.KakaopayPaymentRedisRepository;
 import com.mung.payment.repository.PaymentRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -38,140 +34,117 @@ class PaymentServiceTest {
     @Mock
     PaymentRepository paymentRepository;
     @Mock
-    PaymentKaKaoLogRepository paymentKaKaoLogRepository;
+    KakaopayPaymentRedisRepository kakaopayPaymentRedisRepository;
+
     @Mock
-    OrderRepository orderRepository;
+    OrderService orderService;
+    @Mock
+    KakaopayService kakaopayService;
 
     @Test
-    public void 카카오결제_성공() {
+    public void 카카오결제요청_성공() {
         // given
-        KaKaoCompletePaymentRequest request = KaKaoCompletePaymentRequest.builder()
-            .aid("123")
-            .partnerUserId("1")
-            .partnerOrderId("1")
-            .paymentMethodType("CARD")
-            .amount(Amount.builder().total(1000).build())
-            .cardInfo(CardInfo.builder().build())
-            .build();
-        Long memberId = 1L;
+        Orders order = Orders.builder().build();
+        ReflectionTestUtils.setField(order, "id", 1L);
+        given(orderService.requestOrder(any(), anyLong()))
+            .willReturn(order);
 
-        Payment payment = new Payment(request);
-        ReflectionTestUtils.setField(payment, "id", 1L);
-        given(paymentRepository.save(any()))
-            .willReturn(payment);
-
-        given(orderRepository.findById(any()))
-            .willReturn(Optional.of(Orders.builder().totalPrice(1000).build()));
+        given(kakaopayService.ready(anyString(), any(), any(), anyLong()))
+            .willReturn(KakaopayReadyResponse.builder()
+                .tid("tid")
+                .build());
 
         // when
-        CompletePaymentResponse completePaymentDto = paymentService.kakaoComplete(request,
-            memberId);
+        KakaopayReadyResponse response = paymentService.readyKakaoPayment("agent",
+            OrderRequest.builder().build(), 1L);
 
         // then
-        assertEquals(1L, completePaymentDto.getOrderId());
-        assertEquals(1000, completePaymentDto.getTotalAmount());
-        assertNull(completePaymentDto.getMessage());
-        verify(paymentKaKaoLogRepository).save(any());
+        assertEquals("tid", response.getTid());
+        verify(kakaopayPaymentRedisRepository).save(any());
     }
 
     @Test
-    public void 카카오결제_실패_금액불일치() {
+    public void 카카오결제승인_성공() {
         // given
-        KaKaoCompletePaymentRequest request = KaKaoCompletePaymentRequest.builder()
-            .aid("123")
-            .partnerUserId("1")
-            .partnerOrderId("1")
-            .paymentMethodType("CARD")
-            .amount(Amount.builder().total(1000).build())
-            .cardInfo(CardInfo.builder().build())
-            .build();
-        Long memberId = 1L;
+        given(kakaopayPaymentRedisRepository.findById(anyLong()))
+            .willReturn(Optional.of(KakaopayPayment.builder()
+                .orderId(1L)
+                .memberId(1L)
+                .tid("tid")
+                .build()));
+        given(kakaopayService.approve(anyString(), any()))
+            .willReturn(KakaopayApproveResponse.builder()
+                .partnerOrderId("1")
+                .paymentMethodType("MONEY")
+                .amount(Amount.builder().total(1000).build())
+                .build());
+        given(orderService.getOrder(anyLong(), anyLong()))
+            .willReturn(Orders.builder()
+                .totalPrice(1000)
+                .build());
 
-        Payment payment = new Payment(request);
-        ReflectionTestUtils.setField(payment, "id", 1L);
-        given(paymentRepository.save(any()))
-            .willReturn(payment);
-
-        given(orderRepository.findById(any()))
-            .willReturn(Optional.of(Orders.builder().totalPrice(100).build()));
+        Orders order = Orders.builder().build();
+        ReflectionTestUtils.setField(order, "id", 1L);
+        given(orderService.updateOrderStatus(anyLong(), any()))
+            .willReturn(order);
 
         // when
-        CompletePaymentResponse completePaymentDto = paymentService.kakaoComplete(request,
-            memberId);
+        CompletePaymentResponse response = paymentService.completeKakaoPayment("agent", "pgToken",
+            1L, 1L);
 
         // then
-        assertEquals(Message.BAD_REQUEST, completePaymentDto.getMessage());
-        verify(paymentKaKaoLogRepository).save(any());
+        assertEquals(1L, response.getOrderId());
+        assertEquals(1000, response.getTotalAmount());
+        verify(paymentRepository).save(any());
+        verify(kakaopayPaymentRedisRepository).delete(any());
     }
 
     @Test
-    public void 카카오결제_실패_회원불일치() {
+    public void 카카오결제승인_실패_금액불일치() {
         // given
-        KaKaoCompletePaymentRequest request = KaKaoCompletePaymentRequest.builder()
-            .aid("123")
-            .partnerUserId("2")
-            .partnerOrderId("1")
-            .paymentMethodType("CARD")
-            .amount(Amount.builder().total(1000).build())
-            .cardInfo(CardInfo.builder().build())
-            .build();
-        Long memberId = 1L;
-
-        Payment payment = new Payment(request);
-        ReflectionTestUtils.setField(payment, "id", 1L);
-
-        // when
-        CompletePaymentResponse completePaymentDto = paymentService.kakaoComplete(request,
-            memberId);
-
-        // then
-        assertEquals(Message.BAD_REQUEST, completePaymentDto.getMessage());
-        verify(paymentKaKaoLogRepository).save(any());
-    }
-
-    @Test
-    public void 결제취소_카카오_성공() {
-        // given
-        CancelPaymentRequest request = CancelPaymentRequest.builder().orderId(8L).build();
-        Long memberId = 1L;
-
-        Payment payment = Payment.builder()
-            .tid("1234")
-            .paymentProvider(PaymentProvider.KAKAO)
-            .totalAmount(1000)
-            .taxFree(0)
-            .vat(200)
-            .build();
-        ReflectionTestUtils.setField(payment, "createdBy", 1L);
-        given(paymentRepository.findByOrderId(any()))
-            .willReturn(Optional.of(payment));
-
-        // when
-        CancelPaymentResponse response = paymentService.cancelPayment(request, memberId);
-
-        // then
-        assertEquals("1234", response.getTid());
-    }
-
-    @Test
-    public void 결제취소_카카오_실패_주문자불일치() {
-        // given
-        CancelPaymentRequest request = CancelPaymentRequest.builder().orderId(8L).build();
-        Long memberId = 2L;
-
-        Payment payment = Payment.builder()
-            .tid("1234")
-            .paymentProvider(PaymentProvider.KAKAO)
-            .totalAmount(1000)
-            .taxFree(0)
-            .vat(200)
-            .build();
-        ReflectionTestUtils.setField(payment, "createdBy", 1L);
-        given(paymentRepository.findByOrderId(any()))
-            .willReturn(Optional.of(payment));
+        given(kakaopayPaymentRedisRepository.findById(anyLong()))
+            .willReturn(Optional.of(KakaopayPayment.builder()
+                .orderId(1L)
+                .memberId(1L)
+                .tid("tid")
+                .build()));
+        given(kakaopayService.approve(anyString(), any()))
+            .willReturn(KakaopayApproveResponse.builder()
+                .partnerOrderId("1")
+                .paymentMethodType("MONEY")
+                .amount(Amount.builder().total(100).build())
+                .build());
+        given(orderService.getOrder(anyLong(), anyLong()))
+            .willReturn(Orders.builder()
+                .totalPrice(1000)
+                .build());
 
         // expected
-        assertThrows(BadRequestException.class,
-            () -> paymentService.cancelPayment(request, memberId));
+        CompletePaymentResponse response = paymentService.completeKakaoPayment("agent", "pgToken",
+            1L, 1L);
+
+        // then
+        assertEquals("결제 도중 에러가 발생했습니다.", response.getMessage());
     }
+
+    @Test
+    public void 카카오결제승인_실패_승인실패() {
+        // given
+        given(kakaopayPaymentRedisRepository.findById(anyLong()))
+            .willReturn(Optional.of(KakaopayPayment.builder()
+                .orderId(1L)
+                .memberId(1L)
+                .tid("tid")
+                .build()));
+        given(kakaopayService.approve(anyString(), any()))
+            .willThrow(RuntimeException.class);
+
+        // expected
+        CompletePaymentResponse response = paymentService.completeKakaoPayment("agent", "pgToken",
+            1L, 1L);
+
+        // then
+        assertEquals("결제 도중 에러가 발생했습니다.", response.getMessage());
+    }
+
 }

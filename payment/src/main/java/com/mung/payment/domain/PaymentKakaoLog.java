@@ -1,9 +1,12 @@
 package com.mung.payment.domain;
 
-import com.mung.payment.dto.PaymentDto.KaKaoCompletePaymentRequest;
+import com.mung.payment.dto.KakaopayDto.KakaopayApproveResponse;
+import com.mung.payment.dto.KakaopayDto.KakaopayApproveResponse.CardInfo;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import java.util.Date;
+import java.util.Optional;
+import java.util.function.Function;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,36 +48,42 @@ public class PaymentKakaoLog {
     private Date approvedAt;
     private String payload;
 
-    public PaymentKakaoLog(KaKaoCompletePaymentRequest request) {
-        this.aid = request.getAid();
-        this.tid = request.getTid();
-        this.cid = request.getCid();
-        this.partnerUserId = request.getPartnerUserId();
-        this.partnerOrderId = request.getPartnerOrderId();
-        this.paymentMethodType = request.getPaymentMethodType();
-        this.total = request.getAmount().getTotal();
-        this.taxFree = request.getAmount().getTaxFree();
-        this.vat = request.getAmount().getVat();
-        this.point = request.getAmount().getPoint();
-        this.discount = request.getAmount().getDiscount();
-        this.greenDeposit = request.getAmount().getGreenDeposit();
-        this.kakaopayPurchaseCorp = request.getCardInfo().getKakaopayPurchaseCorp();
-        this.kakaopayPurchaseCorpCode = request.getCardInfo().getKakaopayPurchaseCorpCode();
-        this.kakaopayIssuerCorp = request.getCardInfo().getKakaopayIssuerCorp();
-        this.kakaopayIssuerCorpCode = request.getCardInfo().getKakaopayIssuerCorpCode();
-        this.bin = request.getCardInfo().getBin();
-        this.cardType = request.getCardInfo().getCardType();
-        this.installMonth = request.getCardInfo().getInstallMonth();
-        this.approvedId = request.getCardInfo().getApprovedId();
-        this.cardMid = request.getCardInfo().getCardMid();
-        this.interestFreeInstall = request.getCardInfo().getInterestFreeInstall();
-        this.installmentType = request.getCardInfo().getInstallmentType();
-        this.cardItemCode = request.getCardInfo().getCardItemCode();
-        this.itemName = request.getItemName();
-        this.itemCode = request.getItemCode();
-        this.quantity = request.getQuantity();
-        this.createdAt = request.getCreatedAt();
-        this.approvedAt = request.getApprovedAt();
-        this.payload = request.getPayload();
+    public PaymentKakaoLog(KakaopayApproveResponse response) {
+        this.aid = response.getAid();
+        this.tid = response.getTid();
+        this.cid = response.getCid();
+        this.partnerUserId = response.getPartnerUserId();
+        this.partnerOrderId = response.getPartnerOrderId();
+        this.paymentMethodType = response.getPaymentMethodType();
+        this.total = response.getAmount().getTotal();
+        this.taxFree = response.getAmount().getTaxFree();
+        this.vat = response.getAmount().getVat();
+        this.point = response.getAmount().getPoint();
+        this.discount = response.getAmount().getDiscount();
+        this.greenDeposit = response.getAmount().getGreenDeposit();
+        this.kakaopayPurchaseCorp = getCardInfoField(response, CardInfo::getKakaopayPurchaseCorp);
+        this.kakaopayPurchaseCorpCode = getCardInfoField(response, CardInfo::getKakaopayPurchaseCorpCode);
+        this.kakaopayIssuerCorp = getCardInfoField(response, CardInfo::getKakaopayIssuerCorp);
+        this.kakaopayIssuerCorpCode = getCardInfoField(response, CardInfo::getKakaopayIssuerCorpCode);
+        this.bin = getCardInfoField(response, CardInfo::getBin);
+        this.cardType = getCardInfoField(response, CardInfo::getCardType);
+        this.installMonth = getCardInfoField(response, CardInfo::getInstallMonth);
+        this.approvedId = getCardInfoField(response, CardInfo::getApprovedId);
+        this.cardMid = getCardInfoField(response, CardInfo::getCardMid);
+        this.interestFreeInstall = getCardInfoField(response, CardInfo::getInterestFreeInstall);
+        this.installmentType = getCardInfoField(response, CardInfo::getInstallmentType);
+        this.cardItemCode = getCardInfoField(response, CardInfo::getCardItemCode);
+        this.itemName = response.getItemName();
+        this.itemCode = response.getItemCode();
+        this.quantity = response.getQuantity();
+        this.createdAt = response.getCreatedAt();
+        this.approvedAt = response.getApprovedAt();
+        this.payload = response.getPayload();
+    }
+
+    private String getCardInfoField(KakaopayApproveResponse response, Function<CardInfo, String> getter) {
+        return Optional.ofNullable(response.getCardInfo())
+            .map(getter)
+            .orElse(null);
     }
 }
