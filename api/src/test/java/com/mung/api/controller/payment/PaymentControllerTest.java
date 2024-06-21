@@ -18,6 +18,7 @@ import com.mung.payment.dto.PaymentDto.CancelPaymentRequest;
 import com.mung.stock.repository.StockRepository;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -46,9 +47,6 @@ class PaymentControllerTest {
     @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 카카오결제준비_성공() throws Exception {
         // given
-        int beforeStock1 = stockRepository.findByOptionId(1L).get().getQuantity();
-        int beforeStock2 = stockRepository.findByOptionId(2L).get().getQuantity();
-
         String agent = "pc";
         List<OrderItemDto> orders = new ArrayList<>();
         orders.add(OrderItemDto.builder()
@@ -69,7 +67,7 @@ class PaymentControllerTest {
 
         OrderRequest orderReq = OrderRequest.builder()
             .orderItems(orders)
-            .totalPrice(2700)
+            .totalPrice(1210)
             .tel1("01011111111")
             .tel2("01011112222")
             .zipcode("12345")
@@ -87,60 +85,11 @@ class PaymentControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
             .andDo(print());
-
-        // then
-        int stock1 = stockRepository.findByOptionId(1L).get().getQuantity();
-        int stock2 = stockRepository.findByOptionId(2L).get().getQuantity();
-        assertEquals(2, beforeStock1 - stock1);
-        assertEquals(1, beforeStock2 - stock2);
     }
 
     @Test
-    @MockMember(id = 1L, name = "USER", role = Role.USER)
-    public void 카카오결제준비_재고초과() throws Exception {
-        // given
-        String agent = "pc";
-        List<OrderItemDto> orders = new ArrayList<>();
-        orders.add(OrderItemDto.builder()
-            .productId(1L)
-            .productName("pname1")
-            .optionId(1L)
-            .quantity(999)
-            .orderPrice(1200)
-            .build());
-        orders.add(OrderItemDto.builder()
-            .productId(1L)
-            .productName("pname2")
-            .optionId(2L)
-            .quantity(1)
-            .orderPrice(1500)
-            .contents("메모")
-            .build());
-
-        OrderRequest orderReq = OrderRequest.builder()
-            .orderItems(orders)
-            .totalPrice(2700)
-            .tel1("01011111111")
-            .tel2("01011112222")
-            .zipcode("12345")
-            .city("시티")
-            .street("스트릿")
-            .build();
-
-        String json = objectMapper.writeValueAsString(orderReq);
-
-        // expected
-        mockMvc.perform(post("/payment/kakaopay/ready/" + agent)
-                .contentType(APPLICATION_JSON)
-                .content(json)
-            )
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value(Message.OUT_OF_STOCK))
-            .andDo(print());
-    }
-
-    //@Test
-    //@Rollback(value = false)
+    @Disabled
+    @Rollback(value = false)
     @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 카카오결제승인_성공() throws Exception {
         // given
@@ -148,15 +97,33 @@ class PaymentControllerTest {
 
         // expected
         mockMvc.perform(
-                get("/payment/kakaopay/approve/" + agent + "?id=342&pg_token=548208f3057bb92488c5")
+                get("/payment/kakaopay/approve/" + agent + "?id=357&pg_token=1e38bd1ea50033af9b8f")
             )
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.data.message").value(HttpStatus.OK.getReasonPhrase()))
+            .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
             .andDo(print());
     }
 
-    //@Test
-    //@Rollback(value = false)
+    @Test
+    @Disabled
+    @Rollback(value = false)
+    @MockMember(id = 1L, name = "USER", role = Role.USER)
+    public void 카카오결제승인_실패_재고초과() throws Exception {
+        // given
+        String agent = "pc";
+
+        // expected
+        mockMvc.perform(
+                get("/payment/kakaopay/approve/" + agent + "?id=354&pg_token=4a596ecd8d822753031c")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.message").value(Message.OUT_OF_STOCK))
+            .andDo(print());
+    }
+
+    @Test
+    @Disabled
+    @Rollback(value = false)
     @MockMember(id = 1L, name = "USER", role = Role.USER)
     public void 카카오결제취소_성공() throws Exception {
         // given

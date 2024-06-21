@@ -62,7 +62,7 @@ public class OrderService {
             new Address(orderRequest.getZipcode(), orderRequest.getCity(),
                 orderRequest.getStreet()));
         List<OrderItem> orderItems = createOrderItems(orderRequest, member);
-        Orders order = Orders.createOrder(member, delivery, orderItems);
+        Orders order = createOrder(member, delivery, orderItems);
 
         return orderRepository.save(order);
     }
@@ -90,6 +90,7 @@ public class OrderService {
         }
 
         order.cancel();
+        increaseStock(order);
         return order.getId();
     }
 
@@ -102,6 +103,21 @@ public class OrderService {
             .build();
     }
 
+    private Orders createOrder(Member member, Delivery delivery, List<OrderItem> orderItems) {
+        Orders order = Orders.builder()
+            .member(member)
+            .delivery(delivery)
+            .status(OrderStatus.PAYMENT_PENDING)
+            .build();
+
+        for (OrderItem orderItem : orderItems) {
+            order.addOrderItem(orderItem);
+        }
+        order.setTotalPrice(order.calcTotalPrice());
+
+        return order;
+    }
+
     private List<OrderItem> createOrderItems(OrderRequest orderRequest, Member member) {
 
         List<OrderItemDto> orders = orderRequest.getOrderItems();
@@ -109,14 +125,11 @@ public class OrderService {
         for (OrderItemDto order : orders) {
             Product product = productRepository.findById(order.getProductId())
                 .orElseThrow(BadRequestException::new);
-            Stock stock = stockRepository.findByOptionId(order.getOptionId())
-                .orElseThrow(BadRequestException::new);
             Options option = optionsRepository.findById(order.getOptionId())
                 .orElseThrow(BadRequestException::new);
 
             orderItems.add(OrderItem.builder()
                 .product(product)
-                .stock(stock)
                 .options(option)
                 .member(member)
                 .orderPrice(order.getOrderPrice())
@@ -124,11 +137,27 @@ public class OrderService {
                 .contents(order.getContents())
                 .status(OrderStatus.PAYMENT_PENDING)
                 .build());
-
-            stock.removeStock(order.getQuantity());
         }
         return orderItems;
 
+    }
+
+    @Transactional
+    public void decreaseStock(Orders order) {
+        order.getOrderItems().forEach(orderItem -> {
+            Stock stock = stockRepository.findByOptionId(orderItem.getOptions().getId())
+                .orElseThrow(BadRequestException::new);
+            stock.removeStock(orderItem.getQuantity());
+        });
+    }
+
+    @Transactional
+    public void increaseStock(Orders order) {
+        order.getOrderItems().forEach(orderItem -> {
+            Stock stock = stockRepository.findByOptionId(orderItem.getOptions().getId())
+                .orElseThrow(BadRequestException::new);
+            stock.addStock(orderItem.getQuantity());
+        });
     }
 
     public GetOrderResponse getOrderResponse(Long orderId, Long memberId) {

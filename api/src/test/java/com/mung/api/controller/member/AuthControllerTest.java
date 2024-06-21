@@ -9,6 +9,7 @@ import com.mung.member.repository.MemberRepository;
 import com.mung.member.request.LoginRequest;
 import com.mung.member.request.RefreshTokenRequest;
 import com.mung.member.request.SignupRequest;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -261,7 +262,8 @@ class AuthControllerTest {
                 .andDo(print());
     }
     
-    //@Test
+    @Test
+    @Disabled
     @DisplayName("[P] 토큰 갱신")
     public void 리프레시_토큰으로_액세스_토큰_갱신_성공() throws Exception {
         // given
@@ -303,7 +305,8 @@ class AuthControllerTest {
                 .andDo(print());
     }
 
-    //@Test
+    @Test
+    @Disabled
     @DisplayName("[P] 로그아웃")
     @WithMockUser(username = "z.kotzen@gmail.com", roles = {"USER"})
     public void 로그아웃() throws Exception {

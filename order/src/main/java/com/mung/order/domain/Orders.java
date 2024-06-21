@@ -70,21 +70,6 @@ public class Orders extends BaseEntity {
         this.totalPrice = totalPrice;
     }
 
-    public static Orders createOrder(Member member, Delivery delivery, List<OrderItem> orderItems) {
-        Orders order = Orders.builder()
-            .member(member)
-            .delivery(delivery)
-            .status(OrderStatus.PAYMENT_PENDING)
-            .build();
-
-        for (OrderItem orderItem : orderItems) {
-            order.addOrderItem(orderItem);
-        }
-        order.setTotalPrice(order.calcTotalPrice());
-
-        return order;
-    }
-
     public void addOrderItem(OrderItem orderItem) {
         orderItems.add(orderItem);
         orderItem.setOrder(this);
@@ -108,7 +93,6 @@ public class Orders extends BaseEntity {
         this.delivery.updateStatus(DeliveryStatus.CANCELLED);
         this.orderItems.forEach(item -> {
             item.updateStatus(OrderStatus.CANCELLED);
-            item.getStock().addStock(item.getQuantity());
         });
     }
 

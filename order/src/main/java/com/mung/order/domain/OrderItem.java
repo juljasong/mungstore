@@ -52,10 +52,6 @@ public class OrderItem extends BaseEntity {
     private Product product;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "stock_id")
-    private Stock stock;
-
-    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "option_id")
     @NotAudited
     private Options options;
@@ -74,11 +70,10 @@ public class OrderItem extends BaseEntity {
     private OrderStatus status;
 
     @Builder
-    public OrderItem(Orders order, Product product, Stock stock, Options options, Member member,
+    public OrderItem(Orders order, Product product, Options options, Member member,
         int orderPrice, int quantity, String contents, OrderStatus status) {
         this.order = order;
         this.product = product;
-        this.stock = stock;
         this.options = options;
         this.member = member;
         this.orderPrice = orderPrice;

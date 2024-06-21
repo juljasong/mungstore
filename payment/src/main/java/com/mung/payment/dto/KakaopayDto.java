@@ -122,7 +122,7 @@ public class KakaopayDto {
         private String cidSecret;
         private String tid;
         private Integer cancelAmount;
-        private Integer cancelTaxFreeAmount;
+        private int cancelTaxFreeAmount;
         private Integer cancelVatAmount;
         private Integer cancelAvailableAmount;
         private String payload;

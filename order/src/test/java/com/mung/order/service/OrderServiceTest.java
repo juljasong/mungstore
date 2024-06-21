@@ -68,8 +68,6 @@ class OrderServiceTest {
             .willReturn(Optional.of(Member.builder().build()));
         given(productRepository.findById(anyLong()))
             .willReturn(Optional.of(Product.builder().build()));
-        given(stockRepository.findByOptionId(anyLong()))
-            .willReturn(Optional.of(Stock.builder().quantity(10).build()));
         given(optionsRepository.findById(anyLong()))
             .willReturn(Optional.of(Options.builder().build()));
 
@@ -102,42 +100,6 @@ class OrderServiceTest {
 
         // then
         assertEquals(1L, response.getId());
-    }
-
-    @Test
-    public void 주문_실패_재고부족() {
-        // given
-        given(memberRepository.findById(anyLong()))
-            .willReturn(Optional.of(Member.builder().build()));
-        given(productRepository.findById(anyLong()))
-            .willReturn(Optional.of(Product.builder().build()));
-        given(stockRepository.findByOptionId(anyLong()))
-            .willReturn(Optional.of(Stock.builder().quantity(1).build()));
-        given(optionsRepository.findById(anyLong()))
-            .willReturn(Optional.of(Options.builder().build()));
-
-        List<OrderItemDto> orders = new ArrayList<>();
-        orders.add(OrderItemDto.builder()
-            .productId(1L)
-            .productName("pname1")
-            .optionId(1L)
-            .quantity(2)
-            .orderPrice(1200)
-            .build());
-
-        OrderRequest orderReq = OrderRequest.builder()
-            .orderItems(orders)
-            .totalPrice(2700)
-            .tel1("01011111111")
-            .tel2("01011112222")
-            .zipcode("12345")
-            .city("시티")
-            .street("스트릿")
-            .build();
-
-        // expected
-        assertThrows(OutOfStockException.class,
-            () -> orderService.requestOrder(orderReq, 1L));
     }
 
     @Test

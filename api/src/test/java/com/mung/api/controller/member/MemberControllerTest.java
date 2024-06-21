@@ -15,6 +15,7 @@ import com.mung.member.domain.Role;
 import com.mung.member.request.ResetPasswordEmailRequest;
 import com.mung.member.request.ResetPasswordRequest;
 import com.mung.member.request.UpdateMemberRequest;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,8 @@ class MemberControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    //@Test
+    @Test
+    @Disabled
     @DisplayName("[P] 비밀번호 재설정 이메일을 보낸다.")
     public void 비밀번호_재설정_이메일_보내기_성공() throws Exception {
         // given
@@ -86,7 +88,8 @@ class MemberControllerTest {
             .andDo(print());
     }
 
-    //@Test
+    @Test
+    @Disabled
     @DisplayName("[P] 비밀번호를 재설정한다.")
     public void 비밀번호_재설정_성공() throws Exception {
         // given
@@ -121,7 +124,8 @@ class MemberControllerTest {
             .andDo(print());
     }
 
-    //@Test
+    @Test
+    @Disabled
     @DisplayName("[F]비밀번호를 재설정한다. - 비밀번호 유효성 체크")
     public void 비밀번호_재설정_실패_비밀번호_유효성_체크() throws Exception {
         // given

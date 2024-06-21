@@ -1,6 +1,7 @@
 dependencies {
     implementation project(':common')
     implementation project(':order')
+    implementation project(':stock')
     
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
