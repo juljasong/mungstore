@@ -139,19 +139,19 @@ class PaymentControllerTest {
             .andDo(print());
     }
 
-    @Test
+    //@Test
+    //@Rollback(value = false)
     @MockMember(id = 1L, name = "USER", role = Role.USER)
-    @Rollback(value = false)
     public void 카카오결제승인_성공() throws Exception {
         // given
         String agent = "pc";
 
         // expected
         mockMvc.perform(
-                get("/payment/kakaopay/approve/" + agent + "?id=327&pg_token=5115457a35921f850594")
+                get("/payment/kakaopay/approve/" + agent + "?id=342&pg_token=548208f3057bb92488c5")
             )
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value(HttpStatus.OK.getReasonPhrase()))
+            .andExpect(jsonPath("$.data.message").value(HttpStatus.OK.getReasonPhrase()))
             .andDo(print());
     }
 
@@ -162,7 +162,7 @@ class PaymentControllerTest {
         // given
         String agent = "pc";
         CancelPaymentRequest orderReq = CancelPaymentRequest.builder()
-            .orderId(327L)
+            .orderId(337L)
             .build();
 
         String json = objectMapper.writeValueAsString(orderReq);

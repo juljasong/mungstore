@@ -3,6 +3,8 @@ package com.mung.api.controller.payment;
 import com.mung.api.config.auth.PrincipalDetails;
 import com.mung.common.response.MessageResponse;
 import com.mung.order.dto.OrderDto.OrderRequest;
+import com.mung.payment.dto.PaymentDto.CancelPaymentRequest;
+import com.mung.payment.dto.PaymentDto.CancelPaymentResponse;
 import com.mung.payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +46,17 @@ public class PaymentController {
 
         return MessageResponse.builder()
             .data(paymentService.completeKakaoPayment(agent, pgToken, memberId, orderId))
+            .build();
+    }
+
+    @PostMapping("/kakaopay/cancel")
+    public MessageResponse<?> cancelPayment(@RequestBody CancelPaymentRequest request) {
+        Long memberId = ((PrincipalDetails) (SecurityContextHolder.getContext()
+            .getAuthentication()).getPrincipal()).getMemberId();
+
+        CancelPaymentResponse response = paymentService.cancelPayment(request, memberId);
+        return MessageResponse.builder()
+            .data(response)
             .build();
     }
 

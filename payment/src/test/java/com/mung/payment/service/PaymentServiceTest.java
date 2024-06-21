@@ -125,6 +125,7 @@ class PaymentServiceTest {
 
         // then
         assertEquals("결제 도중 에러가 발생했습니다.", response.getMessage());
+        verify(kakaopayService).cancel(any());
     }
 
     @Test

@@ -17,6 +17,7 @@ import com.mung.payment.dto.PaymentDto.CompletePaymentResponse;
 import com.mung.payment.repository.KakaopayPaymentRedisRepository;
 import com.mung.payment.repository.PaymentRepository;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -50,13 +51,13 @@ public class PaymentService {
 
     @Transactional
     public CompletePaymentResponse completeKakaoPayment(String agent, String pgToken, Long memberId, Long orderId) {
+        KakaopayApproveResponse approveResponse = null;
         try {
             // 1. 카카오 결제 승인 요청
             KakaopayPayment kakaopayPayment = kakaopayPaymentRedisRepository.findById(orderId)
                 .orElseThrow(BadRequestException::new);
 
-            KakaopayApproveResponse approveResponse = kakaopayService.approve(pgToken,
-                kakaopayPayment);
+            approveResponse = kakaopayService.approve(pgToken, kakaopayPayment);
 
             // 2. 결제 금액 확인
             Orders order = orderService.getOrder(orderId, memberId);
@@ -82,7 +83,14 @@ public class PaymentService {
 
         } catch (Exception e) {
             log.error("PaymentService.completeKakaoPayment :: ", e);
-            // TODO :: 결제 취소
+            if (approveResponse != null) {
+                kakaopayService.cancel(Payment.builder()
+                    .tid(approveResponse.getTid())
+                    .totalAmount(approveResponse.getAmount().getTotal())
+                    .taxFree(Optional.ofNullable(approveResponse.getAmount().getTaxFree())
+                        .orElse(0))
+                    .build());
+            }
         }
 
         return CompletePaymentResponse.builder()

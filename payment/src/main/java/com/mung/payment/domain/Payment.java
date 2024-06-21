@@ -43,8 +43,8 @@ public class Payment extends BaseEntity {
     private PaymentStatus status;
     @Enumerated(EnumType.STRING)
     private PaymentProvider paymentProvider;
-    private int taxFree;
-    private int vat;
+    private Integer taxFree;
+    private Integer vat;
 
     public Payment(KakaopayApproveResponse response) {
         this.orderId = Long.valueOf(response.getPartnerOrderId());
@@ -58,15 +58,14 @@ public class Payment extends BaseEntity {
         this.installMonth = getCardInfoField(response, CardInfo::getInstallMonth);
         this.status = PaymentStatus.COMPLETED;
         this.paymentProvider = PaymentProvider.KAKAO;
-        this.taxFree =
-            response.getAmount().getTaxFree() != null ? response.getAmount().getTaxFree() : 0;
-        this.vat = response.getAmount().getVat() != null ? response.getAmount().getVat() : 0;
+        this.taxFree = response.getAmount().getTaxFree();
+        this.vat = response.getAmount().getVat();
     }
 
     @Builder
     public Payment(Long orderId, String tid, String approvalId, int totalAmount,
         PaymentMethod paymentMethod, String cardNo, String cardCorp, String installMonth,
-        PaymentStatus status, PaymentProvider paymentProvider, int taxFree, int vat) {
+        PaymentStatus status, PaymentProvider paymentProvider, Integer taxFree, Integer vat) {
         this.orderId = orderId;
         this.tid = tid;
         this.approvalId = approvalId;

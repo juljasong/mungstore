@@ -23,6 +23,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
@@ -81,6 +83,7 @@ public class KakaopayService {
         return response.getBody();
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public KakaopayApproveResponse approve(String pgToken, KakaopayPayment kakaopayPayment) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "SECRET_KEY " + kakaopaySecretKey);
@@ -145,7 +148,7 @@ public class KakaopayService {
 
             return response.getBody();
         } catch (HttpStatusCodeException ex) {
-            log.error(ex.getResponseBodyAsString());
+            log.error("KakaopayService.cancel :: {}", ex.getResponseBodyAsString());
             throw new RuntimeException();
         }
     }
