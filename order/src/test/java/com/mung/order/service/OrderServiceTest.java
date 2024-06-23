@@ -8,6 +8,7 @@ import static org.mockito.BDDMockito.given;
 
 import com.mung.common.domain.Address;
 import com.mung.common.exception.BadRequestException;
+import com.mung.kafka.producer.PaymentCancelSender;
 import com.mung.member.domain.Member;
 import com.mung.member.exception.Unauthorized;
 import com.mung.member.repository.MemberRepository;
@@ -60,6 +61,8 @@ class OrderServiceTest {
     OptionsRepository optionsRepository;
     @Mock
     CartService cartService;
+    @Mock
+    PaymentCancelSender paymentCancelSender;
 
     @Test
     public void 주문_성공() {

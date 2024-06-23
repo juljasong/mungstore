@@ -1,4 +1,4 @@
-package com.mung.api.config;
+package com.mung.consumer.config;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;

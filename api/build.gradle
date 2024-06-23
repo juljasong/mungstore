@@ -5,8 +5,8 @@ dependencies {
     implementation project(':order')
     implementation project(':product')
     implementation project(':stock')
-    implementation project(':order')
 
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.1.0'

@@ -19,7 +19,6 @@ import com.mung.member.repository.LoginLogRepository;
 import com.mung.member.repository.MemberRepository;
 import com.mung.member.request.LoginRequest;
 import com.mung.member.request.SignupRequest;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,7 +34,6 @@ public class AuthService {
     private final LoginLogRepository loginLogRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-    private final EntityManager em;
 
     @Transactional
     public void signup(SignupRequest signupRequest) {

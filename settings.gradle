@@ -7,3 +7,6 @@ include 'payment'
 include 'order'
 include 'product'
 include 'stock'
+include 'kafka'
+include 'consumer'
+

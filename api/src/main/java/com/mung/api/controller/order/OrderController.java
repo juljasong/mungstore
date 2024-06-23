@@ -5,10 +5,9 @@ import com.mung.common.response.MessageResponse;
 import com.mung.order.dto.OrderDto.GetOrderResponse;
 import com.mung.order.dto.OrderDto.GetOrdersResponse;
 import com.mung.order.dto.OrderDto.OrderCancelRequest;
+import com.mung.order.dto.OrderDto.OrderCancelResponse;
 import com.mung.order.dto.OrderDto.OrderSearchRequest;
 import com.mung.order.service.OrderService;
-import com.mung.payment.dto.PaymentDto.CancelPaymentRequest;
-import com.mung.payment.dto.PaymentDto.CancelPaymentResponse;
 import com.mung.payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,10 +56,7 @@ public class OrderController {
         Long memberId = ((PrincipalDetails) (SecurityContextHolder.getContext()
             .getAuthentication()).getPrincipal()).getMemberId();
 
-        Long orderId = orderService.cancelOrder(orderCancelRequest, memberId);
-        CancelPaymentResponse response = paymentService.cancelPayment(CancelPaymentRequest.builder()
-                .orderId(orderId).build(),
-            memberId);
+        OrderCancelResponse response = orderService.cancelOrder(orderCancelRequest, memberId);
 
         return MessageResponse.builder()
             .data(response)

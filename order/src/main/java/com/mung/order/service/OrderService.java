@@ -3,6 +3,9 @@ package com.mung.order.service;
 import com.mung.common.domain.Address;
 import com.mung.common.exception.BadRequestException;
 import com.mung.common.exception.NotExistMemberException;
+import com.mung.kafka.domain.KafkaTopic;
+import com.mung.kafka.dto.PaymentCancelDto.PaymentCancelRequest;
+import com.mung.kafka.producer.PaymentCancelSender;
 import com.mung.member.domain.Member;
 import com.mung.member.dto.CartDto.DeleteCartDto;
 import com.mung.member.exception.Unauthorized;
@@ -17,6 +20,7 @@ import com.mung.order.dto.AddressDto.DeliveryAddressDto;
 import com.mung.order.dto.OrderDto.GetOrderResponse;
 import com.mung.order.dto.OrderDto.GetOrdersResponse;
 import com.mung.order.dto.OrderDto.OrderCancelRequest;
+import com.mung.order.dto.OrderDto.OrderCancelResponse;
 import com.mung.order.dto.OrderDto.OrderItemDto;
 import com.mung.order.dto.OrderDto.OrderRequest;
 import com.mung.order.dto.OrderDto.OrderSearchRequest;
@@ -48,8 +52,8 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final StockRepository stockRepository;
     private final OptionsRepository optionsRepository;
-
     private final CartService cartService;
+    private final PaymentCancelSender paymentCancelSender;
 
     @Transactional
     public Orders requestOrder(OrderRequest orderRequest, Long memberId) {
@@ -80,7 +84,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Long cancelOrder(OrderCancelRequest orderCancelRequest, Long memberId) {
+    public OrderCancelResponse cancelOrder(OrderCancelRequest orderCancelRequest, Long memberId) {
 
         Orders order = orderRepository.findById(orderCancelRequest.getOrderId())
             .orElseThrow(BadRequestException::new);
@@ -89,9 +93,20 @@ public class OrderService {
             throw new Unauthorized();
         }
 
+        log.info("OrderService.cancelOrder :: 주문번호 {} :: order.cancel", order.getId());
         order.cancel();
         increaseStock(order);
-        return order.getId();
+
+        log.info("OrderService.cancelOrder :: 주문번호 {} :: paymentCancel 요청", order.getId());
+        paymentCancelSender.sendMessage(KafkaTopic.PAYMENT_CANCEL_REQUEST,
+            PaymentCancelRequest.builder()
+                .orderId(order.getId())
+                .memberId(memberId)
+                .build());
+
+        return OrderCancelResponse.builder()
+            .orderId(order.getId())
+            .build();
     }
 
     private Delivery createDelivery(OrderRequest orderRequest, Address address) {
@@ -139,7 +154,6 @@ public class OrderService {
                 .build());
         }
         return orderItems;
-
     }
 
     @Transactional

@@ -58,7 +58,8 @@ public class Payment extends BaseEntity {
         this.installMonth = getCardInfoField(response, CardInfo::getInstallMonth);
         this.status = PaymentStatus.COMPLETED;
         this.paymentProvider = PaymentProvider.KAKAO;
-        this.taxFree = response.getAmount().getTaxFree();
+        this.taxFree =
+            response.getAmount().getTaxFree() == null ? 0 : response.getAmount().getTaxFree();
         this.vat = response.getAmount().getVat();
     }
 

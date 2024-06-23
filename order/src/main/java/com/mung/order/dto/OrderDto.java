@@ -118,6 +118,17 @@ public class OrderDto {
     }
 
     @Data
+    public static class OrderCancelResponse {
+
+        private Long orderId;
+
+        @Builder
+        public OrderCancelResponse(Long orderId) {
+            this.orderId = orderId;
+        }
+    }
+
+    @Data
     public static class GetOrderResponse {
 
         private Long orderId;

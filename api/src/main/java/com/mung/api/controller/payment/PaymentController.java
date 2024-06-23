@@ -6,6 +6,7 @@ import com.mung.order.dto.OrderDto.OrderRequest;
 import com.mung.payment.dto.PaymentDto.CancelPaymentRequest;
 import com.mung.payment.dto.PaymentDto.CancelPaymentResponse;
 import com.mung.payment.service.PaymentService;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -62,6 +63,7 @@ public class PaymentController {
 
     // 카카오페이 결제 실패 시 redirect되는 url
     @GetMapping("/kakaopay/fail/{agent}")
+    @Hidden
     public MessageResponse<?> fail(@PathVariable("agent") String agent,
         @PathVariable("openType") String openType) {
         // 주문건이 진짜 실패되었는지 확인 후 실패 처리

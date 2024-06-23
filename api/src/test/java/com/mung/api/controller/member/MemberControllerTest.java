@@ -38,8 +38,8 @@ class MemberControllerTest {
     @DisplayName("[P] 비밀번호 재설정 이메일을 보낸다.")
     public void 비밀번호_재설정_이메일_보내기_성공() throws Exception {
         // given
-        ResetPasswordEmailRequest request = new ResetPasswordEmailRequest("z.kotzen@gmail.com",
-            "01011111115");
+        ResetPasswordEmailRequest request = new ResetPasswordEmailRequest("user010@gmail.com",
+            "01011111011");
         String json = objectMapper.writeValueAsString(request);
 
         // expected

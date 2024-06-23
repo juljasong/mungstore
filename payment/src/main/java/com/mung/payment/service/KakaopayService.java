@@ -44,6 +44,7 @@ public class KakaopayService {
     @Value("${kakao.dev.host}")
     private String host;
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public KakaopayReadyResponse ready(String agent, OrderRequest orderRequest, Orders order,
         Long memberId) {
         // Request header
@@ -148,7 +149,7 @@ public class KakaopayService {
 
             return response.getBody();
         } catch (HttpStatusCodeException ex) {
-            log.error("KakaopayService.cancel :: {}", ex.getResponseBodyAsString());
+            log.error("KakaopayService.cancel :: HttpStatusCodeException : {}", ex.getResponseBodyAsString());
             throw new RuntimeException();
         }
     }
