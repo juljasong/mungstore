@@ -16,7 +16,7 @@
 
 ---
 
-## 기술 스택
+## 사용 기술 
 ### 메인 기술
 ![Static Badge](https://img.shields.io/badge/java%2017-007396?style=for-the-badge&logo=Java&logoColor=white)
 ![Static Badge](https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=Spring&logoColor=white)
@@ -38,7 +38,6 @@
 ![Static Badge](https://img.shields.io/badge/open%20feign-6DB33F?style=for-the-badge&logo=openfeign&logoColor=white)
 
 ---
-
 ## 서비스 기본 설명
 ### ERD
 - https://drive.google.com/file/d/1Dfvb0-fhXgXYNWcyS46xf1XYDItISyF8/view?usp=sharing
@@ -73,6 +72,9 @@
   - 재고 기능을 담당하는 모듈
 
 ---
+## API 문서
+### Swagger
+- http://localhost:8080/swagger-ui/index.html
 
 ## 기능
 ### member
