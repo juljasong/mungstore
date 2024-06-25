@@ -4,6 +4,16 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.4'
 }
 
+allprojects {
+	group = 'com.mung'
+	version = '0.0.1-SNAPSHOT'
+	sourceCompatibility = '17'
+
+	repositories {
+		mavenCentral()
+	}
+}
+
 bootJar {
 	enabled = false
 }
@@ -13,18 +23,10 @@ jar {
 }
 
 subprojects {
-	group = 'com.mung'
-	version = '0.0.1-SNAPSHOT'
-	sourceCompatibility = '17'
-
 	apply plugin: 'java'
 	apply plugin: 'java-library'
 	apply plugin: 'org.springframework.boot'
 	apply plugin: 'io.spring.dependency-management'
-
-	repositories {
-		mavenCentral()
-	}
 
 	dependencies {
 		implementation 'org.springframework.boot:spring-boot-starter-validation'

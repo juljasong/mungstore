@@ -12,3 +12,7 @@ dependencies {
     implementation project(':stock')
     implementation project(':kafka')
 }
+
+bootJar {
+    enabled = true
+}
