@@ -43,10 +43,6 @@ subprojects {
 		compileOnly 'org.projectlombok:lombok'
 		annotationProcessor 'org.projectlombok:lombok'
 
-		// Flyway
-		implementation 'org.flywaydb:flyway-core'
-		implementation 'org.flywaydb:flyway-mysql'
-
 		// Spring Data Envers (audit)
 		implementation 'org.springframework.data:spring-data-envers'
 
@@ -62,4 +58,5 @@ subprojects {
 	test {
 		useJUnitPlatform()
 	}
+
 }

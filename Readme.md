@@ -36,6 +36,7 @@
 ![Static Badge](https://img.shields.io/badge/swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=white)
 ![Static Badge](https://img.shields.io/badge/mailgun-F06B66?style=for-the-badge&logo=mailgun&logoColor=white)
 ![Static Badge](https://img.shields.io/badge/open%20feign-6DB33F?style=for-the-badge&logo=openfeign&logoColor=white)
+![Static Badge](https://img.shields.io/badge/apache%20kafka-231F20?style=for-the-badge&logo=apachekafka&logoColor=white)
 
 ---
 ## 서비스 기본 설명
@@ -47,6 +48,8 @@
 .
 ├── api
 ├── common
+├── consumer
+├── kafka
 ├── member
 ├── order
 ├── payment
@@ -60,6 +63,10 @@
   - 외부에서의 진입점 (Controller)
 - common
   - 전체 모듈에서 공통적으로 사용할 domain, exception, request, response, utils 등을 모아놓은 모듈
+- consumer
+  - kafka 메세지를 가져오는 kafka consumer
+- kafka
+  - kafka 메세지를 생성하는 kafka producer
 - member
   - 인증 (jwt), 회원, 장바구니 기능을 담당하는 모듈 
 - order
