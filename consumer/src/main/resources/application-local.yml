@@ -1,0 +1,25 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://host.docker.internal:3306/mungstore?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: root
+
+  main:
+    allow-bean-definition-overriding: true
+
+  redis:
+    host: host.docker.internal
+    port: 6379
+
+jwt:
+  key: "/VLfdrwEn0MZScSqq6En7NMOW9rF7SQHN7LiWGCG21g="
+
+kakao:
+  dev:
+    host: "http://localhost:8080"
+    secret-key: "DEV892EC0FB978849194C578B9AE3D028C7826DF"
+    cid: "TC0ONETIME"
