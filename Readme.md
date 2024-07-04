@@ -41,7 +41,7 @@
 ---
 ## 서비스 기본 설명
 ### ERD
-- https://drive.google.com/file/d/1Dfvb0-fhXgXYNWcyS46xf1XYDItISyF8/view?usp=sharing
+![ERD](./docs/mungstore_erd.drawio.png)
 
 ### Gradle Multi-Module 구조
 ```
@@ -68,15 +68,37 @@
 - kafka
   - kafka 메세지를 생성하는 kafka producer
 - member
-  - 인증 (jwt), 회원, 장바구니 기능을 담당하는 모듈 
+  - 인증 (jwt), 회원, 장바구니 기능 담당
 - order
-  - 주문 기능을 담당하는 모듈
+  - 주문(주문, 취소, 조회) 기능 담당
 - payment
-  - 결제 기능을 담당하는 모듈
+  - 결제(카카오 결제, 취소) 기능 담당
 - product
-  - 상품, 옵션, 카테고리 기능을 담당하는 모듈
+  - 상품(상품 등록, 수정, 삭제, 조회), 옵션, 카테고리 기능 담당
 - stock
-  - 재고 기능을 담당하는 모듈
+  - 재고(확인) 기능 담당
+
+---
+## 사전 준비
+- IntelliJ IDEA
+- jdk 17
+
+## Tools
+- Docker Client 설치
+- MySQL 설정
+  - id : root
+  - password : root
+  - db명 : mungstore
+- 프로젝트 폴더에서 이하의 명령어 수행
+```shell
+$ docker-compose up -d  # 1
+$ cd docker             # 2
+$ sh docker-build.sh    # 3
+$ docker-compose up -d  # 4
+```
+_! build 과정에서 flyway에 문제가 생기는 경우, mungstore DB의 table 모두 삭제 후 3번 부터 다시 진행 해 주세요._
+
+_! mungstore-kafka가 제대로 실행되지 않는 않는 경우, Docker Client에서 mungstore-kafka만 재실행 해 주세요._
 
 ---
 ## API 문서
@@ -127,3 +149,4 @@
 
 ### stock
 - [x] 재고 확인
+
